@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class FeedPageViewController: UIViewController {
 
@@ -19,6 +20,10 @@ class FeedPageViewController: UIViewController {
     }
     
     @objc func toLoginPage(){
+        if UserDefaults.standard.bool(forKey: "ISLOGGEDIN"){
+            try! FirebaseAuth.Auth.auth().signOut()
+            print("signed out")
+        }
         UserDefaults.standard.set(false, forKey: "ISLOGGEDIN")
         navigationController?.dismiss(animated: true)
     }

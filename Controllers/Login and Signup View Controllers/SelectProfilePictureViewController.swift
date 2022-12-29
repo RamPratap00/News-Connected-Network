@@ -6,6 +6,8 @@
 //
 /// THIS VIEW CONTROLLER IS USED TO RECEIVE USER INPUTS LIKE EMAIL AND PASSWORD FOR SIGNINGUP FOR NEW ACCOUNT
 import UIKit
+import FirebaseFirestore
+import FirebaseStorage
 
 class SelectProfilePictureViewController: UIViewController {
     
@@ -97,15 +99,37 @@ class SelectProfilePictureViewController: UIViewController {
     @objc func updatingProfilePicture(){
         if isImageSelected{
             let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
-            LocalUserAccountDataBaseManager.updateProfilePicture(image: selectedCell.profileImage.image!,email: email)
+            //LocalUserAccountDataBaseManager.updateProfilePicture(image: selectedCell.profileImage.image!,email: email)
+            uploadingImageToFireBase(data: (selectedCell.profileImage.image?.pngData()!)!)
             let nextVC = FeedPageViewController()
             UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
             UserDefaults.standard.set(String(email), forKey: "EMAIL")
+            print(email,"inside select profile picture")
             navigationController?.pushViewController(nextVC, animated: true)
         }
         else{
             print("no image selected")
         }
+    }
+    
+    func uploadingImageToFireBase(data:Data){
+            ENCDEC.encryptMessage(message: (email+email),messageType: .DataBaseName){ encryptedDataBaseName in
+                let currentUserDataBase = Firestore.firestore()
+                let storageRef = Storage.storage().reference()
+                let fireBaseRef = storageRef.child("images/\(self.email).jpg")
+
+                // Upload the file to the path "images/rivers.jpg"
+                _ = fireBaseRef.putData(data, metadata: nil) { (metadata, error) in
+                  // You can also access to download URL after upload.
+                    fireBaseRef.downloadURL { (url, error) in
+                    guard let downloadURL = url else {
+                      // Uh-oh, an error occurred!
+                      return
+                    }
+                        currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["URL_TO_PROFILE_PICTURE":downloadURL.absoluteString])
+                  }
+                }
+            }
     }
     /*
     // MARK: - Navigation

@@ -6,6 +6,7 @@
 //
 /// THIS VIEW CONTROLLER IS USED TO RECEIVE USER INPUTS LIKE EMAIL AND PASSWORD FOR LOGING IN
 import UIKit
+import FirebaseAuth
 
 class LoginPageViewController: UIViewController {
     let scroll = UIScrollView()
@@ -191,19 +192,19 @@ class LoginPageViewController: UIViewController {
     @objc func loginCheck(){
         let email = emailTextField.text!
         let password = passwordTextField.text!
-        GlobalUserAccountDataBaseManager.checkMinimumLoginRequirement(email:email,password:password){loginStatus in
-            DispatchQueue.main.async {
-                if loginStatus == "log in"{
+        /// fire base login
+        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password){ authResult,error in
+            guard let _ = authResult ,error == nil else{
+                print("failed to login")
+                return
+            }
+            print("logged in")
+            ENCDEC.encryptMessage(message: email, messageType: .Email){encryptedEmail in
+                UserDefaults.standard.set(String(encryptedEmail), forKey: "EMAIL")
+                DispatchQueue.main.async {
                     let nextVC = FeedPageViewController()
-                    UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
-                    ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
-                        UserDefaults.standard.set(String(encryptedEmail), forKey: "EMAIL")
-                        DispatchQueue.main.async {
-                            self.navigationController?.pushViewController(nextVC, animated: true)
-                        }
-                    }
+                    self.navigationController?.pushViewController(nextVC, animated: true)
                 }
-                self.warning(warningMessage: loginStatus)
             }
         }
     }
@@ -244,3 +245,8 @@ extension LoginPageViewController:UITextFieldDelegate{
     }
     
 }
+
+
+
+
+

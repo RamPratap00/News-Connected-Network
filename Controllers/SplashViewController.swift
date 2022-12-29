@@ -17,8 +17,6 @@ class SplashViewController: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
             self.moveToLoginPage()
         }
-        createDataBase()
-        //eraseDataBase()
         // Do any additional setup after loading the view.
     }
     
@@ -47,20 +45,7 @@ class SplashViewController: UIViewController {
         image.layer.cornerRadius = imageDimension/2
     }
     // MARK: - funtions to call api and db
-    
-    func createDataBase(){
-        DispatchQueue.global(qos: .background).async {
-            let userDataBase = GlobalUserAccountDataBaseManager(dataBaseName: "UserAccountDataBase")
-            userDataBase.closeDataBase()
-        }
-    }
-    func eraseDataBase(){
-        DispatchQueue.global(qos: .background).async {
-            let userDataBase = GlobalUserAccountDataBaseManager(dataBaseName: "UserAccountDataBase")
-            userDataBase.eraseDataBase()
-            userDataBase.closeDataBase()
-        }
-    }
+
     
     // MARK: - This function is used to initiate Navigation controller and auto push to next View Controller
     func moveToLoginPage(){
