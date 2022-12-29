@@ -7,5 +7,5 @@
 
 import Foundation
 enum UserAccountDataBaseTableNames:String,CaseIterable{
-    case USER
+    case ALLUSERSLIST
 }

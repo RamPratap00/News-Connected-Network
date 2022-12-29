@@ -107,7 +107,6 @@ struct ENCDEC{
 }
 
 enum KEY:String{
-    case Password
     case Email
     case DataBaseName
 }
