@@ -13,20 +13,11 @@ class SplashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         displayNcnLogo()
-        let seconds = 1.0
-        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
-            self.moveToLoginPage()
-        }
         // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        if !isFirstVisit{
-            let seconds = 1.0
-            DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
-                self.moveToLoginPage()
-            }
-        }
+        viewNavigator()
     }
 
     // MARK: - This function is used to display the news app logo
@@ -55,6 +46,28 @@ class SplashViewController: UIViewController {
         navigationController.modalPresentationStyle = .fullScreen
         present(navigationController, animated: true)
     }
+    
+    func skipLoginPage(){
+        
+        let splitVC = UISplitViewController(style: .doubleColumn)
+        let masterViewController = PrimaryViewController()
+        let secondaryViewController = FeedPageViewController()
+        splitVC.viewControllers = [ masterViewController,secondaryViewController ]
+        splitVC.modalPresentationStyle = .fullScreen
+        self.present(splitVC, animated: true)
+        
+    }
 
+    func viewNavigator(){
+        if UserDefaults.standard.bool(forKey: "ISLOGGEDIN"){
+            skipLoginPage()
+        }
+        else{
+            let seconds = 1.0
+            DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
+                self.moveToLoginPage()
+            }
+        }
+    }
 }
 
