@@ -49,12 +49,16 @@ class SplashViewController: UIViewController {
     
     func skipLoginPage(){
         
-        let splitVC = UISplitViewController(style: .doubleColumn)
-        let masterViewController = PrimaryViewController()
-        let secondaryViewController = SecondaryViewController()
-        splitVC.viewControllers = [ masterViewController,secondaryViewController ]
-        splitVC.modalPresentationStyle = .fullScreen
-        self.present(splitVC, animated: true)
+        fetchCurrenUserProfileData(){ _ in
+            DispatchQueue.main.async{
+                let splitVC = UISplitViewController(style: .doubleColumn)
+                let masterViewController = PrimaryViewController()
+                let secondaryViewController = SecondaryViewController()
+                splitVC.viewControllers = [ masterViewController,secondaryViewController ]
+                splitVC.modalPresentationStyle = .fullScreen
+                self.present(splitVC, animated: true)
+            }
+        }
         
     }
 
@@ -64,7 +68,7 @@ class SplashViewController: UIViewController {
         }
         else{
             let seconds = 1.0
-            DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + seconds){
                 self.moveToLoginPage()
             }
         }

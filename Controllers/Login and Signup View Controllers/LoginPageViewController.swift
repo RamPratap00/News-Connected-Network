@@ -186,30 +186,37 @@ class LoginPageViewController: UIViewController {
     }
     
     @objc func loginCheck(){
+        
+        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator.startAnimating();
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
+        
+        
         let email = emailTextField.text!
         let password = passwordTextField.text!
         /// fire base login
-        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password){ authResult,error in
-            guard let _ = authResult ,error == nil else{
-                print("failed to login")
-                return
-            }
-            print("logged in")
-            ENCDEC.encryptMessage(message: email, messageType: .Email){encryptedEmail in
-                UserDefaults.standard.set(String(encryptedEmail), forKey: "EMAIL")
-                UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
+        emailTextField.text = ""
+        passwordTextField.text = ""
+        login(email: email, password: password){ loginStatus in
+            if loginStatus {
                 DispatchQueue.main.async {
-                    
+                    self.dismiss(animated: false, completion: nil)
                     let splitVC = UISplitViewController(style: .doubleColumn)
                     let masterViewController = PrimaryViewController()
                     let secondaryViewController = SecondaryViewController()
                     splitVC.viewControllers = [ masterViewController,secondaryViewController ]
                     splitVC.modalPresentationStyle = .fullScreen
                     self.present(splitVC, animated: true)
-                    
-                    self.emailTextField.text = ""
-                    self.passwordTextField.text = ""
                 }
+            }
+            else{
+                print("failed to login")
             }
         }
     }

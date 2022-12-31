@@ -18,6 +18,8 @@ class SelectProfilePictureViewController: UIViewController {
     var selectedImageIndexPath = IndexPath()
     let nextButton = UIButton()
     var email = String()
+    let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+    let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -103,19 +105,29 @@ class SelectProfilePictureViewController: UIViewController {
     }
     
     @objc func updatingProfilePicture(){
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator.startAnimating();
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
         if isImageSelected{
             let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
-            uploadingImageToFireBase(data: (selectedCell.profileImage.image?.pngData()!)!)
-            UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
-            UserDefaults.standard.set(String(email), forKey: "EMAIL")
-            
-            let splitVC = UISplitViewController(style: .doubleColumn)
-            let masterViewController = PrimaryViewController()
-            let secondaryViewController = SecondaryViewController()
-            splitVC.viewControllers = [ masterViewController,secondaryViewController ]
-            splitVC.modalPresentationStyle = .fullScreen
-            self.present(splitVC, animated: true)
-            
+            uploadingImageToFireBase(data: (selectedCell.profileImage.image?.pngData()!)!){ imageUpdateStatus in
+                UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
+                UserDefaults.standard.set(String(self.email), forKey: "EMAIL")
+                fetchCurrenUserProfileData(){ _ in
+                    DispatchQueue.main.async {
+                        self.dismiss(animated: false, completion: nil)
+                        let splitVC = UISplitViewController(style: .doubleColumn)
+                        let masterViewController = PrimaryViewController()
+                        let secondaryViewController = SecondaryViewController()
+                        splitVC.viewControllers = [ masterViewController,secondaryViewController ]
+                        splitVC.modalPresentationStyle = .fullScreen
+                        self.present(splitVC, animated: true)
+                    }
+                }
+            }
             isFirstVisit = false
         }
         else{
@@ -123,13 +135,13 @@ class SelectProfilePictureViewController: UIViewController {
         }
     }
     
-    func uploadingImageToFireBase(data:Data){
+    func uploadingImageToFireBase(data:Data,completionHandler:@escaping (Bool)->()){
             ENCDEC.encryptMessage(message: (email+email),messageType: .DataBaseName){ encryptedDataBaseName in
                 let currentUserDataBase = Firestore.firestore()
                 let storageRef = Storage.storage().reference()
                 let fireBaseRef = storageRef.child("images/\(self.email).jpg")
 
-                // Upload the file to the path "images/rivers.jpg"
+                // Upload the file to the path "images/email-encrypted.jpg"
                 _ = fireBaseRef.putData(data, metadata: nil) { (metadata, error) in
                   // You can also access to download URL after upload.
                     fireBaseRef.downloadURL { (url, error) in
@@ -138,6 +150,7 @@ class SelectProfilePictureViewController: UIViewController {
                       return
                     }
                         currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["URL_TO_PROFILE_PICTURE":downloadURL.absoluteString])
+                        completionHandler(true)
                   }
                 }
             }

@@ -14,9 +14,39 @@ class PrimaryViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         addSignOutButton()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(toMainPage))
+        addViewProfileButton()
+        if UIDevice.current.userInterfaceIdiom != .pad{
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(toMainPage))
+        }
     }
     
+    
+    func addViewProfileButton(){
+        let tapOnProfilePicture = UIButton()
+        let tapOnNameLabel = UIButton()
+        let profileImageData = UserDefaults.standard.object(forKey: "PROFILEPICTURE") as! Data
+        tapOnProfilePicture.setImage(UIImage(data: profileImageData), for: .normal)
+        tapOnNameLabel.setTitle(fetchUserName(), for: .normal)
+        view.addSubview(tapOnProfilePicture)
+        view.addSubview(tapOnNameLabel)
+        tapOnProfilePicture.translatesAutoresizingMaskIntoConstraints = false
+        tapOnProfilePicture.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        tapOnProfilePicture.topAnchor.constraint(equalTo: view.topAnchor,constant:100).isActive = true
+        tapOnProfilePicture.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        tapOnProfilePicture.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        tapOnProfilePicture.layer.cornerRadius = 75
+        tapOnProfilePicture.layer.masksToBounds = true
+        
+        tapOnNameLabel.setTitleColor(UIColor.black, for: .normal)
+        tapOnNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        tapOnNameLabel.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        tapOnNameLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        tapOnNameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        tapOnNameLabel.topAnchor.constraint(equalTo: tapOnProfilePicture.bottomAnchor,constant:30).isActive = true
+        tapOnNameLabel.titleLabel?.textAlignment = .center
+        
+        
+    }
     
     func addSignOutButton(){
         let signOutButton = UIButton()

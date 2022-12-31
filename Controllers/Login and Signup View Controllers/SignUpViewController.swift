@@ -6,9 +6,6 @@
 //
 /// THIS VIEW CONTROLLER IS USED TO RECEIVE USER INPUTS LIKE EMAIL AND PASSWORD FOR SIGNINGUP FOR NEW ACCOUNT
 import UIKit
-import FirebaseAuth
-import FirebaseFirestore
-import FirebaseStorage
 
 class SignUpViewController: UIViewController {
 
@@ -314,51 +311,30 @@ extension SignUpViewController:UITextFieldDelegate{
             return
         }
         /// fire base signup
-        DispatchQueue.global().async {
-            self.uploadToFireBase(email: email!, password: password!, userName: userName!)
-        }
+        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator.startAnimating();
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
+            uploadDefaultUserDataToFireBase(email: email!, password: password!, userName: userName!){ status,encryptedEmail in
+                DispatchQueue.main.async{
+                    if status {
+                        let nextVC = SelectProfilePictureViewController()
+                        nextVC.email = encryptedEmail!
+                        self.navigationController?.pushViewController(nextVC, animated: true)
+                    }
+                    else{
+                        self.warning(warningMessage: "user already exist")
+                    }
+                    self.dismiss(animated: false, completion: nil)
+                }
+            }
     }
     
-    func uploadToFireBase(email:String,password:String,userName:String){
-        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password){ authResult,error in
-            if error == nil{
-                let allUserDataBase = Firestore.firestore()
-                let currentUserDataBase = Firestore.firestore()
-                ENCDEC.encryptMessage(message: email,messageType: .Email){ encryptedEmail in
-                    ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
-                        allUserDataBase.collection(UserAccountDataBaseTableNames.ALLUSERSLIST.rawValue).document(encryptedEmail).setData(["email":encryptedEmail,"correspondingCollectionName":encryptedDataBaseName])
-                        let data = UIImage(imageLiteralResourceName: "login Background").pngData()!
-                        let storageRef = Storage.storage().reference()
-                        let fireBaseRef = storageRef.child("images/\(encryptedEmail).jpg")
-
-                        // Upload the file to the path "images/rivers.jpg"
-                        _ = fireBaseRef.putData(data, metadata: nil) { (metadata, error) in
-                          // You can also access to download URL after upload.
-                            fireBaseRef.downloadURL { (url, error) in
-                            guard let downloadURL = url else {
-                              // Uh-oh, an error occurred!
-                              return
-                            }
-                                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).setData(["USERNAME":userName, "FOLLOWERS_COUNT": 0 ,"FOLLOWING_COUNT":0, "PROFILE_DESCRIPTION":" ","URL_TO_PROFILE_PICTURE":downloadURL.absoluteString])
-                          }
-                        }
-                        
-                        DispatchQueue.main.async {
-                            let nextVC = SelectProfilePictureViewController()
-                            nextVC.email = encryptedEmail
-                            self.navigationController?.pushViewController(nextVC, animated: true)
-                        }
-                          
-                    }
-                }
-            }
-            else{
-                DispatchQueue.main.async {
-                    self.warning(warningMessage: "user already exist")
-                }
-            }
-        }
-    }
     
     
 }

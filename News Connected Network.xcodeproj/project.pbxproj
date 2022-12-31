@@ -36,6 +36,12 @@
 		1A653933295D693800D7555F /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 1A653932295D693800D7555F /* FirebaseStorage */; };
 		1A653935295D693800D7555F /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 1A653934295D693800D7555F /* FirebaseStorageCombine-Community */; };
 		1A7906CC2960217C00ABF006 /* SecondaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906CB2960217C00ABF006 /* SecondaryViewController.swift */; };
+		1A7906D1296025AE00ABF006 /* FeedPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D0296025AE00ABF006 /* FeedPageViewController.swift */; };
+		1A7906D3296025D900ABF006 /* SearchUsersAndNewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D2296025D900ABF006 /* SearchUsersAndNewsViewController.swift */; };
+		1A7906D52960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D42960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift */; };
+		1A7906D72960261900ABF006 /* ChattingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D62960261900ABF006 /* ChattingViewController.swift */; };
+		1A7906DA29603CA800ABF006 /* FetchDataFromFireBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D929603CA800ABF006 /* FetchDataFromFireBase.swift */; };
+		1A7906DC2960400200ABF006 /* PutDataToFireBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906DB2960400200ABF006 /* PutDataToFireBase.swift */; };
 		1AD34E27295C997100535B84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD34E26295C997100535B84 /* AppDelegate.swift */; };
 		1AD34E29295C997100535B84 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD34E28295C997100535B84 /* SceneDelegate.swift */; };
 		1AD34E2B295C997100535B84 /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD34E2A295C997100535B84 /* SplashViewController.swift */; };
@@ -79,6 +85,12 @@
 		1A1EC15F295EA332006EA6AC /* PrimaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryViewController.swift; sourceTree = "<group>"; };
 		1A6538FF295D560800D7555F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1A7906CB2960217C00ABF006 /* SecondaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryViewController.swift; sourceTree = "<group>"; };
+		1A7906D0296025AE00ABF006 /* FeedPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPageViewController.swift; sourceTree = "<group>"; };
+		1A7906D2296025D900ABF006 /* SearchUsersAndNewsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUsersAndNewsViewController.swift; sourceTree = "<group>"; };
+		1A7906D42960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentActivityOnMyNetworkViewController.swift; sourceTree = "<group>"; };
+		1A7906D62960261900ABF006 /* ChattingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChattingViewController.swift; sourceTree = "<group>"; };
+		1A7906D929603CA800ABF006 /* FetchDataFromFireBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchDataFromFireBase.swift; sourceTree = "<group>"; };
+		1A7906DB2960400200ABF006 /* PutDataToFireBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PutDataToFireBase.swift; sourceTree = "<group>"; };
 		1AD34E23295C997100535B84 /* News Connected Network.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "News Connected Network.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AD34E26295C997100535B84 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1AD34E28295C997100535B84 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -165,6 +177,26 @@
 			path = SplitViewControllers;
 			sourceTree = "<group>";
 		};
+		1A7906CF2960257000ABF006 /* FeedSearchNetworkChatViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				1A7906D0296025AE00ABF006 /* FeedPageViewController.swift */,
+				1A7906D2296025D900ABF006 /* SearchUsersAndNewsViewController.swift */,
+				1A7906D42960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift */,
+				1A7906D62960261900ABF006 /* ChattingViewController.swift */,
+			);
+			path = FeedSearchNetworkChatViewControllers;
+			sourceTree = "<group>";
+		};
+		1A7906D829603AB800ABF006 /* AcessDataBaseOnFirebase */ = {
+			isa = PBXGroup;
+			children = (
+				1A7906D929603CA800ABF006 /* FetchDataFromFireBase.swift */,
+				1A7906DB2960400200ABF006 /* PutDataToFireBase.swift */,
+			);
+			path = AcessDataBaseOnFirebase;
+			sourceTree = "<group>";
+		};
 		1AD34E1A295C997100535B84 = {
 			isa = PBXGroup;
 			children = (
@@ -227,6 +259,7 @@
 		1AD34E5A295C99CD00535B84 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				1A7906D829603AB800ABF006 /* AcessDataBaseOnFirebase */,
 				1AD34E5B295C99CD00535B84 /* Network Managers */,
 				1AD34E5E295C99CD00535B84 /* DataBase Managers */,
 			);
@@ -256,6 +289,7 @@
 			isa = PBXGroup;
 			children = (
 				1AD34E2A295C997100535B84 /* SplashViewController.swift */,
+				1A7906CF2960257000ABF006 /* FeedSearchNetworkChatViewControllers */,
 				1AD34E66295C99CD00535B84 /* Login and Signup View Controllers */,
 			);
 			path = Controllers;
@@ -468,14 +502,20 @@
 				1AD34E77295C99CD00535B84 /* ProfilePictureCollectionViewCell.swift in Sources */,
 				1AD34E6F295C99CD00535B84 /* NewsAPINetworkManager.swift in Sources */,
 				1AD34E2B295C997100535B84 /* SplashViewController.swift in Sources */,
+				1A7906D72960261900ABF006 /* ChattingViewController.swift in Sources */,
+				1A7906D3296025D900ABF006 /* SearchUsersAndNewsViewController.swift in Sources */,
 				1AD34E79295C99CD00535B84 /* LoginPageViewController.swift in Sources */,
 				1AD34E75295C99CD00535B84 /* news data structure.swift in Sources */,
+				1A7906D52960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift in Sources */,
+				1A7906DC2960400200ABF006 /* PutDataToFireBase.swift in Sources */,
 				1AD34E71295C99CD00535B84 /* NewsDataBaseManager.swift in Sources */,
 				1AD34E27295C997100535B84 /* AppDelegate.swift in Sources */,
+				1A7906D1296025AE00ABF006 /* FeedPageViewController.swift in Sources */,
 				1AD34E74295C99CD00535B84 /* DataBaseHelper.swift in Sources */,
 				1AD34E76295C99CD00535B84 /* SignUpViewController.swift in Sources */,
 				1AD34E6E295C99CD00535B84 /* EncryptionFile.swift in Sources */,
 				1AD34E70295C99CD00535B84 /* DataBaseTableNames.swift in Sources */,
+				1A7906DA29603CA800ABF006 /* FetchDataFromFireBase.swift in Sources */,
 				1AD34E29295C997100535B84 /* SceneDelegate.swift in Sources */,
 				1A1EC160295EA332006EA6AC /* PrimaryViewController.swift in Sources */,
 				1AD34E78295C99CD00535B84 /* SelectProfilePictureViewController.swift in Sources */,
