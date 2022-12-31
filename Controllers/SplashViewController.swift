@@ -51,7 +51,7 @@ class SplashViewController: UIViewController {
         
         let splitVC = UISplitViewController(style: .doubleColumn)
         let masterViewController = PrimaryViewController()
-        let secondaryViewController = FeedPageViewController()
+        let secondaryViewController = SecondaryViewController()
         splitVC.viewControllers = [ masterViewController,secondaryViewController ]
         splitVC.modalPresentationStyle = .fullScreen
         self.present(splitVC, animated: true)
