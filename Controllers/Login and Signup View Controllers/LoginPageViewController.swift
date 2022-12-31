@@ -19,10 +19,6 @@ class LoginPageViewController: UIViewController {
         view.backgroundColor = .systemBackground
         loadBackgroundImageWithText()
         loadEmailPasswordFieldsAndOthers()
-        if UserDefaults.standard.bool(forKey: "ISLOGGEDIN"){
-            let nextVC = FeedPageViewController()
-            navigationController?.pushViewController(nextVC, animated: false)
-        }
         // Do any additional setup after loading the view.
     }
     // Fix scroll content size
@@ -201,13 +197,26 @@ class LoginPageViewController: UIViewController {
             print("logged in")
             ENCDEC.encryptMessage(message: email, messageType: .Email){encryptedEmail in
                 UserDefaults.standard.set(String(encryptedEmail), forKey: "EMAIL")
+                UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
                 DispatchQueue.main.async {
-                    let nextVC = FeedPageViewController()
-                    self.navigationController?.pushViewController(nextVC, animated: true)
+                    
+                    let splitVC = UISplitViewController(style: .doubleColumn)
+                    let masterViewController = PrimaryViewController()
+                    let secondaryViewController = FeedPageViewController()
+                    splitVC.viewControllers = [
+                        UINavigationController(rootViewController: masterViewController),
+                        UINavigationController(rootViewController: secondaryViewController)
+                    ]
+                    splitVC.modalPresentationStyle = .fullScreen
+                    self.present(splitVC, animated: true)
+                    
+                    self.emailTextField.text = ""
+                    self.passwordTextField.text = ""
                 }
             }
         }
     }
+    
     /*
     // MARK: - Navigation
 

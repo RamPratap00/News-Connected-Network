@@ -13,7 +13,7 @@ class FeedPageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.setHidesBackButton(true, animated: true)
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .gray
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Sign Out", style: .plain, target: self, action: #selector(toLoginPage))
         print(UserDefaults.standard.string(forKey: "EMAIL")!)
         // Do any additional setup after loading the view.
@@ -25,7 +25,7 @@ class FeedPageViewController: UIViewController {
             print("signed out")
         }
         UserDefaults.standard.set(false, forKey: "ISLOGGEDIN")
-        navigationController?.dismiss(animated: true)
+        navigationController?.dismiss(animated: false)
     }
 
     /*
@@ -39,3 +39,5 @@ class FeedPageViewController: UIViewController {
     */
 
 }
+
+

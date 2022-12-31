@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A1EC160295EA332006EA6AC /* PrimaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1EC15F295EA332006EA6AC /* PrimaryViewController.swift */; };
 		1A653900295D560800D7555F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1A6538FF295D560800D7555F /* GoogleService-Info.plist */; };
 		1A653903295D693800D7555F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1A653902295D693800D7555F /* FirebaseAnalytics */; };
 		1A653905295D693800D7555F /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 1A653904295D693800D7555F /* FirebaseAnalyticsOnDeviceConversion */; };
@@ -75,6 +76,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1A1EC15F295EA332006EA6AC /* PrimaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryViewController.swift; sourceTree = "<group>"; };
 		1A6538FF295D560800D7555F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1AD34E23295C997100535B84 /* News Connected Network.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "News Connected Network.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AD34E26295C997100535B84 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -266,6 +268,7 @@
 			isa = PBXGroup;
 			children = (
 				1AD34E6C295C99CD00535B84 /* FeedPageViewController.swift */,
+				1A1EC15F295EA332006EA6AC /* PrimaryViewController.swift */,
 			);
 			path = FeedPageViewController;
 			sourceTree = "<group>";
@@ -475,6 +478,7 @@
 				1AD34E6E295C99CD00535B84 /* EncryptionFile.swift in Sources */,
 				1AD34E70295C99CD00535B84 /* DataBaseTableNames.swift in Sources */,
 				1AD34E29295C997100535B84 /* SceneDelegate.swift in Sources */,
+				1A1EC160295EA332006EA6AC /* PrimaryViewController.swift in Sources */,
 				1AD34E78295C99CD00535B84 /* SelectProfilePictureViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

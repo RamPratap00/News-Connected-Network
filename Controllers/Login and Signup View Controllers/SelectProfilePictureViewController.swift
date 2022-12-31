@@ -11,7 +11,7 @@ import FirebaseStorage
 
 class SelectProfilePictureViewController: UIViewController {
     
-
+    var isFirstVisit = true
     let quoteForSelectingPicture = UILabel()
     var collectionView : UICollectionView? = nil
     var isImageSelected = false
@@ -25,6 +25,12 @@ class SelectProfilePictureViewController: UIViewController {
         addNextButton()
         addCollectionViewForImageDoodle()
         // Do any additional setup after loading the view.
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if !isFirstVisit{
+            navigationController?.dismiss(animated: false)
+        }
     }
     
     func loadBackgroundImageWithText(){
@@ -101,11 +107,21 @@ class SelectProfilePictureViewController: UIViewController {
             let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
             //LocalUserAccountDataBaseManager.updateProfilePicture(image: selectedCell.profileImage.image!,email: email)
             uploadingImageToFireBase(data: (selectedCell.profileImage.image?.pngData()!)!)
-            let nextVC = FeedPageViewController()
             UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
             UserDefaults.standard.set(String(email), forKey: "EMAIL")
             print(email,"inside select profile picture")
-            navigationController?.pushViewController(nextVC, animated: true)
+            
+            let splitVC = UISplitViewController(style: .doubleColumn)
+            let masterViewController = PrimaryViewController()
+            let secondaryViewController = FeedPageViewController()
+            splitVC.viewControllers = [
+                UINavigationController(rootViewController: masterViewController),
+                UINavigationController(rootViewController: secondaryViewController)
+            ]
+            splitVC.modalPresentationStyle = .fullScreen
+            self.present(splitVC, animated: true)
+            
+            isFirstVisit = false
         }
         else{
             print("no image selected")
