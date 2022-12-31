@@ -13,8 +13,6 @@ class SplashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         displayNcnLogo()
-        viewNavigator()
-        
         // Do any additional setup after loading the view.
     }
     
@@ -54,10 +52,7 @@ class SplashViewController: UIViewController {
         let splitVC = UISplitViewController(style: .doubleColumn)
         let masterViewController = PrimaryViewController()
         let secondaryViewController = FeedPageViewController()
-        splitVC.viewControllers = [
-            UINavigationController(rootViewController: masterViewController),
-            UINavigationController(rootViewController: secondaryViewController)
-        ]
+        splitVC.viewControllers = [ masterViewController,secondaryViewController ]
         splitVC.modalPresentationStyle = .fullScreen
         self.present(splitVC, animated: true)
         

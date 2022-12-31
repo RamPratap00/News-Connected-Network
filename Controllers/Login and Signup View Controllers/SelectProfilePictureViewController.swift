@@ -105,19 +105,14 @@ class SelectProfilePictureViewController: UIViewController {
     @objc func updatingProfilePicture(){
         if isImageSelected{
             let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
-            //LocalUserAccountDataBaseManager.updateProfilePicture(image: selectedCell.profileImage.image!,email: email)
             uploadingImageToFireBase(data: (selectedCell.profileImage.image?.pngData()!)!)
             UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
             UserDefaults.standard.set(String(email), forKey: "EMAIL")
-            print(email,"inside select profile picture")
             
             let splitVC = UISplitViewController(style: .doubleColumn)
             let masterViewController = PrimaryViewController()
             let secondaryViewController = FeedPageViewController()
-            splitVC.viewControllers = [
-                UINavigationController(rootViewController: masterViewController),
-                UINavigationController(rootViewController: secondaryViewController)
-            ]
+            splitVC.viewControllers = [ masterViewController,secondaryViewController ]
             splitVC.modalPresentationStyle = .fullScreen
             self.present(splitVC, animated: true)
             
