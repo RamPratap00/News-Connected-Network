@@ -320,11 +320,12 @@ extension SignUpViewController:UITextFieldDelegate{
 
         alert.view.addSubview(loadingIndicator)
         present(alert, animated: true, completion: nil)
-            uploadDefaultUserDataToFireBase(email: email!, password: password!, userName: userName!){ status,encryptedEmail in
+        uploadDefaultUserDataToFireBase(email: email!, password: password!, userName: userName!){ status,encryptedEmail in
                 DispatchQueue.main.async{
                     if status {
+                        UserDefaults.standard.set(email!, forKey: "EMAIL")
                         let nextVC = SelectProfilePictureViewController()
-                        nextVC.email = encryptedEmail!
+                        nextVC.email = email!
                         self.navigationController?.pushViewController(nextVC, animated: true)
                     }
                     else{

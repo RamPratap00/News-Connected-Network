@@ -21,31 +21,62 @@ class PrimaryViewController: UIViewController {
     }
     
     
+    func reloadProfileData(){
+        fetchCurrenUserProfileData(completionHandler: {_ in})
+    }
+    
     func addViewProfileButton(){
-        let tapOnProfilePicture = UIButton()
-        let tapOnNameLabel = UIButton()
+        
+        let userData = UserDefaults.standard.value(forKey: "USERMETADATA") as! [String:Any]?
+        let account = Account()
+        account.userName = userData?["USERNAME"] as! String
+        account.profileDescription = userData?["PROFILE_DESCRIPTION"] as! String
+        account.profilePicture = URL(string: userData?["URL_TO_PROFILE_PICTURE"] as! String)!
+        account.email = userData?["EMAIL"] as! String
+        
+        let profilePicture = UIButton()
+        let nameLabel = UILabel()
+        let userIdLabel = UILabel()
         let profileImageData = UserDefaults.standard.object(forKey: "PROFILEPICTURE") as! Data
-        tapOnProfilePicture.setImage(UIImage(data: profileImageData), for: .normal)
-        tapOnNameLabel.setTitle(fetchUserName(), for: .normal)
-        view.addSubview(tapOnProfilePicture)
-        view.addSubview(tapOnNameLabel)
-        tapOnProfilePicture.translatesAutoresizingMaskIntoConstraints = false
-        tapOnProfilePicture.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        tapOnProfilePicture.topAnchor.constraint(equalTo: view.topAnchor,constant:100).isActive = true
-        tapOnProfilePicture.widthAnchor.constraint(equalToConstant: 150).isActive = true
-        tapOnProfilePicture.heightAnchor.constraint(equalToConstant: 150).isActive = true
-        tapOnProfilePicture.layer.cornerRadius = 75
-        tapOnProfilePicture.layer.masksToBounds = true
         
-        tapOnNameLabel.setTitleColor(UIColor.black, for: .normal)
-        tapOnNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        tapOnNameLabel.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
-        tapOnNameLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        tapOnNameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        tapOnNameLabel.topAnchor.constraint(equalTo: tapOnProfilePicture.bottomAnchor,constant:30).isActive = true
-        tapOnNameLabel.titleLabel?.textAlignment = .center
+        view.addSubview(profilePicture)
+        profilePicture.setImage(UIImage(data: profileImageData), for: .normal)
+        profilePicture.translatesAutoresizingMaskIntoConstraints = false
+        profilePicture.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        profilePicture.topAnchor.constraint(equalTo: view.topAnchor,constant:100).isActive = true
+        profilePicture.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        profilePicture.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        profilePicture.layer.cornerRadius = 75
+        profilePicture.layer.masksToBounds = true
+        profilePicture.addTarget(self, action: #selector(profileDetailView), for: .touchUpInside)
+        
+        view.addSubview(nameLabel)
+        nameLabel.text = account.userName
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        nameLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: profilePicture.bottomAnchor,constant:5).isActive = true
+        nameLabel.textAlignment = .center
+        
+        view.addSubview(userIdLabel)
+        userIdLabel.text = account.fetchUserID()
+        userIdLabel.translatesAutoresizingMaskIntoConstraints = false
+        userIdLabel.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        userIdLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        userIdLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        userIdLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor,constant:-25).isActive = true
+        userIdLabel.textAlignment = .center
+        
+        /// need to add description with edit button
         
         
+    }
+    
+    @objc func profileDetailView(){
+        let nextVC = ProfileViewController()
+        nextVC.email = UserDefaults.standard.value(forKey: "EMAIL") as! String
+        navigationController?.pushViewController(nextVC, animated: true)
     }
     
     func addSignOutButton(){

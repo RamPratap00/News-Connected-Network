@@ -17,6 +17,7 @@ class SplashViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         viewNavigator()
     }
 
@@ -55,6 +56,7 @@ class SplashViewController: UIViewController {
                 let masterViewController = PrimaryViewController()
                 let secondaryViewController = SecondaryViewController()
                 splitVC.viewControllers = [ masterViewController,secondaryViewController ]
+                masterViewController.title = "Menu"
                 splitVC.modalPresentationStyle = .fullScreen
                 self.present(splitVC, animated: true)
             }

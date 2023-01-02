@@ -23,6 +23,7 @@ class LoginPageViewController: UIViewController {
     }
     // Fix scroll content size
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
        scroll.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height/2)
     }
     /// this function is used to load the black and white galaxy picture with the text "login" just below it
@@ -201,15 +202,18 @@ class LoginPageViewController: UIViewController {
         let email = emailTextField.text!
         let password = passwordTextField.text!
         /// fire base login
-        emailTextField.text = ""
-        passwordTextField.text = ""
         login(email: email, password: password){ loginStatus in
             if loginStatus {
+                UserDefaults.standard.set(email, forKey: "EMAIL")
                 DispatchQueue.main.async {
+                    self.emailTextField.text = ""
+                    self.passwordTextField.text = ""
+                    
                     self.dismiss(animated: false, completion: nil)
                     let splitVC = UISplitViewController(style: .doubleColumn)
                     let masterViewController = PrimaryViewController()
                     let secondaryViewController = SecondaryViewController()
+                    masterViewController.title = "Menu"
                     splitVC.viewControllers = [ masterViewController,secondaryViewController ]
                     splitVC.modalPresentationStyle = .fullScreen
                     self.present(splitVC, animated: true)

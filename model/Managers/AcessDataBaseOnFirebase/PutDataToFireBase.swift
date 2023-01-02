@@ -19,7 +19,7 @@ func uploadDefaultUserDataToFireBase(email:String,password:String,userName:Strin
                 let currentUserDataBase = Firestore.firestore()
                 ENCDEC.encryptMessage(message: email,messageType: .Email){ encryptedEmail in
                     ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
-                        allUserDataBase.collection(UserAccountDataBaseTableNames.ALLUSERSLIST.rawValue).document(encryptedEmail).setData(["email":encryptedEmail,"correspondingCollectionName":encryptedDataBaseName])
+                        allUserDataBase.collection("ALLUSERSLIST").document(encryptedEmail).setData(["email":encryptedEmail,"correspondingCollectionName":encryptedDataBaseName])
                         let data = UIImage(imageLiteralResourceName: "login Background").pngData()!
                         let storageRef = Storage.storage().reference()
                         let fireBaseRef = storageRef.child("images/\(encryptedEmail).jpg")
@@ -32,7 +32,7 @@ func uploadDefaultUserDataToFireBase(email:String,password:String,userName:Strin
                                     // Uh-oh, an error occurred!
                                     return
                                 }
-                                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).setData(["USERNAME":userName, "FOLLOWERS_COUNT": 0 ,"FOLLOWING_COUNT":0, "PROFILE_DESCRIPTION":" ","URL_TO_PROFILE_PICTURE":downloadURL.absoluteString,"FOLLOWERS_LIST":[],"FOLLOWING_LIST":[], "RECENT_ACTIVITY":[]])
+                                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).setData(["USERNAME":userName, "PROFILE_DESCRIPTION":" ","URL_TO_PROFILE_PICTURE":downloadURL.absoluteString,"FOLLOWERS_LIST":[],"FOLLOWING_LIST":[], "RECENT_ACTIVITY":[],"EMAIL":email])
                             }
                         }
                         
@@ -56,12 +56,27 @@ func login(email:String,password:String,completionHandler:@escaping (Bool)->()){
                 return
             }
             ENCDEC.encryptMessage(message: email, messageType: .Email){encryptedEmail in
-                UserDefaults.standard.set(String(encryptedEmail), forKey: "EMAIL")
+                UserDefaults.standard.set(String(email), forKey: "EMAIL")
                 UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
                 fetchCurrenUserProfileData(){ _ in
                     completionHandler(true)
                 }
             }
+        }
+    }
+}
+
+func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCurrentUserAccount:Account){
+    ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["FOLLOWING_LIST":currentUserAccount.followingList])
+        }
+    }
+    ENCDEC.encryptMessage(message: nonCurrentUserAccount.email, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["FOLLOWERS_LIST":nonCurrentUserAccount.followersList])
         }
     }
 }

@@ -114,14 +114,14 @@ class SelectProfilePictureViewController: UIViewController {
         if isImageSelected{
             let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
             uploadingImageToFireBase(data: (selectedCell.profileImage.image?.pngData()!)!){ imageUpdateStatus in
-                UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
-                UserDefaults.standard.set(String(self.email), forKey: "EMAIL")
                 fetchCurrenUserProfileData(){ _ in
                     DispatchQueue.main.async {
+                        UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
                         self.dismiss(animated: false, completion: nil)
                         let splitVC = UISplitViewController(style: .doubleColumn)
                         let masterViewController = PrimaryViewController()
                         let secondaryViewController = SecondaryViewController()
+                        masterViewController.title = "Menu"
                         splitVC.viewControllers = [ masterViewController,secondaryViewController ]
                         splitVC.modalPresentationStyle = .fullScreen
                         self.present(splitVC, animated: true)
@@ -136,24 +136,26 @@ class SelectProfilePictureViewController: UIViewController {
     }
     
     func uploadingImageToFireBase(data:Data,completionHandler:@escaping (Bool)->()){
-            ENCDEC.encryptMessage(message: (email+email),messageType: .DataBaseName){ encryptedDataBaseName in
+        ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
+            ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
                 let currentUserDataBase = Firestore.firestore()
                 let storageRef = Storage.storage().reference()
-                let fireBaseRef = storageRef.child("images/\(self.email).jpg")
-
+                let fireBaseRef = storageRef.child("images/\(encryptedEmail).jpg")
+                
                 // Upload the file to the path "images/email-encrypted.jpg"
                 _ = fireBaseRef.putData(data, metadata: nil) { (metadata, error) in
-                  // You can also access to download URL after upload.
+                    // You can also access to download URL after upload.
                     fireBaseRef.downloadURL { (url, error) in
-                    guard let downloadURL = url else {
-                      // Uh-oh, an error occurred!
-                      return
-                    }
+                        guard let downloadURL = url else {
+                            // Uh-oh, an error occurred!
+                            return
+                        }
                         currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["URL_TO_PROFILE_PICTURE":downloadURL.absoluteString])
                         completionHandler(true)
-                  }
+                    }
                 }
             }
+        }
     }
     /*
     // MARK: - Navigation
