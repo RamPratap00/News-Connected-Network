@@ -210,13 +210,10 @@ class LoginPageViewController: UIViewController {
                     self.passwordTextField.text = ""
                     
                     self.dismiss(animated: false, completion: nil)
-                    let splitVC = UISplitViewController(style: .doubleColumn)
-                    let masterViewController = PrimaryViewController()
-                    let secondaryViewController = SecondaryViewController()
-                    masterViewController.title = "Menu"
-                    splitVC.viewControllers = [ masterViewController,secondaryViewController ]
-                    splitVC.modalPresentationStyle = .fullScreen
-                    self.present(splitVC, animated: true)
+                    
+                    let splitView = SplitViewController() // ===> Your splitViewController
+                    splitView.modalPresentationStyle = .fullScreen
+                    self.present(splitView, animated: true)
                 }
             }
             else{
@@ -262,8 +259,3 @@ extension LoginPageViewController:UITextFieldDelegate{
     }
     
 }
-
-
-
-
-

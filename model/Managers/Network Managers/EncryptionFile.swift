@@ -17,12 +17,29 @@ struct ENCDEC{
     /// - Returns: encrypted message
     static func encryptMessage(message: String,messageType:KEY,encryptedDataCompletionHandler: @escaping (String)->()) {
         
-        ENCDEC.makeNetworkCallforFetchingKey(messageType: messageType){ key in
-            if let aes = try? AES(key: key.encryptionKey, iv: key.ivKey),
+//        ENCDEC.makeNetworkCallforFetchingKey(messageType: messageType){ key in
+//            if let aes = try? AES(key: key.encryptionKey, iv: key.ivKey),
+//               let encrypted = try? aes.encrypt(Array<UInt8>(message.utf8)) {
+//                encryptedDataCompletionHandler(  encrypted.toHexString() )
+//            }
+//        }
+        if messageType == .Email{
+            let key = "n2yBm36ET5CQNFtM"
+            let ivKey = "J8oHaKfHtpaFCXF4"
+            if let aes = try? AES(key: key, iv: ivKey),
                let encrypted = try? aes.encrypt(Array<UInt8>(message.utf8)) {
                 encryptedDataCompletionHandler(  encrypted.toHexString() )
             }
         }
+        else{
+            let key = "SodcVqtxpvbaviqh"
+            let ivKey = "EUmugD1qlnafNCdL"
+            if let aes = try? AES(key: key, iv: ivKey),
+               let encrypted = try? aes.encrypt(Array<UInt8>(message.utf8)) {
+                encryptedDataCompletionHandler(  encrypted.toHexString() )
+            }
+        }
+        
     }
     
     /// this function is used to decrypt any given message.
@@ -33,8 +50,25 @@ struct ENCDEC{
     /// - Returns: decrypted message
     static func decryptMessage(encryptedMessage: String,messageType:KEY,decryptedDataCompletionHandler: @escaping (String)->()) {
         
-        ENCDEC.makeNetworkCallforFetchingKey(messageType: messageType){ key in
-            if let aes = try? AES(key: key.encryptionKey, iv: key.ivKey),
+//        ENCDEC.makeNetworkCallforFetchingKey(messageType: messageType){ key in
+//            if let aes = try? AES(key: key.encryptionKey, iv: key.ivKey),
+//               let decrypted = try? aes.decrypt(Array<UInt8>(hex: encryptedMessage)) {
+//                decryptedDataCompletionHandler( String(data: Data(decrypted), encoding: .utf8)! )
+//            }
+//        }
+        
+        if messageType == .Email{
+            let key = "n2yBm36ET5CQNFtM"
+            let ivKey = "J8oHaKfHtpaFCXF4"
+            if let aes = try? AES(key: key, iv: ivKey),
+               let decrypted = try? aes.decrypt(Array<UInt8>(hex: encryptedMessage)) {
+                decryptedDataCompletionHandler( String(data: Data(decrypted), encoding: .utf8)! )
+            }
+        }
+        else{
+            let key = "SodcVqtxpvbaviqh"
+            let ivKey = "EUmugD1qlnafNCdL"
+            if let aes = try? AES(key: key, iv: ivKey),
                let decrypted = try? aes.decrypt(Array<UInt8>(hex: encryptedMessage)) {
                 decryptedDataCompletionHandler( String(data: Data(decrypted), encoding: .utf8)! )
             }

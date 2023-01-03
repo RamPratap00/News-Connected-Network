@@ -12,7 +12,7 @@ class ChattingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        navigationController?.isNavigationBarHidden = true
+        //navigationController?.navigationBar.isHidden = true
         // Do any additional setup after loading the view.
     }
     

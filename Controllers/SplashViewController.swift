@@ -52,13 +52,10 @@ class SplashViewController: UIViewController {
         
         fetchCurrenUserProfileData(){ _ in
             DispatchQueue.main.async{
-                let splitVC = UISplitViewController(style: .doubleColumn)
-                let masterViewController = PrimaryViewController()
-                let secondaryViewController = SecondaryViewController()
-                splitVC.viewControllers = [ masterViewController,secondaryViewController ]
-                masterViewController.title = "Menu"
-                splitVC.modalPresentationStyle = .fullScreen
-                self.present(splitVC, animated: true)
+                
+                let splitView = SplitViewController() // ===> Your splitViewController
+                splitView.modalPresentationStyle = .fullScreen
+                    self.present(splitView, animated: true)
             }
         }
         

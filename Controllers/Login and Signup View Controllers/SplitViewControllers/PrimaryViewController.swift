@@ -8,16 +8,15 @@
 import UIKit
 import FirebaseAuth
 
-class PrimaryViewController: UIViewController {
+class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         addSignOutButton()
         addViewProfileButton()
-        if UIDevice.current.userInterfaceIdiom != .pad{
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(toMainPage))
-        }
+        splitViewController?.delegate = self
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(toMainPage))
     }
     
     
@@ -74,9 +73,9 @@ class PrimaryViewController: UIViewController {
     }
     
     @objc func profileDetailView(){
-        let nextVC = ProfileViewController()
+            let nextVC = ProfileViewController()
         nextVC.email = UserDefaults.standard.value(forKey: "EMAIL") as! String
-        navigationController?.pushViewController(nextVC, animated: true)
+            self.showDetailViewController(nextVC, sender: self)
     }
     
     func addSignOutButton(){
@@ -87,7 +86,7 @@ class PrimaryViewController: UIViewController {
         signOutButton.titleLabel?.font = .systemFont(ofSize: 17)
         signOutButton.translatesAutoresizingMaskIntoConstraints = false
         signOutButton.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier:0.9).isActive = true
-        signOutButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        signOutButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
         signOutButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         signOutButton.bottomAnchor.constraint(equalTo: view.bottomAnchor,constant:-80).isActive = true
         signOutButton.addTarget(self, action: #selector(toLoginPage), for: .touchUpInside)
@@ -103,8 +102,8 @@ class PrimaryViewController: UIViewController {
     }
     
     @objc func toMainPage(){
-        let nextVC = SecondaryViewController()
-        navigationController?.pushViewController(nextVC, animated: true)
+        
+        self.showDetailViewController(SecondaryViewController(), sender: self)
     }
     
 }
