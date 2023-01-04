@@ -12,14 +12,14 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     let peopleTableView = UITableView()
     let currentUserAccount = currentUserAccountObject()
     let segmentItems = ["News", "People"]
+    let newsCategory = ["Arts","Buisness","Crime","Education","Investigation","Politics"]
+    var collectionView : UICollectionView? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        //navigationController?.navigationBar.isHidden = true
-        addSegementControlAndTableView()
+        addSegementControlTableViewCollectionView()
         fetchUsersForRecomendation(){_ in}
-        // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -30,7 +30,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         }
     }
     
-    func addSegementControlAndTableView(){
+    func addSegementControlTableViewCollectionView(){
         let control = UISegmentedControl(items: segmentItems)
         control.addTarget(self, action: #selector(segmentControl(_:)), for: .valueChanged)
         control.selectedSegmentIndex = 0
@@ -43,12 +43,21 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
             control.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: 50).isActive = true
         }
         control.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier:0.9).isActive = true
-        control.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        control.heightAnchor.constraint(equalToConstant: 45).isActive = true
         control.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
+        let searchBar = UISearchBar()
+        view.addSubview(searchBar)
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBar.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9).isActive = true
+        searchBar.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        searchBar.topAnchor.constraint(equalTo: control.bottomAnchor,constant:10).isActive = true
+        searchBar.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
         
         view.addSubview(peopleTableView)
         peopleTableView.translatesAutoresizingMaskIntoConstraints = false
-        peopleTableView.topAnchor.constraint(equalTo: control.bottomAnchor,constant:10).isActive = true
+        peopleTableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor,constant:10).isActive = true
         peopleTableView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         peopleTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         peopleTableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -58,17 +67,41 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         peopleTableView.dataSource = self
         peopleTableView.delegate = self
         peopleTableView.isHidden = true
+        
+        let collectionViewFlowLayout = UICollectionViewFlowLayout()
+        
+        if UIDevice.current.userInterfaceIdiom == .pad{
+            collectionViewFlowLayout.itemSize = CGSize(width: 450, height: 300)
+        }
+        else{
+            collectionViewFlowLayout.itemSize = CGSize(width: 350, height: 250)
+        }
+        collectionViewFlowLayout.scrollDirection = .vertical
+        collectionViewFlowLayout.minimumLineSpacing = 20
+        collectionViewFlowLayout.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        collectionView = UICollectionView(frame: view.frame,collectionViewLayout: collectionViewFlowLayout)
+        collectionView?.dataSource = self
+        collectionView?.delegate = self
+        collectionView?.register(CoustomNewsCategoryCollectionViewCell.self, forCellWithReuseIdentifier: CoustomNewsCategoryCollectionViewCell.reusableIdentifier)
+        view.addSubview(collectionView!)
+        collectionView?.translatesAutoresizingMaskIntoConstraints = false
+        collectionView?.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier: 0.95).isActive = true
+        collectionView?.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        collectionView?.topAnchor.constraint(equalTo: searchBar.bottomAnchor,constant:10).isActive = true
+        collectionView?.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
     }
+    
     
     @objc func segmentControl(_ segmentedControl: UISegmentedControl) {
        switch (segmentedControl.selectedSegmentIndex) {
           case 0:
            peopleTableView.isHidden = true
-           print("news")
+           collectionView?.isHidden = false
              // First segment tapped
           break
           case 1:
            peopleTableView.isHidden = false
+           collectionView?.isHidden = true
              // Second segment tapped
           break
           default:
@@ -123,4 +156,35 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
         navigationController?.pushViewController(nextVC, animated: true)
     }
     
+    
+    
+    
+    
 }
+
+
+extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollectionViewDelegate{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return newsCategory.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CoustomNewsCategoryCollectionViewCell.reusableIdentifier, for: indexPath) as! CoustomNewsCategoryCollectionViewCell
+        cell.newsCategory.setBackgroundImage(UIImage(named: "\(indexPath.row+1)"), for: .normal)
+        cell.newsCategory.setTitle(newsCategory[indexPath.row], for: .normal)
+        cell.newsCategory.addTarget(self, action:#selector(didtap(button: )), for: .touchUpInside)
+        cell.newsCategory.tag = indexPath.row
+        cell.nameOfTheCategory.text = newsCategory[indexPath.row]
+        return cell
+    }
+    
+    @objc func didtap(button:UIButton){
+        print("tapped")
+        let nextVC = NewsFeedViewController()
+        nextVC.newsCategory = (button.titleLabel?.text)!
+        self.navigationController?.pushViewController(nextVC, animated: true)
+    }
+    
+    
+}
+

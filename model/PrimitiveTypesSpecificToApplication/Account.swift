@@ -36,3 +36,15 @@ class Account:Equatable{
 class ArrayOfAccountsAndNews{
     static var recomendedAccounts = [Account()]
 }
+
+struct Reaction{
+    var positiveCount = 0
+    var negativeCount = 0
+    var neutralCount = 0
+}
+
+enum ReactionType:String{
+    case positive
+    case negative
+    case neutral
+}

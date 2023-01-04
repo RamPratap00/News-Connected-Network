@@ -62,7 +62,6 @@ class SelectProfilePictureViewController: UIViewController {
     }
     
     func addCollectionViewForImageDoodle(){
-        
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
         collectionViewFlowLayout.itemSize = CGSize(width: 140, height: 100)
         collectionViewFlowLayout.scrollDirection = .vertical

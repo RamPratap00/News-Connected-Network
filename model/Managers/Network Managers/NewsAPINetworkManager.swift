@@ -9,6 +9,14 @@ import Foundation
 
 class NewsAPINetworkManager{
 
+    var pageNumber = 1
+    var keyword = String()
+    var searchIn : SearchIn? = .title
+    var language : Language? = .en
+    var sortBy : SortBy? = .relevancy
+    
+    
+    
     /// Prepares the URL string to make the api call to https://newsapi.org/ . Refer to the newsapi documentation
     /// - Parameters:
     ///   - keyword: Keywords or phrases to search for in the article title and body..
@@ -27,6 +35,9 @@ class NewsAPINetworkManager{
         if let language = language{ urlString.append("&language=\(language.rawValue)") }
         if let sortBy = sortBy{ urlString.append("&sortBy=\(sortBy.rawValue)") }
         
+        
+        urlString.append("&pageSize=10")
+        urlString.append("&page=\(pageNumber)")
         urlString.append(apiKey)
         return URL(string: urlString)
     }
@@ -43,6 +54,11 @@ class NewsAPINetworkManager{
                  language:Language?,
                  sortBy:SortBy?,
                  completionHandler: @escaping (Response?,Error?)->()){
+        self.keyword = keyword
+        self.searchIn = searchIn
+        self.language = language
+        self.sortBy = sortBy
+        
         guard let url = prepareURL(keyword: keyword,searchIn: searchIn,language:language,sortBy:sortBy) else{
             print(" URL peparation failed ! ")
             return
@@ -72,7 +88,22 @@ class NewsAPINetworkManager{
                     
                 }
                 task.resume()
-        
     }
+    
+    
+    func fetchMore(completionHandler: @escaping (Response?,Error?)->()){
+        pageNumber = pageNumber + 1
+        session(keyword: keyword, searchIn: searchIn, language: language, sortBy: sortBy){ moreData,error  in
+            
+            if error == nil && moreData?.articles != nil{
+                completionHandler(moreData!, nil)
+            }
+            else{
+                completionHandler(nil,error)
+            }
+            
+        }
+    }
+    
     
 }

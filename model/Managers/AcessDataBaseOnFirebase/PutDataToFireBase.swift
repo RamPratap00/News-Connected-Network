@@ -32,7 +32,8 @@ func uploadDefaultUserDataToFireBase(email:String,password:String,userName:Strin
                                     // Uh-oh, an error occurred!
                                     return
                                 }
-                                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).setData(["USERNAME":userName, "PROFILE_DESCRIPTION":" ","URL_TO_PROFILE_PICTURE":downloadURL.absoluteString,"FOLLOWERS_LIST":[],"FOLLOWING_LIST":[], "RECENT_ACTIVITY":[],"EMAIL":email])
+                                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).setData(["USERNAME":userName, "PROFILE_DESCRIPTION":" ","URL_TO_PROFILE_PICTURE":downloadURL.absoluteString,"FOLLOWERS_LIST":[],"FOLLOWING_LIST":[],"EMAIL":email])
+                                currentUserDataBase.collection("IndividualUsersData\(encryptedDataBaseName)")
                             }
                         }
                         
@@ -77,6 +78,18 @@ func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCurrentUserA
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
             let currentUserDataBase = Firestore.firestore()
                 currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["FOLLOWERS_LIST":nonCurrentUserAccount.followersList])
+        }
+    }
+}
+
+
+func updateFireBaseRecentActivityStack(article:Article,reaction:String){
+    let currentUserAccount = currentUserAccountObject()
+    let articleUniqueSignature = (article.source.name!+" !!! NEWS CONNECTED NETWORK !!! "+article.title!)
+    ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+            currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/RecentActivity").document(articleUniqueSignature).setData(["sourceID":article.source.id as Any,"sourceName":article.source.name as Any,"author":article.author as Any,"title":article.title as Any,"description":article.description as Any,"url":article.url as Any,"urlToImage":article.urlToImage as Any,"publishedAt":article.publishedAt as Any,"content":article.content as Any,"reaction":reaction,"reactionMadeAtTime":Date.now])
         }
     }
 }

@@ -37,6 +37,14 @@ enum SearchIn:String,Codable{
     case content
 }
 
+struct ArticlesWithTimeStampAndReactions{
+    var article = Article()
+    var timeStamp = Date()
+    var positive = 0
+    var negative = 0
+    var neutral = 0
+}
+
 enum SortBy:String,Codable{
     case relevancy
     case popularity
