@@ -21,7 +21,7 @@ class ProfileViewController: UIViewController {
     func temp(){
         
         fetchUserProfileData(email: email){ account in
-            self.data.text = "following \(account.followingList.count), follower \(account.followersList.count) and Recent Activity \(account.recentActivity.count)"
+            self.data.text = "following \(account.followingList.count), follower \(account.followersList.count) and Recent Activity \(account.recentActivityCount)"
         }
         
         data.textAlignment = .center

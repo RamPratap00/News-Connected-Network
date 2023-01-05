@@ -24,7 +24,7 @@ class NewsFeedPageTableViewCell: UITableViewCell {
         self.article = article
         fetchNewsThumbNail(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail in
             DispatchQueue.main.async {
-                self.articleThumbNail.image = UIImage(data: currentArticleThumbNail)
+                self.articleThumbNail.image = convertToGrayScale(image: UIImage(data: currentArticleThumbNail)!)
             }
         }
     articleThumbNail.translatesAutoresizingMaskIntoConstraints = false
@@ -35,8 +35,10 @@ class NewsFeedPageTableViewCell: UITableViewCell {
     articleThumbNail.topAnchor.constraint(equalTo: contentView.topAnchor,constant: 10).isActive = true
         articleThumbNail.frame = contentView.bounds
         articleThumbNail.layer.cornerRadius = 30
+        articleThumbNail.layer.borderWidth = 5
         articleThumbNail.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
         articleThumbNail.layer.masksToBounds = true
+        
     
     newsTitle.translatesAutoresizingMaskIntoConstraints = false
     contentView.addSubview(newsTitle)

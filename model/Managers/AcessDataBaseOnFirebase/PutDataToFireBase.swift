@@ -48,7 +48,6 @@ func uploadDefaultUserDataToFireBase(email:String,password:String,userName:Strin
     }
 }
 
-
 func login(email:String,password:String,completionHandler:@escaping (Bool)->()){
     DispatchQueue.global(qos: .userInitiated).async {
         FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password){ authResult,error in
@@ -81,7 +80,6 @@ func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCurrentUserA
         }
     }
 }
-
 
 func updateFireBaseRecentActivityStack(article:Article,reaction:String){
     let currentUserAccount = currentUserAccountObject()

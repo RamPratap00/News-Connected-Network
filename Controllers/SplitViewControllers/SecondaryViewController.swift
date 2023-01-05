@@ -20,7 +20,7 @@ class SecondaryViewController: UITabBarController,UITabBarControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
-            let item1 = FeedPageViewController()
+            let item1 = TrendingPageViewController()
             let item2 = SearchUsersAndNewsViewController()
             let item3 = RecentActivityOnMyNetworkViewController()
             let item4 = ChattingViewController()

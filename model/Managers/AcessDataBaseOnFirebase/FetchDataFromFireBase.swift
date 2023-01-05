@@ -62,7 +62,10 @@ func fetchUserProfileData(email:String,completionHandler: @escaping (Account)->(
                             account.followersList = followersList
                             account.followingList = followingList
                             account.email = documentData?["EMAIL"] as! String
-                            completionHandler(account)
+                            fetchCurrentUserRecentActivityDocuments(){ documents in
+                                account.recentActivityCount = documents.count
+                                completionHandler(account)
+                            }
                         }
                         
                     }
@@ -97,9 +100,9 @@ func fetchUserProfilePicture(url:URL,completionHandler:@escaping(Data)->()){
     }
 }
 
-func fetchUsersForRecomendation(completionHandler:@escaping (Bool)->()){
+func fetchUsersForRecomendation(completionHandler:@escaping ([Account])->()){
     DispatchQueue.global().async{
-        ArrayOfAccountsAndNews.recomendedAccounts = []
+        var arrayOfAccounts = [Account]()
         let db = Firestore.firestore()
         db.collection("IndividualUsersData")
             .limit(to:30)
@@ -121,23 +124,24 @@ func fetchUsersForRecomendation(completionHandler:@escaping (Bool)->()){
                             account.followersList = followersList
                             account.followingList = followingList
                             account.email = documentData["EMAIL"] as! String
-                            ArrayOfAccountsAndNews.recomendedAccounts.append(account)
+                            arrayOfAccounts.append(account)
                         }
                     }
-                    completionHandler(true)
+                    completionHandler(arrayOfAccounts)
                 }
             }
     }
 }
 
-func fetchTrendingArticlesOnCurrentUsersNetwork(){
+func fetchTrendingArticlesOnCurrentUsersNetwork(completionHandler: @escaping ([ArticlesWithTimeStampAndReactions])->()){
     
     var articleWithTimeStampArray = [ArticlesWithTimeStampAndReactions]()
     
-    filterRecentActivityDocuments(){ uniqueDocuments,allDocuments,reactionDictionary in
+    filterRecentActivityDocumentsOfCurrentUsersNetwork(){ uniqueDocuments,allDocuments,reactionDictionary in
+        var articleWithTimeStamp = ArticlesWithTimeStampAndReactions()
         for document in uniqueDocuments {
             let documentData = document.data()
-            var articleWithTimeStamp = ArticlesWithTimeStampAndReactions()
+            
             var article = Article()
             article.title = documentData["title"] as? String
             article.content = documentData["content"] as? String
@@ -152,16 +156,18 @@ func fetchTrendingArticlesOnCurrentUsersNetwork(){
             articleWithTimeStamp.article = article
             let timeStamp = documentData["reactionMadeAtTime"] as! Timestamp
             articleWithTimeStamp.timeStamp = timeStamp.dateValue()
+            
+            articleWithTimeStamp.reaction = reactionDictionary[article.source.name!+" !!! NEWS CONNECTED NETWORK !!! "+article.title!]!
+            
             articleWithTimeStampArray.append(articleWithTimeStamp)
         }
         
         articleWithTimeStampArray.sort { $0.timeStamp>$1.timeStamp }
-        print(reactionDictionary)
+        completionHandler(articleWithTimeStampArray)
     }
-    
 }
 
-func filterRecentActivityDocuments(completionHandler:@escaping([QueryDocumentSnapshot],[QueryDocumentSnapshot],[String:Reaction])->()){
+func filterRecentActivityDocumentsOfCurrentUsersNetwork(completionHandler:@escaping([QueryDocumentSnapshot],[QueryDocumentSnapshot],[String:Reaction])->()){
     var uniqueDocuments = [QueryDocumentSnapshot]()
     fetchRecentActivityDocuments(){ documentsArray in
         let uniqueDocumentIDArray = fetchDocumentID(documentsList: documentsArray)
@@ -196,7 +202,6 @@ func filterRecentActivityDocuments(completionHandler:@escaping([QueryDocumentSna
         }
         
         reactionCountDictionary.removeValue(forKey: "")
-        print(reactionCountDictionary.count)
         completionHandler(uniqueDocuments,documentsArray,reactionCountDictionary)
         
     }
@@ -215,6 +220,12 @@ func fetchRecentActivityDocuments(completionHandler:@escaping ([QueryDocumentSna
     let currentUserAccount = currentUserAccountObject()
     var documentsArray = [QueryDocumentSnapshot]()
     var count = 0
+    if currentUserAccount.followingList.count == 0{
+        fetchCurrentUserRecentActivityDocuments(){ documents in
+            documentsArray.append(contentsOf: documents)
+            completionHandler(documentsArray)
+        }
+    }
     for users in currentUserAccount.followingList{
         
         ENCDEC.encryptMessage(message: users, messageType: .Email){ encryptedEmail in
@@ -230,7 +241,10 @@ func fetchRecentActivityDocuments(completionHandler:@escaping ([QueryDocumentSna
                     }
                         count+=1
                         if count == currentUserAccount.followingList.count{
-                            completionHandler(documentsArray)
+                            fetchCurrentUserRecentActivityDocuments(){ documents in
+                                documentsArray.append(contentsOf: documents)
+                                completionHandler(documentsArray)
+                            }
                         }
                 }
                 
@@ -240,6 +254,139 @@ func fetchRecentActivityDocuments(completionHandler:@escaping ([QueryDocumentSna
         
         
     }
+}
+
+func fetchTrendingArticlesOnGlobalUsersNetwork(completionHandler: @escaping ([ArticlesWithTimeStampAndReactions])->()){
+    
+    var articleWithTimeStampArray = [ArticlesWithTimeStampAndReactions]()
+    
+    filterRecentActivityDocumentsOfGlobalUsersNetwork(){ uniqueDocuments,allDocuments,reactionDictionary in
+        var articleWithTimeStamp = ArticlesWithTimeStampAndReactions()
+        for document in uniqueDocuments {
+            let documentData = document.data()
+            
+            var article = Article()
+            article.title = documentData["title"] as? String
+            article.content = documentData["content"] as? String
+            article.description = documentData["description"] as? String
+            article.author = documentData["author"] as? String
+            article.url = documentData["url"] as? String
+            article.urlToImage = documentData["urlToImage"] as? String
+            article.publishedAt = documentData["publishedAt"] as? String
+            article.source.id = documentData["sourceID"] as? String
+            article.source.name = documentData["sourceName"] as? String
+            
+            articleWithTimeStamp.article = article
+            let timeStamp = documentData["reactionMadeAtTime"] as! Timestamp
+            articleWithTimeStamp.timeStamp = timeStamp.dateValue()
+            
+            articleWithTimeStamp.reaction = reactionDictionary[article.source.name!+" !!! NEWS CONNECTED NETWORK !!! "+article.title!]!
+            
+            articleWithTimeStampArray.append(articleWithTimeStamp)
+        }
+        
+        articleWithTimeStampArray.sort { $0.timeStamp>$1.timeStamp }
+        completionHandler(articleWithTimeStampArray)
+    }
+}
+
+func filterRecentActivityDocumentsOfGlobalUsersNetwork(completionHandler:@escaping([QueryDocumentSnapshot],[QueryDocumentSnapshot],[String:Reaction])->()){
+    var uniqueDocuments = [QueryDocumentSnapshot]()
+    fetchRecentActivityDocumentsOfAllUsers(){ documentsArray in
+        let uniqueDocumentIDArray = fetchDocumentID(documentsList: documentsArray)
+        for documentID in uniqueDocumentIDArray{
+            for document in documentsArray {
+                if document.documentID == documentID{
+                    uniqueDocuments.append(document)
+                    break
+                }
+            }
+        }
+        
+        var reactionCountDictionary = [String():Reaction()]
+        
+        for document in uniqueDocuments {
+            reactionCountDictionary[document.documentID] = Reaction()
+        }
+        
+        for document in documentsArray {
+            let documentData = document.data()
+        
+            if documentData["reaction"] as? String == ReactionType.positive.rawValue{
+                reactionCountDictionary[document.documentID]?.positiveCount+=1
+            }
+            else if documentData["reaction"] as? String == ReactionType.negative.rawValue{
+                reactionCountDictionary[document.documentID]?.negativeCount+=1
+            }
+            else{
+                reactionCountDictionary[document.documentID]?.neutralCount+=1
+            }
+            
+        }
+        
+        reactionCountDictionary.removeValue(forKey: "")
+        completionHandler(uniqueDocuments,documentsArray,reactionCountDictionary)
+        
+    }
+}
+
+func fetchRecentActivityDocumentsOfAllUsers(completionHandler:@escaping ([QueryDocumentSnapshot])->()){
+    var documentsArray = [QueryDocumentSnapshot]()
+    let currentUserDataBase = Firestore.firestore()
+    var count = 0
+    fetchAllUsersDocumentID(){ documentsIdArray in
+        
+        for currentDocumentId in documentsIdArray{
+            currentUserDataBase.collection("IndividualUsersData/\(currentDocumentId)/RecentActivity").getDocuments { (snapshot, error) in
+                documentsArray.append(contentsOf: snapshot!.documents)
+                count+=1
+                if count == documentsIdArray.count{
+                    completionHandler(documentsArray)
+                }
+            }
+        }
+    }
+        
+}
+
+func fetchAllUsersDocumentID(completionHandler:@escaping ([String])->()){
+    let db = Firestore.firestore()
+    var documentIDArray = [String]()
+    db.collection("IndividualUsersData").getDocuments { (snapshot, error) in
+        
+        if error == nil && snapshot != nil {
+            
+            for document in snapshot!.documents {
+                documentIDArray.append(document.documentID)
+            }
+            completionHandler(documentIDArray)
+        }
+
+        
+    }
+}
+
+func fetchCurrentUserRecentActivityDocuments(completionHandler:@escaping ([QueryDocumentSnapshot])->()){
+    
+    
+    let users = UserDefaults.standard.value(forKey:"EMAIL") as! String
+    ENCDEC.encryptMessage(message: users, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+            
+            
+            currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/RecentActivity")
+                .getDocuments { (snapshot, error) in
+                
+                if error == nil && snapshot != nil {
+                   completionHandler(snapshot!.documents)
+                }
+            }
+            
+            
+        }
+    }
+    
 }
 
 func isFollowing(email:String,followingList:[String])->Bool{

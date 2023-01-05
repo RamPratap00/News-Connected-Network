@@ -1,5 +1,5 @@
 //
-//  RecentActivityOnMyNetworkViewController.swift
+//  FeedPageViewController.swift
 //  News Connected Network
 //
 //  Created by ram-16138 on 31/12/22.
@@ -7,12 +7,12 @@
 
 import UIKit
 
-class RecentActivityOnMyNetworkViewController: UIViewController{
-    
+class TrendingPageViewController: UIViewController {
 
     let tableView = UITableView()
     var arrayOfArticles = [ArticlesWithTimeStampAndReactions]()
     let refreshControl = UIRefreshControl()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -20,17 +20,16 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl)
-        fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
+        fetchTrendingArticlesOnGlobalUsersNetwork(){ articleWithReactionDictionary in
             self.arrayOfArticles = articleWithReactionDictionary
             self.tableView.reloadData()
         }
         // Do any additional setup after loading the view.
     }
     
-    
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view
-        fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
+        fetchTrendingArticlesOnGlobalUsersNetwork(){ articleWithReactionDictionary in
             self.arrayOfArticles = articleWithReactionDictionary
             self.tableView.reloadData()
         }
@@ -52,8 +51,6 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
         tableView.delegate = self
         tableView.dataSource = self
     }
-    
-    
     /*
     // MARK: - Navigation
 
@@ -66,7 +63,8 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
 
 }
 
-extension RecentActivityOnMyNetworkViewController:UITableViewDataSource,UITableViewDelegate{
+
+extension TrendingPageViewController:UITableViewDataSource,UITableViewDelegate{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return arrayOfArticles.count
     }

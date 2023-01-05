@@ -42,7 +42,7 @@
 		1A653935295D693800D7555F /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 1A653934295D693800D7555F /* FirebaseStorageCombine-Community */; };
 		1A6860292962E8F1001FF316 /* SecondaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6860282962E8F1001FF316 /* SecondaryViewController.swift */; };
 		1A68602B29630BA1001FF316 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A68602A29630BA1001FF316 /* SplitViewController.swift */; };
-		1A7906D1296025AE00ABF006 /* FeedPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D0296025AE00ABF006 /* FeedPageViewController.swift */; };
+		1A7906D1296025AE00ABF006 /* TrendingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D0296025AE00ABF006 /* TrendingPageViewController.swift */; };
 		1A7906D3296025D900ABF006 /* SearchUsersAndNewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D2296025D900ABF006 /* SearchUsersAndNewsViewController.swift */; };
 		1A7906D52960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D42960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift */; };
 		1A7906D72960261900ABF006 /* ChattingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D62960261900ABF006 /* ChattingViewController.swift */; };
@@ -99,7 +99,7 @@
 		1A6538FF295D560800D7555F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1A6860282962E8F1001FF316 /* SecondaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryViewController.swift; sourceTree = "<group>"; };
 		1A68602A29630BA1001FF316 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
-		1A7906D0296025AE00ABF006 /* FeedPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPageViewController.swift; sourceTree = "<group>"; };
+		1A7906D0296025AE00ABF006 /* TrendingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingPageViewController.swift; sourceTree = "<group>"; };
 		1A7906D2296025D900ABF006 /* SearchUsersAndNewsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUsersAndNewsViewController.swift; sourceTree = "<group>"; };
 		1A7906D42960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentActivityOnMyNetworkViewController.swift; sourceTree = "<group>"; };
 		1A7906D62960261900ABF006 /* ChattingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChattingViewController.swift; sourceTree = "<group>"; };
@@ -215,7 +215,7 @@
 			isa = PBXGroup;
 			children = (
 				1A7906E129613FA400ABF006 /* News and people table View controllers */,
-				1A7906D0296025AE00ABF006 /* FeedPageViewController.swift */,
+				1A7906D0296025AE00ABF006 /* TrendingPageViewController.swift */,
 				1A7906D2296025D900ABF006 /* SearchUsersAndNewsViewController.swift */,
 				1A7906D42960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift */,
 				1A7906D62960261900ABF006 /* ChattingViewController.swift */,
@@ -580,7 +580,7 @@
 				1A7906DC2960400200ABF006 /* PutDataToFireBase.swift in Sources */,
 				1AD34E71295C99CD00535B84 /* NewsDataBaseManager.swift in Sources */,
 				1AD34E27295C997100535B84 /* AppDelegate.swift in Sources */,
-				1A7906D1296025AE00ABF006 /* FeedPageViewController.swift in Sources */,
+				1A7906D1296025AE00ABF006 /* TrendingPageViewController.swift in Sources */,
 				1AD34E74295C99CD00535B84 /* DataBaseHelper.swift in Sources */,
 				1AD34E76295C99CD00535B84 /* SignUpViewController.swift in Sources */,
 				1A7906EB2961CB7800ABF006 /* ProfileViewController.swift in Sources */,

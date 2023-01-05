@@ -9,8 +9,10 @@ import UIKit
 
 class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
 
-    let peopleTableView = UITableView()
+    let tableView = UITableView()
     let currentUserAccount = currentUserAccountObject()
+    var arrayOfAccounts = [Account]()
+    let refreshControl = UIRefreshControl()
     let segmentItems = ["News", "People"]
     let newsCategory = ["Arts","Buisness","Crime","Education","Investigation","Politics"]
     var collectionView : UICollectionView? = nil
@@ -18,15 +20,32 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+
         addSegementControlTableViewCollectionView()
-        fetchUsersForRecomendation(){_ in}
+        fetchUsersForRecomendation(){accounts in self.arrayOfAccounts=accounts}
+    }
+    
+    
+    @objc func refresh(_ sender: AnyObject) {
+       // Code to refresh table view
+        fetchCurrenUserProfileData( ){ _ in
+            fetchUsersForRecomendation(){
+                accounts in self.arrayOfAccounts=accounts
+                self.tableView.reloadData()
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.refreshControl.endRefreshing()
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        fetchUsersForRecomendation(){_ in
-            
-            self.peopleTableView.reloadData()
+        fetchCurrenUserProfileData( ){ _ in
+            fetchUsersForRecomendation(){
+                accounts in self.arrayOfAccounts=accounts
+                self.tableView.reloadData()
+            }
         }
     }
     
@@ -55,18 +74,22 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         searchBar.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
         
-        view.addSubview(peopleTableView)
-        peopleTableView.translatesAutoresizingMaskIntoConstraints = false
-        peopleTableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor,constant:10).isActive = true
-        peopleTableView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
-        peopleTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
-        peopleTableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        peopleTableView.register(CoustomUserTableViewCell.self, forCellReuseIdentifier: CoustomUserTableViewCell.identifier)
-        peopleTableView.estimatedRowHeight = 100
-        peopleTableView.rowHeight = UITableView.automaticDimension
-        peopleTableView.dataSource = self
-        peopleTableView.delegate = self
-        peopleTableView.isHidden = true
+        view.addSubview(tableView)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor,constant:10).isActive = true
+        tableView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        tableView.register(CoustomUserTableViewCell.self, forCellReuseIdentifier: CoustomUserTableViewCell.identifier)
+        tableView.estimatedRowHeight = 100
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.isHidden = true
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
+        tableView.addSubview(refreshControl)
+        
         
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
         
@@ -95,12 +118,12 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     @objc func segmentControl(_ segmentedControl: UISegmentedControl) {
        switch (segmentedControl.selectedSegmentIndex) {
           case 0:
-           peopleTableView.isHidden = true
+           tableView.isHidden = true
            collectionView?.isHidden = false
              // First segment tapped
           break
           case 1:
-           peopleTableView.isHidden = false
+           tableView.isHidden = false
            collectionView?.isHidden = true
              // Second segment tapped
           break
@@ -124,14 +147,13 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
 
 extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDelegate{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-
-            return ArrayOfAccountsAndNews.recomendedAccounts.count
+            return arrayOfAccounts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
             let cell = tableView.dequeueReusableCell(withIdentifier: CoustomUserTableViewCell.identifier, for: indexPath) as! CoustomUserTableViewCell
-            let account = ArrayOfAccountsAndNews.recomendedAccounts[indexPath.row]
+            let account = arrayOfAccounts[indexPath.row]
             cell.currentUserAccount = currentUserAccount
             cell.nameStamp.text = account.userName
             cell.userIDStamp.text = account.fetchUserID()
@@ -170,7 +192,7 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CoustomNewsCategoryCollectionViewCell.reusableIdentifier, for: indexPath) as! CoustomNewsCategoryCollectionViewCell
-        cell.newsCategory.setBackgroundImage(UIImage(named: "\(indexPath.row+1)"), for: .normal)
+        cell.newsCategory.setBackgroundImage(   convertToGrayScale(image: UIImage(named: "\(indexPath.row+1)")!) , for: .normal)
         cell.newsCategory.setTitle(newsCategory[indexPath.row], for: .normal)
         cell.newsCategory.addTarget(self, action:#selector(didtap(button: )), for: .touchUpInside)
         cell.newsCategory.tag = indexPath.row
@@ -184,7 +206,6 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
         nextVC.newsCategory = (button.titleLabel?.text)!
         self.navigationController?.pushViewController(nextVC, animated: true)
     }
-    
     
 }
 
