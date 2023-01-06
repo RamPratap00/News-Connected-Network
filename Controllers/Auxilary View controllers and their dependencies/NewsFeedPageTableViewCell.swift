@@ -22,10 +22,15 @@ class NewsFeedPageTableViewCell: UITableViewCell {
     
     func loadNewscell(article:Article){
         self.article = article
-        fetchNewsThumbNail(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail in
-            DispatchQueue.main.async {
-                self.articleThumbNail.image = convertToGrayScale(image: UIImage(data: currentArticleThumbNail)!)
+        if article.urlToImage != "" && article.urlToImage != nil{
+                fetchNewsThumbNail(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail in
+                DispatchQueue.main.async {
+                    self.articleThumbNail.image = convertToGrayScale(image: UIImage(data: currentArticleThumbNail)!)
+                }
             }
+        }
+        else{
+            articleThumbNail.image = convertToGrayScale(image: UIImage(systemName: "newspaper" )!)
         }
     articleThumbNail.translatesAutoresizingMaskIntoConstraints = false
     contentView.addSubview(articleThumbNail)

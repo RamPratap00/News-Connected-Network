@@ -19,10 +19,6 @@ class DetailedNewsViewController: UIViewController {
     }
     
     
-    
-    
-    
-    
     func addReactionButton(){
         let positiveButton = UIButton()
         positiveButton.setTitle("Positive", for: .normal)

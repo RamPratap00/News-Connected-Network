@@ -13,8 +13,9 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     let currentUserAccount = currentUserAccountObject()
     var arrayOfAccounts = [Account]()
     let refreshControl = UIRefreshControl()
+    var searchBar = UISearchBar()
     let segmentItems = ["News", "People"]
-    let newsCategory = ["Arts","Buisness","Crime","Education","Investigation","Politics"]
+    let newsCategory = ["business","entertainment","general","health","science","sports","technology"]
     var collectionView : UICollectionView? = nil
     
     override func viewDidLoad() {
@@ -65,14 +66,24 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         control.heightAnchor.constraint(equalToConstant: 45).isActive = true
         control.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
-        let searchBar = UISearchBar()
         view.addSubview(searchBar)
         searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchBar.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9).isActive = true
+        searchBar.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
         searchBar.heightAnchor.constraint(equalToConstant: 60).isActive = true
         searchBar.topAnchor.constraint(equalTo: control.bottomAnchor,constant:10).isActive = true
-        searchBar.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        searchBar.leadingAnchor.constraint(equalTo: control.leadingAnchor).isActive = true
+        searchBar.showsCancelButton = false
+        searchBar.placeholder = "  Discover News"
         
+        let searchButton = UIButton()
+        searchButton.setImage(UIImage(systemName: "arrowshape.right"), for: .normal)
+        view.addSubview(searchButton)
+        searchButton.translatesAutoresizingMaskIntoConstraints = false
+        searchButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        searchButton.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        searchButton.centerYAnchor.constraint(equalTo: searchBar.centerYAnchor).isActive = true
+        searchButton.trailingAnchor.constraint(equalTo: control.trailingAnchor).isActive = true
+        searchButton.addTarget(self, action: #selector(newsSeacrhInitiate), for: .touchUpInside)
         
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -115,16 +126,27 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     }
     
     
+    @objc func newsSeacrhInitiate(){
+        let nextVC = NewsFeedViewController()
+        if let keyword = searchBar.text{
+            nextVC.keyword = keyword
+            nextVC.loadNews()
+            navigationController?.pushViewController(nextVC, animated: true)
+        }
+    }
+    
     @objc func segmentControl(_ segmentedControl: UISegmentedControl) {
        switch (segmentedControl.selectedSegmentIndex) {
           case 0:
            tableView.isHidden = true
            collectionView?.isHidden = false
+           searchBar.placeholder = "  Discover News"
              // First segment tapped
           break
           case 1:
            tableView.isHidden = false
            collectionView?.isHidden = true
+           searchBar.placeholder = "  Discover People"
              // Second segment tapped
           break
           default:
@@ -174,7 +196,7 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
         
         tableView.deselectRow(at: indexPath, animated: true)
         let nextVC = ProfileViewController()
-        nextVC.email = ArrayOfAccountsAndNews.recomendedAccounts[indexPath.row].email
+        nextVC.email = arrayOfAccounts[indexPath.row].email
         navigationController?.pushViewController(nextVC, animated: true)
     }
     
@@ -192,7 +214,7 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CoustomNewsCategoryCollectionViewCell.reusableIdentifier, for: indexPath) as! CoustomNewsCategoryCollectionViewCell
-        cell.newsCategory.setBackgroundImage(   convertToGrayScale(image: UIImage(named: "\(indexPath.row+1)")!) , for: .normal)
+        cell.newsCategory.setBackgroundImage(   UIImage(named: "\(indexPath.row+1)")! , for: .normal)
         cell.newsCategory.setTitle(newsCategory[indexPath.row], for: .normal)
         cell.newsCategory.addTarget(self, action:#selector(didtap(button: )), for: .touchUpInside)
         cell.newsCategory.tag = indexPath.row
@@ -201,9 +223,8 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
     }
     
     @objc func didtap(button:UIButton){
-        print("tapped")
         let nextVC = NewsFeedViewController()
-        nextVC.newsCategory = (button.titleLabel?.text)!
+        nextVC.loadHeadLines(keyword: nil, country: nil, newsCategory: NewsCategory(rawValue: (button.titleLabel?.text)!))
         self.navigationController?.pushViewController(nextVC, animated: true)
     }
     

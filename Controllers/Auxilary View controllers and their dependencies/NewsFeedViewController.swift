@@ -12,28 +12,36 @@ class NewsFeedViewController: UIViewController {
 
     let tableView = UITableView()
     var arrayOfArticles = [Article]()
-    var newsCategory = String()
+    var keyword = String()
     var isPaginating = false
     let newsAPI = NewsAPINetworkManager()
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         addTableView()
-        loadNews()
         // Do any additional setup after loading the view.
     }
     
     func loadNews(){
-        newsAPI.session(keyword: newsCategory, searchIn: .content, language: .en, sortBy: .relevancy){ data,error in
+        newsAPI.session(keyword: keyword, searchIn: .content, language: .en, sortBy: .relevancy){ data,error in
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
+//                DispatchQueue.main.async {
+//                    self.tableView.reloadData()
+//                }
             }
         }
     }
-    
+    func loadHeadLines(keyword:String?,country:Country?,newsCategory:NewsCategory?){
+        newsAPI.sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory){ data,error in
+            if error == nil && data?.articles != nil{
+                self.arrayOfArticles = data!.articles
+//                DispatchQueue.main.async {
+//                    self.tableView.reloadData()
+//                }
+            }
+        }
+    }
     
     func addTableView(){
         view.addSubview(tableView)

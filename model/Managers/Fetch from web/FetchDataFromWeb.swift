@@ -9,7 +9,7 @@ import Foundation
 
 
 func fetchNewsThumbNail(url:URL,completionHandler:@escaping(Data)->()){
-    DispatchQueue.global(qos: .userInitiated).async {
+    DispatchQueue.global(qos: .userInteractive).async {
         let dataTask = URLSession.shared.dataTask(with:url){ data,response,error in
             if error == nil{
                 completionHandler(data!)

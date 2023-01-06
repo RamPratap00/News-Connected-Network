@@ -11,6 +11,8 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
     
 
     let tableView = UITableView()
+    var isViewOnMyNetwork = true
+    let segmentItems = ["My Network", "Global Network"]
     var arrayOfArticles = [ArticlesWithTimeStampAndReactions]()
     let refreshControl = UIRefreshControl()
     override func viewDidLoad() {
@@ -30,9 +32,17 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
     
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view
-        fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
-            self.arrayOfArticles = articleWithReactionDictionary
-            self.tableView.reloadData()
+        if isViewOnMyNetwork{
+            fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
+                self.arrayOfArticles = articleWithReactionDictionary
+                self.tableView.reloadData()
+            }
+        }
+        else{
+            fetchTrendingArticlesOnGlobalUsersNetwork(){ articleWithReactionDictionary in
+                self.arrayOfArticles = articleWithReactionDictionary
+                self.tableView.reloadData()
+            }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.refreshControl.endRefreshing()
@@ -40,12 +50,28 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
     }
     
     func addTableView(){
+        
+        let control = UISegmentedControl(items: segmentItems)
+        control.addTarget(self, action: #selector(segmentControl(_:)), for: .valueChanged)
+        control.selectedSegmentIndex = 0
+        view.addSubview(control)
+        control.translatesAutoresizingMaskIntoConstraints = false
+        if UIDevice.current.userInterfaceIdiom != .pad{
+            control.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        }
+        else{
+            control.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: 60).isActive = true
+        }
+        control.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier:0.9).isActive = true
+        control.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        control.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
-        tableView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        tableView.topAnchor.constraint(equalTo: control.bottomAnchor,constant: 10).isActive = true
         tableView.register(NewsFeedPageTableViewCell.self, forCellReuseIdentifier: NewsFeedPageTableViewCell.identifier)
         tableView.estimatedRowHeight = 80
         tableView.rowHeight = UITableView.automaticDimension
@@ -53,6 +79,27 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
         tableView.dataSource = self
     }
     
+    
+    @objc func segmentControl(_ segmentedControl: UISegmentedControl) {
+       switch (segmentedControl.selectedSegmentIndex) {
+          case 0:
+           fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
+               self.arrayOfArticles = articleWithReactionDictionary
+               self.tableView.reloadData()
+           }
+           isViewOnMyNetwork = true
+          break
+          case 1:
+           fetchTrendingArticlesOnGlobalUsersNetwork(){ articleWithReactionDictionary in
+               self.arrayOfArticles = articleWithReactionDictionary
+               self.tableView.reloadData()
+           }
+           isViewOnMyNetwork = false
+          break
+          default:
+          break
+       }
+    }
     
     /*
     // MARK: - Navigation
