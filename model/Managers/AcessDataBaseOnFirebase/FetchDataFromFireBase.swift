@@ -11,6 +11,8 @@ import UIKit
 import FirebaseFirestore
 
 
+var dictionary = ["abc":1,"xyz":2]
+
 func fetchCurrenUserProfileData(completionHandler: @escaping (Bool)->()){
     let db = Firestore.firestore()
     let email = UserDefaults.standard.value(forKey: "EMAIL") as! String

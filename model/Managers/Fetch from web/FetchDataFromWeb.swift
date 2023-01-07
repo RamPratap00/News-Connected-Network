@@ -8,11 +8,18 @@
 import Foundation
 
 
-func fetchNewsThumbNail(url:URL,completionHandler:@escaping(Data)->()){
+func fetchNewsThumbNail(url:URL,completionHandler:@escaping(Data?,Error?)->()){
     DispatchQueue.global(qos: .userInteractive).async {
         let dataTask = URLSession.shared.dataTask(with:url){ data,response,error in
-            if error == nil{
-                completionHandler(data!)
+            
+            guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+                print("Server error!")
+                completionHandler(nil,error)
+                return
+            }
+            
+            if error == nil && data != nil{
+                completionHandler(data!, nil)
             }
         }
         dataTask.resume()

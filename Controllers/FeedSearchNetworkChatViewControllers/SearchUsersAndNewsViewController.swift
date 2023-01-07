@@ -43,8 +43,8 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         fetchCurrenUserProfileData( ){ _ in
-            fetchUsersForRecomendation(){
-                accounts in self.arrayOfAccounts=accounts
+            fetchUsersForRecomendation(){ accounts in
+                self.arrayOfAccounts=accounts
                 self.tableView.reloadData()
             }
         }
