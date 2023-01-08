@@ -22,11 +22,12 @@ class ChattingViewController: UIViewController {
         let set2:Set<String> = Set(currentUser.followingList)
         reachableAccounts = Array( set1.union(set2) )
         addTableViewOfUsers()
+        loadDataForTableView()
         // Do any additional setup after loading the view.
     }
+
     
-    
-    override func viewDidAppear(_ animated: Bool) {
+    func loadDataForTableView(){
         reachableAccountsArray = []
         var count = 0
         for email in reachableAccounts{

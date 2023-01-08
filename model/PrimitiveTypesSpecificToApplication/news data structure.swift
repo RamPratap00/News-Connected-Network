@@ -43,6 +43,20 @@ enum SortBy:String,Codable{
     case publishedAt
 }
 
+let langauge = ["عربى","Deutsche","English","española","française","הברו","italiana","nederlands","Português","русский","svenska","中国人"]
+
 enum Language:String,Codable{
-    case ar,de,en,es,fr,he,it,nl,no,pt,ru,sv,ud,zh
+    case ar = "عربى"
+    case de = "Deutsche"
+    case en = "English"
+    case es = "española"
+    case fr = "française"
+    case he = "הברו"
+    case it = "italiana"
+    case nl = "nederlands"
+    case pt = "Português"
+    case ru = "русский"
+    case sv = "svenska"
+    case zh = "中国人"
 }
+

@@ -17,6 +17,7 @@ class SelectProfilePictureViewController: UIViewController {
     var isImageSelected = false
     var selectedImageIndexPath = IndexPath()
     let nextButton = UIButton()
+    var language = String()
     var email = String()
     let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
     let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
@@ -112,7 +113,7 @@ class SelectProfilePictureViewController: UIViewController {
         present(alert, animated: true, completion: nil)
         if isImageSelected{
             let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
-            uploadingImageToFireBase(data: (selectedCell.profileImage.image?.pngData()!)!){ imageUpdateStatus in
+            uploadingImageToFireBase(email: email, data: (selectedCell.profileImage.image?.pngData()!)!, language: language){ imageUpdateStatus in
                 fetchCurrenUserProfileData(){ _ in
                     DispatchQueue.main.async {
                         UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
@@ -128,30 +129,6 @@ class SelectProfilePictureViewController: UIViewController {
         }
         else{
             print("no image selected")
-        }
-    }
-    
-    func uploadingImageToFireBase(data:Data,completionHandler:@escaping (Bool)->()){
-        ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
-            ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
-                let currentUserDataBase = Firestore.firestore()
-                let storageRef = Storage.storage().reference()
-                let fireBaseRef = storageRef.child("images/\(encryptedEmail).jpg")
-                
-                // Upload the file to the path "images/email-encrypted.jpg"
-                _ = fireBaseRef.putData(data, metadata: nil) { (metadata, error) in
-                    // You can also access to download URL after upload.
-                    fireBaseRef.downloadURL { (url, error) in
-                        guard let downloadURL = url else {
-                            // Uh-oh, an error occurred!
-                            return
-                        }
-                        currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["URL_TO_PROFILE_PICTURE":downloadURL.absoluteString])
-
-                        completionHandler(true)
-                    }
-                }
-            }
         }
     }
     /*

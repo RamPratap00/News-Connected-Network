@@ -11,11 +11,8 @@ class TrendingPageViewController: UIViewController {
 
     let tableView = UITableView()
     var arrayOfArticles = [Article]()
-    var newsCategory : NewsCategory? = nil
     let refreshControl = UIRefreshControl()
     var isPaginating = false
-    var keyword : String? = nil
-    var country : Country? = nil
     let newsAPI = NewsAPINetworkManager()
     
     override func viewDidLoad() {
@@ -24,16 +21,14 @@ class TrendingPageViewController: UIViewController {
         
         
         addTableView()
-        loadHeadLines(keyword: nil, country: .In, newsCategory: nil)
+        loadHeadLinesForTrendingPage(keyword: nil, country: nil, newsCategory: nil)
         // Do any additional setup after loading the view.
     }
     
     
-    func loadHeadLines(keyword:String?,country:Country?,newsCategory:NewsCategory?){
-        self.newsCategory = newsCategory
-        self.country = country
-        self.keyword = keyword
-        newsAPI.sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory){ data,error in
+    func loadHeadLinesForTrendingPage(keyword:String?,country:Country?,newsCategory:NewsCategory?){
+        let currentUser = currentUserAccountObject()
+        newsAPI.sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory, language: currentUser.language){ data,error in
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
                 DispatchQueue.main.async {
@@ -64,7 +59,8 @@ class TrendingPageViewController: UIViewController {
     
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view
-        newsAPI.sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory){ data,error in
+        let currentUser = currentUserAccountObject()
+        newsAPI.sessionToLoadHeadLines(keyword: nil, country: nil, newsCategory: nil, language: currentUser.language){ data,error in
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
                 DispatchQueue.main.async {

@@ -324,7 +324,7 @@ extension SignUpViewController:UITextFieldDelegate{
                 DispatchQueue.main.async{
                     if status {
                         UserDefaults.standard.set(email!, forKey: "EMAIL")
-                        let nextVC = SelectProfilePictureViewController()
+                        let nextVC = SelectLanguageViewController()
                         nextVC.email = email!
                         self.navigationController?.pushViewController(nextVC, animated: true)
                     }

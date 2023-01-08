@@ -7,33 +7,24 @@
 
 import UIKit
 import MessageKit
+import Firebase
 import InputBarAccessoryView
-
-struct Message:MessageType{
-    var sender: MessageKit.SenderType
-    var messageId: String
-    var sentDate: Date
-    var kind: MessageKit.MessageKind
-}
-
-struct Sender:SenderType{
-    var senderId: String
-    var displayName: String
-}
 
 class CSChatViewController: MessagesViewController {
 
     var sendingtUser = Account()
     var receivingUser = Account()
     var messages = [Message]()
-    var sender = Sender(senderId: "", displayName: "")
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        sender.senderId = sendingtUser.email
-        sender.displayName = sendingtUser.userName
         
+    override func viewDidLoad() {
+        if let layout = messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout {
+                    layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
+                    layout.textMessageSizeCalculator.incomingAvatarSize = .zero
+                    layout.setMessageIncomingAvatarSize(.zero)
+                }
+        
+        super.viewDidLoad()
+        addListner()
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
@@ -41,10 +32,45 @@ class CSChatViewController: MessagesViewController {
         // Do any additional setup after loading the view.
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        messagesCollectionView.reloadData()
+    
+    func addListner(){
+        let currentUserAccount = currentUserAccountObject()
+        ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
+            ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+                let currentUserDataBase = Firestore.firestore()
+                currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/\(self.sendingtUser.email)")
+                    .addSnapshotListener { [self] documentSnapshot, error in
+                        print("something happended")
+                        reload()
+                    }
+            }
+        }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        reload()
+    }
+    
+    
+    func reload(){
+        messages = []
+        fetchMessageFromFireBaseChatSystem(sender: sendingtUser){ documents in
+            
+            for document in documents {
+                
+                let documentData = document.data()
+                let timeStamp = documentData["sentDate"] as! Timestamp
+                let message = Message(sender: Sender(senderId: documentData["senderId"] as! String, displayName: documentData["displayName"] as! String),
+                                      messageId: documentData["messageId"] as! String,
+                                      sentDate: timeStamp.dateValue(),
+                                      kind: .text(documentData["message"] as! String))
+                self.messages.append(message)
+            }
+            self.messages.sort { $0.sentDate<$1.sentDate }
+                self.messagesCollectionView.reloadData()
+            
+        }
+    }
     /*
     // MARK: - Navigation
 
@@ -60,33 +86,33 @@ class CSChatViewController: MessagesViewController {
 
 extension CSChatViewController:MessagesDataSource,MessagesLayoutDelegate,MessagesDisplayDelegate{
     var currentSender: MessageKit.SenderType {
-        return sender
+        return Sender(senderId: sendingtUser.email, displayName: sendingtUser.userName)
     }
-    
+
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessageKit.MessagesCollectionView) -> MessageKit.MessageType {
         return messages[indexPath.section]
     }
-    
+
     func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
         return messages.count
     }
-    
-    
+
+
 }
 
 extension CSChatViewController:InputBarAccessoryViewDelegate{
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         if text != "" && text != " "{
-            print("Sending: \(text)")
-            
-            let newMessage = Message(sender: sender,
+
+            let newMessage = Message(sender: Sender(senderId: sendingtUser.email, displayName: sendingtUser.userName),
                                    messageId: sendingtUser.email+"<|||>"+sendingtUser.fetchUserID(),
                                    sentDate: Date(),
                                    kind: .text(text))
-            
+
+            putNewMessageToFireBaseChatSystem(sender: sendingtUser, receiver: receivingUser, message: newMessage,contentOfTheMessage: text)
             messages.append(newMessage)
             messagesCollectionView.reloadData()
-            
+
             messageInputBar.inputTextView.text = nil
         }
         else{

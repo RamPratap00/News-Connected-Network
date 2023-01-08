@@ -13,6 +13,7 @@ class NewsFeedViewController: UIViewController {
     let tableView = UITableView()
     var arrayOfArticles = [Article]()
     var keyword = String()
+    var language = String()
     var isPaginating = false
     let newsAPI = NewsAPINetworkManager()
     override func viewDidLoad() {
@@ -23,22 +24,22 @@ class NewsFeedViewController: UIViewController {
     }
     
     func loadNews(){
-        newsAPI.session(keyword: keyword, searchIn: .content, language: .en, sortBy: .relevancy){ data,error in
+        newsAPI.session(keyword: keyword, searchIn: .content, language: language, sortBy: .relevancy){ data,error in
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
-//                DispatchQueue.main.async {
-//                    self.tableView.reloadData()
-//                }
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
             }
         }
     }
-    func loadHeadLines(keyword:String?,country:Country?,newsCategory:NewsCategory?){
-        newsAPI.sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory){ data,error in
+    func loadHeadLines(keyword:String?,country:Country?,newsCategory:NewsCategory?,language:String?){
+        newsAPI.sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory, language: language){ data,error in
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
-//                DispatchQueue.main.async {
-//                    self.tableView.reloadData()
-//                }
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
             }
         }
     }

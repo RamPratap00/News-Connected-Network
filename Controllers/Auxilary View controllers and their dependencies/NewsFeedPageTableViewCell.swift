@@ -26,7 +26,7 @@ class NewsFeedPageTableViewCell: UITableViewCell {
             if URL(string: article.urlToImage!) != nil{
                 fetchNewsThumbNail(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail,error in
                     if currentArticleThumbNail == nil{
-                        print("something went wrong",article.title)
+                        print("something went wrong")
                         return
                     }
                     else{

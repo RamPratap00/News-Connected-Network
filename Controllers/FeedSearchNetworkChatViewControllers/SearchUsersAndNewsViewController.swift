@@ -108,11 +108,11 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
             collectionViewFlowLayout.itemSize = CGSize(width: 450, height: 300)
         }
         else{
-            collectionViewFlowLayout.itemSize = CGSize(width: 350, height: 250)
+            collectionViewFlowLayout.itemSize = CGSize(width: 380, height: 250)
         }
         collectionViewFlowLayout.scrollDirection = .vertical
         collectionViewFlowLayout.minimumLineSpacing = 20
-        collectionViewFlowLayout.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        collectionViewFlowLayout.sectionInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
         collectionView = UICollectionView(frame: view.frame,collectionViewLayout: collectionViewFlowLayout)
         collectionView?.dataSource = self
         collectionView?.delegate = self
@@ -128,8 +128,10 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     
     @objc func newsSeacrhInitiate(){
         let nextVC = NewsFeedViewController()
+        let currentUser = currentUserAccountObject()
         if let keyword = searchBar.text{
             nextVC.keyword = keyword
+            nextVC.language = currentUser.language
             nextVC.loadNews()
             navigationController?.pushViewController(nextVC, animated: true)
         }
@@ -224,7 +226,8 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
     
     @objc func didtap(button:UIButton){
         let nextVC = NewsFeedViewController()
-        nextVC.loadHeadLines(keyword: nil, country: nil, newsCategory: NewsCategory(rawValue: (button.titleLabel?.text)!))
+        let currentUser = currentUserAccountObject()
+        nextVC.loadHeadLines(keyword: nil, country: nil, newsCategory: NewsCategory(rawValue: (button.titleLabel?.text)!), language: currentUser.language)
         self.navigationController?.pushViewController(nextVC, animated: true)
     }
     

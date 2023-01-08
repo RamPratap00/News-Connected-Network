@@ -26,6 +26,7 @@ class Account:Equatable{
     var followingList = [String]()
     var recentActivityCount = Int()
     var email = String()
+    var language = String()
     
     
     func fetchUserID()->String{

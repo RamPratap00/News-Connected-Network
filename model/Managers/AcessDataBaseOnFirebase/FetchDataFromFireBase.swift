@@ -126,6 +126,7 @@ func fetchUsersForRecomendation(completionHandler:@escaping ([Account])->()){
                             account.followersList = followersList
                             account.followingList = followingList
                             account.email = documentData["EMAIL"] as! String
+                            account.language = documentData["Language"] as! String
                             arrayOfAccounts.append(account)
                         }
                     }
@@ -422,5 +423,6 @@ func currentUserAccountObject()->Account{
     account.followersList = followersList
     account.followingList = followingList
     account.email = documentData["EMAIL"] as! String
+    account.language = documentData["Language"] as! String
     return account
 }

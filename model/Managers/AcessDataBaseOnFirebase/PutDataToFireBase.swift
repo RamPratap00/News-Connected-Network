@@ -32,8 +32,8 @@ func uploadDefaultUserDataToFireBase(email:String,password:String,userName:Strin
                                     // Uh-oh, an error occurred!
                                     return
                                 }
-                                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).setData(["USERNAME":userName, "PROFILE_DESCRIPTION":" ","URL_TO_PROFILE_PICTURE":downloadURL.absoluteString,"FOLLOWERS_LIST":[],"FOLLOWING_LIST":[],"EMAIL":email])
-                                currentUserDataBase.collection("IndividualUsersData\(encryptedDataBaseName)")
+                                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).setData(["USERNAME":userName, "PROFILE_DESCRIPTION":" ","URL_TO_PROFILE_PICTURE":downloadURL.absoluteString,"FOLLOWERS_LIST":[],"FOLLOWING_LIST":[],"EMAIL":email,"Language":"English"])
+//                                currentUserDataBase.collection("IndividualUsersData\(encryptedDataBaseName)")
                             }
                         }
                         
@@ -88,6 +88,32 @@ func updateFireBaseRecentActivityStack(article:Article,reaction:String){
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
             let currentUserDataBase = Firestore.firestore()
             currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/RecentActivity").document(articleUniqueSignature).setData(["sourceID":article.source.id as Any,"sourceName":article.source.name as Any,"author":article.author as Any,"title":article.title as Any,"description":article.description as Any,"url":article.url as Any,"urlToImage":article.urlToImage as Any,"publishedAt":article.publishedAt as Any,"content":article.content as Any,"reaction":reaction,"reactionMadeAtTime":Date.now])
+        }
+    }
+}
+
+
+func uploadingImageToFireBase(email:String,data:Data,language:String,completionHandler:@escaping (Bool)->()){
+    ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+            let storageRef = Storage.storage().reference()
+            let fireBaseRef = storageRef.child("images/\(encryptedEmail).jpg")
+            
+            // Upload the file to the path "images/email-encrypted.jpg"
+            _ = fireBaseRef.putData(data, metadata: nil) { (metadata, error) in
+                // You can also access to download URL after upload.
+                fireBaseRef.downloadURL { (url, error) in
+                    guard let downloadURL = url else {
+                        // Uh-oh, an error occurred!
+                        return
+                    }
+                    currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["URL_TO_PROFILE_PICTURE":downloadURL.absoluteString])
+                    currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["Language":language])
+
+                    completionHandler(true)
+                }
+            }
         }
     }
 }

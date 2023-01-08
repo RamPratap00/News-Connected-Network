@@ -14,6 +14,7 @@ class ProfilePictureCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        contentView.backgroundColor = .systemBackground
     }
     
     required init?(coder: NSCoder) {

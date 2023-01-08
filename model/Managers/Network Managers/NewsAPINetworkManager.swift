@@ -12,7 +12,7 @@ class NewsAPINetworkManager{
     var pageNumber = 1
     var keyword : String? = nil
     var searchIn : SearchIn? = nil
-    var language : Language? = nil
+    var language : String? = "English"
     var sortBy : SortBy? = nil
     var country:Country? = nil
     var newsCategory:NewsCategory? = nil
@@ -30,13 +30,13 @@ class NewsAPINetworkManager{
     /// - Returns: A URL based on the above parameter.
     func prepareURL(keyword q:String,
                     searchIn:SearchIn?,
-                    language:Language?,
+                    language:String?,
                     sortBy:SortBy?)->URL?{
         var urlString = "https://newsapi.org/v2/everything?"
         let apiKey = "&apiKey=8fa02b5718244406a73b413d03f0ecbe"
         urlString.append("q=\(q)")
         if let searchIn = searchIn{ urlString.append("&searchIn=\(searchIn.rawValue)") }
-        if let language = language{ urlString.append("&language=\(language.rawValue)") }
+        if let language = language{ urlString.append("&language=\(languageKey(lang: language))") }
         if let sortBy = sortBy{ urlString.append("&sortBy=\(sortBy.rawValue)") }
         
         
@@ -55,7 +55,7 @@ class NewsAPINetworkManager{
     ///   - completionHandler: call back when the task is complete.
     func session(keyword:String,
                  searchIn:SearchIn?,
-                 language:Language?,
+                 language:String?,
                  sortBy:SortBy?,
                  completionHandler: @escaping (Response?,Error?)->()){
         self.keyword = keyword
@@ -100,7 +100,11 @@ class NewsAPINetworkManager{
     func sessionToLoadHeadLines(keyword q:String?,
                                 country:Country?,
                                 newsCategory:NewsCategory?,
+                                language:String?,
                                 completionHandler: @escaping (Response?,Error?)->()){
+        everyThingActive = false
+        headLinesActive = true
+        
         self.keyword = q
         self.country = country
         self.newsCategory = newsCategory
@@ -121,9 +125,13 @@ class NewsAPINetworkManager{
                 if let newsCategory = newsCategory{urlString.append("category=\(newsCategory.rawValue)") }
             }
         }
-        
+        if urlString == "https://newsapi.org/v2/top-headlines?"{
+            if let language = language{urlString.append("language=\(languageKey(lang: language))")}
+        }
+        else{
+            if let language = language{urlString.append("&language=\(languageKey(lang: language))")}
+        }
         urlString.append(apiKey)
-        
         guard let url = URL(string: urlString) else{
             print(" URL peparation failed ! ")
             return
@@ -162,7 +170,7 @@ class NewsAPINetworkManager{
     func fetchMore(completionHandler: @escaping (Response?,Error?)->()){
         pageNumber = pageNumber + 1
         if headLinesActive{
-            sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory){ moreData,error  in
+            sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory, language: language){ moreData,error  in
                 
                 if error == nil && moreData?.articles != nil{
                     completionHandler(moreData!, nil)
@@ -232,4 +240,48 @@ enum Country:String{
 
 enum NewsCategory:String{
     case business,entertainment,general,health,science,sports,technology
+}
+
+
+func languageKey(lang:String)->Language{
+    let langauge = ["عربى","Deutsche","English","española","française","הברו","italiana","nederlands","Português","русский","svenska","中国人"]
+    if lang == langauge[0]{
+        return .ar
+    }
+    else if lang == langauge[1]{
+        return .de
+    }
+    else if lang == langauge[2]{
+        return .en
+    }
+    else if lang == langauge[3]{
+        return .es
+    }
+    else if lang == langauge[4]{
+        return .fr
+    }
+    else if lang == langauge[5]{
+        return .he
+    }
+    else if lang == langauge[6]{
+        return .it
+    }
+    else if lang == langauge[7]{
+        return .nl
+    }
+    else if lang == langauge[8]{
+        return .pt
+    }
+    else if lang == langauge[9]{
+        return .ru
+    }
+    else if lang == langauge[10]{
+        return .sv
+    }
+    else if lang == langauge[1]{
+        return .zh
+    }
+    else {
+        return .en
+    }
 }
