@@ -10,11 +10,14 @@ import UIKit
 class ChattingViewController: UIViewController {
 
     var currentUser = currentUserAccountObject()
-    let tableView = UITableView()
+    var articleUrl = String()
+    var tableView = UITableView()
     var reachableAccounts = [String]()
     var reachableAccountsArray = [Account]()
+    var isSharing = false
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.backgroundColor = .systemBackground
         fetchCurrenUserProfileData(completionHandler: {_ in})
         currentUser = currentUserAccountObject()
@@ -23,6 +26,7 @@ class ChattingViewController: UIViewController {
         reachableAccounts = Array( set1.union(set2) )
         addTableViewOfUsers()
         loadDataForTableView()
+        
         // Do any additional setup after loading the view.
     }
 
@@ -91,9 +95,33 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let account = reachableAccountsArray[indexPath.row]
         let nextVC = CSChatViewController()
+        nextVC.title = account.userName
         nextVC.sendingtUser = account
         nextVC.receivingUser = currentUser
+        if isSharing{
+            nextVC.urlToArticle = articleUrl
+        }
         navigationController?.pushViewController(nextVC, animated: true)
+    }
+    func tableView(_ tableView: UITableView,
+                   heightForHeaderInSection section: Int) -> CGFloat {
+        return 60
+    }
+
+    func tableView(_ tableView: UITableView,
+                   viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView(frame: CGRect(x: 0,
+                                              y: 0,
+                                              width: self.tableView.frame.width,
+                                              height: 50))
+        let headerLabel = UILabel()
+        headerLabel.text = "    Contacts"
+        headerLabel.font = .boldSystemFont(ofSize: 30)
+        headerView.addSubview(headerLabel)
+        headerLabel.translatesAutoresizingMaskIntoConstraints = false
+        headerLabel.frame = headerView.bounds
+        return headerView
     }
     
 }
+

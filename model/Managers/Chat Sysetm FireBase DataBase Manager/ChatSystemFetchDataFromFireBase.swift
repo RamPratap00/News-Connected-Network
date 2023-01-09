@@ -14,7 +14,7 @@ import FirebaseStorage
 func fetchMessageFromFireBaseChatSystem(sender:Account,completionHandler:@escaping ([QueryDocumentSnapshot])->()){
     fetchCurrenUserProfileData(completionHandler: {_ in})
     let currentUserAccount = currentUserAccountObject()
-    DispatchQueue.global(qos: .userInitiated).async {
+    DispatchQueue.global(qos: .userInteractive).async {
         ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
             ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
                 let currentUserDataBase = Firestore.firestore()

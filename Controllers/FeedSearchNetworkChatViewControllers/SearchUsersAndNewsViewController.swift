@@ -21,7 +21,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-
+        navigationController?.title = "Chat"
         addSegementControlTableViewCollectionView()
         fetchUsersForRecomendation(){accounts in self.arrayOfAccounts=accounts}
     }
@@ -29,12 +29,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view
-        fetchCurrenUserProfileData( ){ _ in
-            fetchUsersForRecomendation(){
-                accounts in self.arrayOfAccounts=accounts
-                self.tableView.reloadData()
-            }
-        }
+        reloadDataForUsersListTableView()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.refreshControl.endRefreshing()
         }
@@ -42,10 +37,24 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        reloadDataForUsersListTableView()
+    }
+    
+    func reloadDataForUsersListTableView(){
         fetchCurrenUserProfileData( ){ _ in
             fetchUsersForRecomendation(){ accounts in
                 self.arrayOfAccounts=accounts
                 self.tableView.reloadData()
+                
+                let cells = self.tableView.visibleCells
+
+                    for cell in cells {
+                        // look at data
+                        let currentCell = cell as! CoustomUserTableViewCell
+                        currentCell.refreshButton()
+                        
+                    }
+                
             }
         }
     }
@@ -176,7 +185,7 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-            let cell = tableView.dequeueReusableCell(withIdentifier: CoustomUserTableViewCell.identifier, for: indexPath) as! CoustomUserTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: CoustomUserTableViewCell.identifier, for: indexPath) as! CoustomUserTableViewCell
             let account = arrayOfAccounts[indexPath.row]
             cell.currentUserAccount = currentUserAccount
             cell.nameStamp.text = account.userName
@@ -226,6 +235,7 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
     
     @objc func didtap(button:UIButton){
         let nextVC = NewsFeedViewController()
+        fetchCurrenUserProfileData(completionHandler: { _ in})
         let currentUser = currentUserAccountObject()
         nextVC.loadHeadLines(keyword: nil, country: nil, newsCategory: NewsCategory(rawValue: (button.titleLabel?.text)!), language: currentUser.language)
         self.navigationController?.pushViewController(nextVC, animated: true)

@@ -105,6 +105,7 @@ class SelectProfilePictureViewController: UIViewController {
     }
     
     @objc func updatingProfilePicture(){
+        
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = UIActivityIndicatorView.Style.medium
         loadingIndicator.startAnimating();

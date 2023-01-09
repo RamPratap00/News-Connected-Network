@@ -33,7 +33,7 @@ class CSUserTableViewCell: UITableViewCell {
         nameStamp.translatesAutoresizingMaskIntoConstraints = false
         nameStamp.font = .boldSystemFont(ofSize: 20)
         nameStamp.leadingAnchor.constraint(equalTo: img.trailingAnchor,constant: 10).isActive = true
-        nameStamp.topAnchor.constraint(equalTo: contentView.topAnchor,constant: 10).isActive = true
+        nameStamp.topAnchor.constraint(equalTo: contentView.topAnchor,constant: 15).isActive = true
 
         contentView.addSubview(userIDStamp)
         userIDStamp.translatesAutoresizingMaskIntoConstraints = false
@@ -48,7 +48,7 @@ class CSUserTableViewCell: UITableViewCell {
         desStamp.leadingAnchor.constraint(equalTo: nameStamp.leadingAnchor).isActive = true
         desStamp.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.4).isActive = true
         desStamp.topAnchor.constraint(equalTo: userIDStamp.bottomAnchor).isActive = true
-        desStamp.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,constant: -10).isActive = true
+        desStamp.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,constant: -15).isActive = true
         
     }
     

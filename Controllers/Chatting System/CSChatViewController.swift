@@ -9,26 +9,31 @@ import UIKit
 import MessageKit
 import Firebase
 import InputBarAccessoryView
+import SafariServices
 
 class CSChatViewController: MessagesViewController {
 
+    var urlToArticle = String()
     var sendingtUser = Account()
     var receivingUser = Account()
     var messages = [Message]()
         
     override func viewDidLoad() {
+        super.viewDidLoad()
         if let layout = messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout {
                     layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
                     layout.textMessageSizeCalculator.incomingAvatarSize = .zero
                     layout.setMessageIncomingAvatarSize(.zero)
                 }
-        
-        super.viewDidLoad()
         addListner()
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
         messageInputBar.delegate = self
+        messagesCollectionView.messageCellDelegate = self
+        messageInputBar.inputTextView.text = urlToArticle
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Delete Chat", style: .plain, target: self, action: #selector(deleteChat))
+        navigationItem.rightBarButtonItem?.tintColor = .red
         // Do any additional setup after loading the view.
     }
     
@@ -43,6 +48,28 @@ class CSChatViewController: MessagesViewController {
                         print("something happended")
                         reload()
                     }
+            }
+        }
+    }
+    
+    @objc func deleteChat(){
+        let currentUserAccount = currentUserAccountObject()
+        ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
+            ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+                let currentUserDataBase = Firestore.firestore()
+                currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/\(self.sendingtUser.email)").getDocuments { (snapshot, error) in
+                    
+                    if error == nil && snapshot != nil {
+                        
+                        for document in snapshot!.documents {
+                            print(document.documentID)
+                            currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/\(self.sendingtUser.email)").document(document.documentID).delete()
+                            
+                        }
+                        
+                    }
+                }
+                self.reload()
             }
         }
     }
@@ -96,8 +123,7 @@ extension CSChatViewController:MessagesDataSource,MessagesLayoutDelegate,Message
     func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
         return messages.count
     }
-
-
+    
 }
 
 extension CSChatViewController:InputBarAccessoryViewDelegate{
@@ -121,4 +147,20 @@ extension CSChatViewController:InputBarAccessoryViewDelegate{
 
     }
 
+}
+
+extension CSChatViewController: MessageCellDelegate{
+    func didTapMessage(in cell: MessageCollectionViewCell) {
+            print("Message tapped")
+        guard let indexPath = messagesCollectionView.indexPath(for: cell),
+                    let message = messagesCollectionView.messagesDataSource?.messageForItem(at: indexPath, in: messagesCollectionView) else {
+                        return
+                }
+        if case .text(let value) = message.kind.self {
+            let url = URL(string: value)
+            let vc = SFSafariViewController(url: url!)
+            present(vc, animated: true)
+            }
+        
+        }
 }

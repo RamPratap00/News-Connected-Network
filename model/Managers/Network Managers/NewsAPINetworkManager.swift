@@ -7,6 +7,8 @@
 /// THIS NETWORK MANAGER IS USED TO PREPARE AND MAKE API CALLS TO https://newsapi.org/
 import Foundation
 
+//let apiKey = "8fa02b5718244406a73b413d03f0ecbe"
+let apiKey = "327d15296670458bb67a34d9bc4648d6"
 class NewsAPINetworkManager{
 
     var pageNumber = 1
@@ -33,7 +35,7 @@ class NewsAPINetworkManager{
                     language:String?,
                     sortBy:SortBy?)->URL?{
         var urlString = "https://newsapi.org/v2/everything?"
-        let apiKey = "&apiKey=8fa02b5718244406a73b413d03f0ecbe"
+        let apiKey = "&apiKey=\(apiKey)"
         urlString.append("q=\(q)")
         if let searchIn = searchIn{ urlString.append("&searchIn=\(searchIn.rawValue)") }
         if let language = language{ urlString.append("&language=\(languageKey(lang: language))") }
@@ -110,7 +112,7 @@ class NewsAPINetworkManager{
         self.newsCategory = newsCategory
         
         var urlString = "https://newsapi.org/v2/top-headlines?"
-        let apiKey = "&apiKey=8fa02b5718244406a73b413d03f0ecbe"
+        let apiKey = "&apiKey=\(apiKey)"
         if let q = q{
             urlString.append("q=\(q)")
             if let country = country{ urlString.append("&country=\(country.rawValue)")}
@@ -278,7 +280,7 @@ func languageKey(lang:String)->Language{
     else if lang == langauge[10]{
         return .sv
     }
-    else if lang == langauge[1]{
+    else if lang == langauge[11]{
         return .zh
     }
     else {

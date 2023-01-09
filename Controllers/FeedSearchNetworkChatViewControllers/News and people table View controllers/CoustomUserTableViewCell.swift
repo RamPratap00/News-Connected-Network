@@ -15,6 +15,7 @@ class CoustomUserTableViewCell: UITableViewCell {
     let img = UIImageView()
     var nonCurrentUserAccount = Account()
     var currentUserAccount = Account()
+    let follow = UIButton()
     
     static var identifier = "Cell"
     
@@ -54,7 +55,6 @@ class CoustomUserTableViewCell: UITableViewCell {
         desStamp.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,constant: -10).isActive = true
         
         // follow button
-        let follow = UIButton()
             follow.setTitle("Follow", for: .normal)
             follow.backgroundColor = .black
             follow.setTitleColor(.white, for: .normal)
@@ -71,6 +71,15 @@ class CoustomUserTableViewCell: UITableViewCell {
         follow.addTarget(self, action: #selector(followButtonTapped(sender: )), for: .touchUpInside)
 
         
+    }
+    
+    func refreshButton(){
+        follow.setTitle("Follow", for: .normal)
+        follow.titleLabel?.font = .boldSystemFont(ofSize: 15)
+        follow.setTitleColor(.white, for: .normal)
+        follow.backgroundColor = .black
+        follow.layer.borderWidth = 1
+        follow.layer.borderColor = UIColor.white.cgColor
     }
     
     required init?(coder: NSCoder) {

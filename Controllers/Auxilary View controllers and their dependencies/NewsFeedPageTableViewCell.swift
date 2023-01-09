@@ -27,11 +27,17 @@ class NewsFeedPageTableViewCell: UITableViewCell {
                 fetchNewsThumbNail(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail,error in
                     if currentArticleThumbNail == nil{
                         print("something went wrong")
+                        self.articleThumbNail.image = UIImage(imageLiteralResourceName: "login Background")
                         return
                     }
                     else{
                         DispatchQueue.main.async {
-                            self.articleThumbNail.image = convertToGrayScale(image: UIImage(data: currentArticleThumbNail!)!)
+                            if UIImage(data: currentArticleThumbNail!) != nil{
+                                self.articleThumbNail.image = convertToGrayScale(image: UIImage(data: currentArticleThumbNail!)!)
+                            }
+                            else{
+                                self.articleThumbNail.image = UIImage(imageLiteralResourceName: "login Background")
+                            }
                         }
                     }
                 }

@@ -62,7 +62,7 @@ class SelectLanguageViewController: UIViewController {
     
     func addCollectionViewForLanguage(){
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
-        collectionViewFlowLayout.itemSize = CGSize(width: 150, height: 150)
+        collectionViewFlowLayout.itemSize = CGSize(width: 120, height: 120)
         collectionViewFlowLayout.scrollDirection = .vertical
         collectionViewFlowLayout.minimumLineSpacing = 5
         collectionViewFlowLayout.sectionInset = UIEdgeInsets(top: 10, left: 5, bottom: 10, right: 5)
@@ -136,6 +136,7 @@ extension SelectLanguageViewController: UICollectionViewDataSource, UICollection
         cell.languageLabel.text = langauge[indexPath.row]
         cell.languageLabel.textAlignment = .center
         cell.languageLabel.font = .boldSystemFont(ofSize: 20)
+        cell.languageLabel.layer.borderColor = UIColor.systemBackground.cgColor
         return cell
     }
     

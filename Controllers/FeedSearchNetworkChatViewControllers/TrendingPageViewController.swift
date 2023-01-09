@@ -27,6 +27,7 @@ class TrendingPageViewController: UIViewController {
     
     
     func loadHeadLinesForTrendingPage(keyword:String?,country:Country?,newsCategory:NewsCategory?){
+        fetchCurrenUserProfileData(completionHandler: { _ in})
         let currentUser = currentUserAccountObject()
         newsAPI.sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory, language: currentUser.language){ data,error in
             if error == nil && data?.articles != nil{

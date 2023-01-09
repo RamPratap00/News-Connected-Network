@@ -80,7 +80,7 @@ func fetchUserProfileData(email:String,completionHandler: @escaping (Account)->(
 func fetchCurrentUserProfilePicture(completionHandler:@escaping(Bool)->()){
     let userData = UserDefaults.standard.value(forKey: "USERMETADATA") as! [String:Any]?
     let url = userData!["URL_TO_PROFILE_PICTURE"] as! String
-    DispatchQueue.global(qos: .userInitiated).async {
+    DispatchQueue.global(qos: .userInteractive).async {
         let dataTask = URLSession.shared.dataTask(with: URL(string: url)!){ data,response,error in
             if error == nil{
                 UserDefaults.standard.set(data, forKey: "PROFILEPICTURE")
@@ -407,6 +407,7 @@ func fetchProfilePicture(url:URL,completionHandler:@escaping(Data)->()){
             if error == nil{
                 completionHandler(data!)
             }
+            
         }
         dataTask.resume()
     }
