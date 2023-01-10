@@ -20,7 +20,7 @@ func uploadDefaultUserDataToFireBase(email:String,password:String,userName:Strin
                 ENCDEC.encryptMessage(message: email,messageType: .Email){ encryptedEmail in
                     ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
                         allUserDataBase.collection("ALLUSERSLIST").document(encryptedEmail).setData(["email":encryptedEmail,"correspondingCollectionName":encryptedDataBaseName])
-                        let data = UIImage(imageLiteralResourceName: "login Background").pngData()!
+                        let data = UIImage(imageLiteralResourceName: "profile image 1").pngData()!
                         let storageRef = Storage.storage().reference()
                         let fireBaseRef = storageRef.child("images/\(encryptedEmail).jpg")
                         

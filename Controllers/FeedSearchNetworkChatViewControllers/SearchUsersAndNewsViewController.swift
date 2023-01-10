@@ -23,7 +23,10 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         view.backgroundColor = .systemBackground
         navigationController?.title = "Chat"
         addSegementControlTableViewCollectionView()
-        fetchUsersForRecomendation(){accounts in self.arrayOfAccounts=accounts}
+        fetchUsersForRecomendation(){accounts in
+            self.arrayOfAccounts=accounts
+            self.tableView.reloadData()
+        }
     }
     
     
@@ -33,11 +36,6 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.refreshControl.endRefreshing()
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        reloadDataForUsersListTableView()
     }
     
     func reloadDataForUsersListTableView(){
@@ -136,13 +134,34 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     
     
     @objc func newsSeacrhInitiate(){
+        
+        
+        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator.startAnimating()
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
+        
         let nextVC = NewsFeedViewController()
         let currentUser = currentUserAccountObject()
         if let keyword = searchBar.text{
             nextVC.keyword = keyword
             nextVC.language = currentUser.language
-            nextVC.loadNews()
-            navigationController?.pushViewController(nextVC, animated: true)
+            nextVC.loadNews(){ status in
+                if status{
+                    DispatchQueue.main.async {
+                        self.dismiss(animated: true,completion: nil)
+                        self.navigationController?.pushViewController(nextVC, animated: true)
+                    }
+                }
+                else{
+                    print("failure fetching data")
+                }
+            }
         }
     }
     
@@ -186,7 +205,7 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         let cell = tableView.dequeueReusableCell(withIdentifier: CoustomUserTableViewCell.identifier, for: indexPath) as! CoustomUserTableViewCell
-            let account = arrayOfAccounts[indexPath.row]
+        let account = arrayOfAccounts[indexPath.row]
             cell.currentUserAccount = currentUserAccount
             cell.nameStamp.text = account.userName
             cell.userIDStamp.text = account.fetchUserID()
@@ -208,12 +227,10 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
         tableView.deselectRow(at: indexPath, animated: true)
         let nextVC = ProfileViewController()
         nextVC.email = arrayOfAccounts[indexPath.row].email
+        let indexesToRedraw = [indexPath] 
+        tableView.reloadRows(at: indexesToRedraw, with: .fade)
         navigationController?.pushViewController(nextVC, animated: true)
     }
-    
-    
-    
-    
     
 }
 
@@ -234,10 +251,31 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
     }
     
     @objc func didtap(button:UIButton){
+        
+        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator.startAnimating()
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
+        
         let nextVC = NewsFeedViewController()
         fetchCurrenUserProfileData(completionHandler: { _ in})
         let currentUser = currentUserAccountObject()
-        nextVC.loadHeadLines(keyword: nil, country: nil, newsCategory: NewsCategory(rawValue: (button.titleLabel?.text)!), language: currentUser.language)
+        nextVC.loadHeadLines(keyword: nil, country: nil, newsCategory: NewsCategory(rawValue: (button.titleLabel?.text)!), language: currentUser.language){ status in
+            if status{
+                DispatchQueue.main.async {
+                    self.dismiss(animated: true,completion: nil)
+                    self.navigationController?.pushViewController(nextVC, animated: true)
+                }
+            }
+            else{
+                print("failure fetching data")
+            }
+        }
         self.navigationController?.pushViewController(nextVC, animated: true)
     }
     

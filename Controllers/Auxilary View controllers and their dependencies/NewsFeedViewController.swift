@@ -8,39 +8,53 @@
 import UIKit
 
 class NewsFeedViewController: UIViewController {
-    
 
     let tableView = UITableView()
     var arrayOfArticles = [Article]()
     var keyword = String()
     var language = String()
     var isPaginating = false
+    var isDataLoaded = false
     let newsAPI = NewsAPINetworkManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         addTableView()
+        
         // Do any additional setup after loading the view.
     }
     
-    func loadNews(){
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+    
+    func loadNews(completionHandler: @escaping (Bool)->()){
         newsAPI.session(keyword: keyword, searchIn: .content, language: language, sortBy: .relevancy){ data,error in
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
+                completionHandler(true)
+            }
+            else{
+                completionHandler(false)
             }
         }
     }
-    func loadHeadLines(keyword:String?,country:Country?,newsCategory:NewsCategory?,language:String?){
+    func loadHeadLines(keyword:String?,country:Country?,newsCategory:NewsCategory?,language:String?,completionHandler: @escaping (Bool)->()){
         newsAPI.sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory, language: language){ data,error in
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
+                completionHandler(true)
             }
+            else{
+                completionHandler(false)
+            }
+        }
+    }
+    
+    func relodTableView(){
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
         }
     }
     
@@ -85,8 +99,11 @@ extension NewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScr
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let nextVC = DetailedNewsViewController()
         nextVC.article = arrayOfArticles[indexPath.row]
+        let indexesToRedraw = [indexPath]
+        tableView.reloadRows(at: indexesToRedraw, with: .fade)
         navigationController?.pushViewController(nextVC, animated: true)
     }
+
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
@@ -106,3 +123,6 @@ extension NewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScr
     }
     
 }
+
+
+

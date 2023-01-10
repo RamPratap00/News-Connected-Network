@@ -15,25 +15,28 @@ class SecondaryViewController: UITabBarController,UITabBarControllerDelegate {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         delegate = self
+        
+        let item1 = TrendingPageViewController()
+        let item2 = SearchUsersAndNewsViewController()
+        let item3 = RecentActivityOnMyNetworkViewController()
+        let item4 = ChattingViewController()
+        let icon1 = UITabBarItem(title: "Trending", image: UIImage(systemName: "newspaper"), tag: 0)
+        let icon2 = UITabBarItem(tabBarSystemItem: .search, tag: 1)
+        let icon3 = UITabBarItem(title: "Network", image: UIImage(systemName: "bonjour"), tag: 2)
+        let icon4 = UITabBarItem(title: "Chat", image: UIImage(systemName: "ellipsis.bubble"), tag: 3)
+        item1.tabBarItem = icon1
+        item2.tabBarItem = icon2
+        item3.tabBarItem = icon3
+        item4.tabBarItem = icon4
+        let controllers = [item3,item2,item1,item4]  //array of the root view controllers displayed by the tab bar interface
+        self.viewControllers = controllers
+        
         // Do any additional setup after loading the view.
     }
     
     override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
-            let item1 = TrendingPageViewController()
-            let item2 = SearchUsersAndNewsViewController()
-            let item3 = RecentActivityOnMyNetworkViewController()
-            let item4 = ChattingViewController()
-            let icon1 = UITabBarItem(title: "Trending", image: UIImage(systemName: "newspaper"), tag: 0)
-            let icon2 = UITabBarItem(tabBarSystemItem: .search, tag: 1)
-            let icon3 = UITabBarItem(title: "Network", image: UIImage(systemName: "bonjour"), tag: 2)
-            let icon4 = UITabBarItem(title: "Chat", image: UIImage(systemName: "ellipsis.bubble"), tag: 3)
-            item1.tabBarItem = icon1
-            item2.tabBarItem = icon2
-            item3.tabBarItem = icon3
-            item4.tabBarItem = icon4
-            let controllers = [item3,item2,item1,item4]  //array of the root view controllers displayed by the tab bar interface
-            self.viewControllers = controllers
+            
         }
 
     //Delegate methods

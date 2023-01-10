@@ -14,6 +14,7 @@ class DetailedNewsViewController: UIViewController {
     let positiveButton = UIButton()
     let negativeButton = UIButton()
     let neutralButton = UIButton()
+    let thumbNail = UIImageView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,8 +58,8 @@ class DetailedNewsViewController: UIViewController {
     }
     
     func addDetailView() {
-        let thumbNail = UIImageView()
         view.addSubview(thumbNail)
+        thumbNail.image = UIImage(imageLiteralResourceName: "default thubnail")
         thumbNail.translatesAutoresizingMaskIntoConstraints = false
         thumbNail.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         if UIDevice.current.userInterfaceIdiom == .pad{
@@ -73,26 +74,45 @@ class DetailedNewsViewController: UIViewController {
         thumbNail.layer.cornerRadius = 30
         thumbNail.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
         thumbNail.layer.masksToBounds = true
+        
+        if article.urlToImage == nil{
+            thumbNail.image = UIImage(imageLiteralResourceName: "login Background")
+            loadTitleDescriptionAndLinkToFullArticleUIComponenets()
+            return
+        }
+        
+        if URL(string: article.urlToImage!) == nil{
+            thumbNail.image = UIImage(imageLiteralResourceName: "login Background")
+            loadTitleDescriptionAndLinkToFullArticleUIComponenets()
+            return
+        }
+        
+        
         fetchNewsThumbNail(url: URL(string: article.urlToImage!)! ){ imageData,error in
             if error == nil && imageData != nil{
                 DispatchQueue.main.async {
-                    thumbNail.image = UIImage(data: imageData!)
+                    self.thumbNail.image = UIImage(data: imageData!)
                 }
             }
             else{
-                thumbNail.image = UIImage(imageLiteralResourceName: "login Background")
+                DispatchQueue.main.async {
+                    self.thumbNail.image = UIImage(imageLiteralResourceName: "default thubnail")
+                }
             }
         }
-        
+        loadTitleDescriptionAndLinkToFullArticleUIComponenets()
+}
+    
+    func loadTitleDescriptionAndLinkToFullArticleUIComponenets(){
         let title = UILabel()
         title.text = article.title
-        title.font = .boldSystemFont(ofSize: 30)
+        title.font = .boldSystemFont(ofSize: 20)
         title.numberOfLines = 0
         view.addSubview(title)
         title.translatesAutoresizingMaskIntoConstraints = false
         title.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
         title.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        title.topAnchor.constraint(equalTo: thumbNail.bottomAnchor,constant: 10).isActive = true
+        title.topAnchor.constraint(equalTo: thumbNail.bottomAnchor,constant: 5).isActive = true
        
         let description = UILabel()
         description.text = article.description
@@ -101,11 +121,12 @@ class DetailedNewsViewController: UIViewController {
         description.numberOfLines = 0
         description.translatesAutoresizingMaskIntoConstraints = false
         description.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
-        description.topAnchor.constraint(equalTo: title.bottomAnchor,constant: 15).isActive = true
+        description.topAnchor.constraint(equalTo: title.bottomAnchor,constant: 5).isActive = true
         description.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
         let linkToFullArticle = UIButton()
         linkToFullArticle.setTitle("View Full Article", for: .normal)
+        linkToFullArticle.setTitleColor(.gray, for: .normal)
         view.addSubview(linkToFullArticle)
         linkToFullArticle.translatesAutoresizingMaskIntoConstraints = false
         linkToFullArticle.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
@@ -114,6 +135,9 @@ class DetailedNewsViewController: UIViewController {
         linkToFullArticle.heightAnchor.constraint(equalToConstant: 60).isActive = true
         linkToFullArticle.addTarget(self, action: #selector(openSafari), for: .touchUpInside)
         linkToFullArticle.titleLabel?.numberOfLines = 0
+
+        description.bottomAnchor.constraint(equalTo: linkToFullArticle.topAnchor).isActive = true
+        
     }
     
     @objc func openSafari() {

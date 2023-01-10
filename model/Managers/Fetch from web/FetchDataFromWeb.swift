@@ -13,7 +13,7 @@ func fetchNewsThumbNail(url:URL,completionHandler:@escaping(Data?,Error?)->()){
         let dataTask = URLSession.shared.dataTask(with:url){ data,response,error in
             
             guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
-                print("Server error!")
+                print("Server error! error fetching image")
                 completionHandler(nil,error)
                 return
             }

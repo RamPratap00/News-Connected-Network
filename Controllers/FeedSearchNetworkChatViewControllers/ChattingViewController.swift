@@ -17,7 +17,7 @@ class ChattingViewController: UIViewController {
     var isSharing = false
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        view.addSubview(tableView)
         view.backgroundColor = .systemBackground
         fetchCurrenUserProfileData(completionHandler: {_ in})
         currentUser = currentUserAccountObject()
@@ -25,13 +25,17 @@ class ChattingViewController: UIViewController {
         let set2:Set<String> = Set(currentUser.followingList)
         reachableAccounts = Array( set1.union(set2) )
         addTableViewOfUsers()
-        loadDataForTableView()
+        loadDataForTableView(){ status in
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
         
         // Do any additional setup after loading the view.
     }
 
     
-    func loadDataForTableView(){
+    func loadDataForTableView(completionHandler:@escaping (Bool)->()){
         reachableAccountsArray = []
         var count = 0
         for email in reachableAccounts{
@@ -39,16 +43,13 @@ class ChattingViewController: UIViewController {
                 self.reachableAccountsArray.append(account)
                 count+=1
                 if count == self.reachableAccounts.count{
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                    }
+                    completionHandler(true)
                 }
             }
         }
     }
     
     func addTableViewOfUsers(){
-        view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo:view.widthAnchor ).isActive = true
         tableView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
@@ -76,7 +77,7 @@ class ChattingViewController: UIViewController {
 
 extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        reachableAccountsArray.count
+        return reachableAccountsArray.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -84,16 +85,20 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
         let account = reachableAccountsArray[indexPath.row]
         cell.userIDStamp.text = account.fetchUserID()
         cell.nameStamp.text = account.userName
+        cell.imageUrl = account.profilePicture
         fetchProfilePicture(url: account.profilePicture!){ imageData in
             DispatchQueue.main.async {
                 cell.img.image = UIImage(data: imageData)
             }
         }
+        
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let account = reachableAccountsArray[indexPath.row]
+        let indexesToRedraw = [indexPath]
+        tableView.reloadRows(at: indexesToRedraw, with: .fade)
         let nextVC = CSChatViewController()
         nextVC.title = account.userName
         nextVC.sendingtUser = account

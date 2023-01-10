@@ -45,7 +45,6 @@ class CSChatViewController: MessagesViewController {
                 let currentUserDataBase = Firestore.firestore()
                 currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/\(self.sendingtUser.email)")
                     .addSnapshotListener { [self] documentSnapshot, error in
-                        print("something happended")
                         reload()
                     }
             }
@@ -62,7 +61,6 @@ class CSChatViewController: MessagesViewController {
                     if error == nil && snapshot != nil {
                         
                         for document in snapshot!.documents {
-                            print(document.documentID)
                             currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/\(self.sendingtUser.email)").document(document.documentID).delete()
                             
                         }
@@ -151,16 +149,16 @@ extension CSChatViewController:InputBarAccessoryViewDelegate{
 
 extension CSChatViewController: MessageCellDelegate{
     func didTapMessage(in cell: MessageCollectionViewCell) {
-            print("Message tapped")
         guard let indexPath = messagesCollectionView.indexPath(for: cell),
                     let message = messagesCollectionView.messagesDataSource?.messageForItem(at: indexPath, in: messagesCollectionView) else {
                         return
                 }
-        if case .text(let value) = message.kind.self {
-            let url = URL(string: value)
-            let vc = SFSafariViewController(url: url!)
-            present(vc, animated: true)
+            if case .text(let value) = message.kind.self {
+                let url = URL(string: value)
+                if url != nil{
+                    let vc = SFSafariViewController(url: url!)
+                    present(vc, animated: true)
+                }
             }
-        
         }
 }

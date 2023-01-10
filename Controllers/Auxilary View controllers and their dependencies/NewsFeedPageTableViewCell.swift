@@ -23,11 +23,13 @@ class NewsFeedPageTableViewCell: UITableViewCell {
     func loadNewscell(article:Article){
         self.article = article
         if article.urlToImage != "" && article.urlToImage != nil{
+
             if URL(string: article.urlToImage!) != nil{
                 fetchNewsThumbNail(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail,error in
-                    if currentArticleThumbNail == nil{
-                        print("something went wrong")
-                        self.articleThumbNail.image = UIImage(imageLiteralResourceName: "login Background")
+                    if currentArticleThumbNail == nil || error != nil{
+                        DispatchQueue.main.async {
+                            self.articleThumbNail.image = UIImage(imageLiteralResourceName: "default thubnail")
+                        }
                         return
                     }
                     else{
@@ -36,7 +38,7 @@ class NewsFeedPageTableViewCell: UITableViewCell {
                                 self.articleThumbNail.image = convertToGrayScale(image: UIImage(data: currentArticleThumbNail!)!)
                             }
                             else{
-                                self.articleThumbNail.image = UIImage(imageLiteralResourceName: "login Background")
+                                self.articleThumbNail.image = UIImage(imageLiteralResourceName: "default thubnail")
                             }
                         }
                     }
@@ -44,8 +46,9 @@ class NewsFeedPageTableViewCell: UITableViewCell {
             }
         }
         else{
-            articleThumbNail.image = convertToGrayScale(image: UIImage(systemName: "newspaper" )!)
+            articleThumbNail.image = convertToGrayScale(image: UIImage(imageLiteralResourceName: "login Background" ))
         }
+        articleThumbNail.image = UIImage(imageLiteralResourceName: "default thubnail")
     articleThumbNail.translatesAutoresizingMaskIntoConstraints = false
     contentView.addSubview(articleThumbNail)
         articleThumbNail.widthAnchor.constraint(equalTo:contentView.widthAnchor ,multiplier: 0.9  ).isActive = true
