@@ -64,13 +64,23 @@ class CoustomUserTableViewCell: UITableViewCell {
         follow.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(follow)
         
-        
         follow.trailingAnchor.constraint(equalTo: contentView.trailingAnchor,constant: -20).isActive = true
         follow.centerYAnchor.constraint(equalTo: img.centerYAnchor).isActive = true
         follow.widthAnchor.constraint(equalToConstant: 120).isActive = true
         follow.addTarget(self, action: #selector(followButtonTapped(sender: )), for: .touchUpInside)
 
         
+    }
+    
+    func followFollowingButtonSatus(){
+        if isFollowing(email: nonCurrentUserAccount.email, followingList: currentUserAccount.followingList){
+            follow.setTitle("Following", for: .normal)
+            follow.titleLabel?.font = .boldSystemFont(ofSize: 15)
+            follow.setTitleColor(.black, for: .normal)
+            follow.backgroundColor = .white
+            follow.layer.borderWidth = 1
+            follow.layer.borderColor = UIColor.black.cgColor
+        }
     }
     
     func refreshButton(){
@@ -124,5 +134,21 @@ class CoustomUserTableViewCell: UITableViewCell {
         
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        if isFollowing(email: nonCurrentUserAccount.email, followingList: currentUserAccountObject().followingList){
+            follow.setTitle("Following", for: .normal)
+            follow.titleLabel?.font = .boldSystemFont(ofSize: 15)
+            follow.setTitleColor(.black, for: .normal)
+            follow.backgroundColor = .white
+            follow.layer.borderWidth = 1
+            follow.layer.borderColor = UIColor.black.cgColor
+        }
+        
+        if nonCurrentUserAccount.email == currentUserAccount.email{
+            follow.isHidden = true
+        }
+    }
 
 }

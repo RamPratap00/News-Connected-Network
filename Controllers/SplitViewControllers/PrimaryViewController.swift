@@ -10,6 +10,8 @@ import FirebaseAuth
 
 class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
     
+    let profilePicture = UIButton()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -19,9 +21,19 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(toMainPage))
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        reloadProfileData()
+    }
+    
     
     func reloadProfileData(){
         fetchCurrenUserProfileData(completionHandler: {_ in})
+        fetchProfilePicture(url: currentUserAccountObject().profilePicture!){ imageData in
+            DispatchQueue.main.async {
+                self.profilePicture.setImage(UIImage(data: imageData), for: .normal)
+            }
+        }
     }
     
     func addViewProfileButton(){
@@ -33,7 +45,6 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
         account.profilePicture = URL(string: userData?["URL_TO_PROFILE_PICTURE"] as! String)!
         account.email = userData?["EMAIL"] as! String
         
-        let profilePicture = UIButton()
         let nameLabel = UILabel()
         let userIdLabel = UILabel()
         let profileImageData = UserDefaults.standard.object(forKey: "PROFILEPICTURE") as! Data
@@ -42,7 +53,7 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
         profilePicture.setImage(UIImage(data: profileImageData), for: .normal)
         profilePicture.translatesAutoresizingMaskIntoConstraints = false
         profilePicture.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        profilePicture.topAnchor.constraint(equalTo: view.topAnchor,constant:100).isActive = true
+        profilePicture.topAnchor.constraint(equalTo: view.topAnchor,constant:80).isActive = true
         profilePicture.widthAnchor.constraint(equalToConstant: 150).isActive = true
         profilePicture.heightAnchor.constraint(equalToConstant: 150).isActive = true
         profilePicture.layer.cornerRadius = 75
@@ -73,7 +84,7 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
     }
     
     @objc func profileDetailView(){
-            let nextVC = ProfileViewController()
+            let nextVC = CurrentUserProfileViewController()
         nextVC.email = UserDefaults.standard.value(forKey: "EMAIL") as! String
             self.showDetailViewController(nextVC, sender: self)
     }
@@ -88,7 +99,7 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
         signOutButton.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier:0.9).isActive = true
         signOutButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
         signOutButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        signOutButton.bottomAnchor.constraint(equalTo: view.bottomAnchor,constant:-80).isActive = true
+        signOutButton.bottomAnchor.constraint(equalTo: view.bottomAnchor,constant:-30).isActive = true
         signOutButton.addTarget(self, action: #selector(toLoginPage), for: .touchUpInside)
     }
     

@@ -12,6 +12,7 @@ import FirebaseStorage
 class SelectProfilePictureViewController: UIViewController {
     
     var isFirstVisit = true
+    var isUpdating = false
     let quoteForSelectingPicture = UILabel()
     var collectionView : UICollectionView? = nil
     var isImageSelected = false
@@ -112,17 +113,27 @@ class SelectProfilePictureViewController: UIViewController {
 
         alert.view.addSubview(loadingIndicator)
         present(alert, animated: true, completion: nil)
+        
         if isImageSelected{
             let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
-            uploadingImageToFireBase(email: email, data: (selectedCell.profileImage.image?.pngData()!)!, language: language){ imageUpdateStatus in
+            
+            if isUpdating{
+                updatingProfileImage(email: email, data: (selectedCell.profileImage.image?.pngData()!)!){ updateSatus in
+                    if updateSatus{
+                        self.navigationController?.popViewController(animated: true)
+                        self.dismiss(animated: false, completion: nil)
+                    }
+                }
+            }
+            
+            uploadingImageAndLanguageToFireBase(email: email, data: (selectedCell.profileImage.image?.pngData()!)!, language: language){ imageUpdateStatus in
                 fetchCurrenUserProfileData(){ _ in
                     DispatchQueue.main.async {
                         UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
                         self.dismiss(animated: false, completion: nil)
-                        
-                        let splitView = SplitViewController() // ===> Your splitViewController
-                        splitView.modalPresentationStyle = .fullScreen
-                        self.present(splitView, animated: true)
+                            let splitView = SplitViewController() // ===> Your splitViewController
+                            splitView.modalPresentationStyle = .fullScreen
+                            self.present(splitView, animated: true)
                     }
                 }
             }

@@ -226,10 +226,12 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
         
         tableView.deselectRow(at: indexPath, animated: true)
         let nextVC = ProfileViewController()
-        nextVC.email = arrayOfAccounts[indexPath.row].email
-        let indexesToRedraw = [indexPath] 
-        tableView.reloadRows(at: indexesToRedraw, with: .fade)
-        navigationController?.pushViewController(nextVC, animated: true)
+        fetchUserProfileData(email: arrayOfAccounts[indexPath.row].email){ account in
+            nextVC.nonCurrentUser = account
+            let indexesToRedraw = [indexPath]
+            tableView.reloadRows(at: indexesToRedraw, with: .fade)
+            self.navigationController?.pushViewController(nextVC, animated: true)
+        }
     }
     
 }

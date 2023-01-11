@@ -77,6 +77,20 @@ func fetchUserProfileData(email:String,completionHandler: @escaping (Account)->(
     }
 }
 
+func fetchArrayOfAccounts(emailArray:[String],completionHandler: @escaping ([Account])->()){
+    var arrayOfAccounts = [Account]()
+    var count = 0
+    for email in emailArray{
+        fetchUserProfileData(email: email){ account in
+            count+=1
+            arrayOfAccounts.append(account)
+            if count == emailArray.count{
+                completionHandler(arrayOfAccounts)
+            }
+        }
+    }
+}
+
 func fetchCurrentUserProfilePicture(completionHandler:@escaping(Bool)->()){
     let userData = UserDefaults.standard.value(forKey: "USERMETADATA") as! [String:Any]?
     let url = userData!["URL_TO_PROFILE_PICTURE"] as! String
@@ -369,11 +383,78 @@ func fetchAllUsersDocumentID(completionHandler:@escaping ([String])->()){
     }
 }
 
+func fetchCurrentUserRecentActivity(completionHandler:@escaping ([Article])->()){
+    var articles = [Article]()
+    fetchCurrentUserRecentActivityDocuments{ documentsArray in
+        for document in documentsArray{
+            let documentData = document.data()
+            var article = Article()
+            article.title = documentData["title"] as? String
+            article.content = documentData["content"] as? String
+            article.description = documentData["description"] as? String
+            article.author = documentData["author"] as? String
+            article.url = documentData["url"] as? String
+            article.urlToImage = documentData["urlToImage"] as? String
+            article.publishedAt = documentData["publishedAt"] as? String
+            article.source.id = documentData["sourceID"] as? String
+            article.source.name = documentData["sourceName"] as? String
+            
+            articles.append(article)
+            
+        }
+        completionHandler(articles)
+    }
+}
+
 func fetchCurrentUserRecentActivityDocuments(completionHandler:@escaping ([QueryDocumentSnapshot])->()){
-    
     
     let users = UserDefaults.standard.value(forKey:"EMAIL") as! String
     ENCDEC.encryptMessage(message: users, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+            
+            
+            currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/RecentActivity")
+                .getDocuments { (snapshot, error) in
+                
+                if error == nil && snapshot != nil {
+                   completionHandler(snapshot!.documents)
+                }
+            }
+            
+            
+        }
+    }
+    
+}
+
+
+func fetchUserRecentActivity(email:String,completionHandler:@escaping ([Article])->()){
+    var articles = [Article]()
+    fetchUserRecentActivityDocuments(email: email){ documentsArray in
+        for document in documentsArray{
+            let documentData = document.data()
+            var article = Article()
+            article.title = documentData["title"] as? String
+            article.content = documentData["content"] as? String
+            article.description = documentData["description"] as? String
+            article.author = documentData["author"] as? String
+            article.url = documentData["url"] as? String
+            article.urlToImage = documentData["urlToImage"] as? String
+            article.publishedAt = documentData["publishedAt"] as? String
+            article.source.id = documentData["sourceID"] as? String
+            article.source.name = documentData["sourceName"] as? String
+            
+            articles.append(article)
+            
+        }
+        completionHandler(articles)
+    }
+}
+
+func fetchUserRecentActivityDocuments(email:String,completionHandler:@escaping ([QueryDocumentSnapshot])->()){
+    
+    ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
             let currentUserDataBase = Firestore.firestore()
             

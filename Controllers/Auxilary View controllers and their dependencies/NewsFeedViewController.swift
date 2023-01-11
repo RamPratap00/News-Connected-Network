@@ -15,13 +15,13 @@ class NewsFeedViewController: UIViewController {
     var language = String()
     var isPaginating = false
     var isDataLoaded = false
+    var isRegularFeed = true
     let newsAPI = NewsAPINetworkManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         addTableView()
-        
         // Do any additional setup after loading the view.
     }
     
@@ -106,16 +106,17 @@ extension NewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScr
 
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        
-        let position = scrollView.contentOffset.y
-        if position > (tableView.contentSize.height+100-scrollView.frame.height) && !isPaginating{
-            isPaginating = true
-            newsAPI.fetchMore(){ moreData,error in
-                if error == nil && moreData?.articles != nil{
-                    self.arrayOfArticles.append(contentsOf: moreData!.articles)
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                        self.isPaginating = false
+        if isRegularFeed{
+            let position = scrollView.contentOffset.y
+            if position > (tableView.contentSize.height+100-scrollView.frame.height) && !isPaginating{
+                isPaginating = true
+                newsAPI.fetchMore(){ moreData,error in
+                    if error == nil && moreData?.articles != nil{
+                        self.arrayOfArticles.append(contentsOf: moreData!.articles)
+                        DispatchQueue.main.async {
+                            self.tableView.reloadData()
+                            self.isPaginating = false
+                        }
                     }
                 }
             }

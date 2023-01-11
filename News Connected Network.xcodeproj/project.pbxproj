@@ -52,13 +52,16 @@
 		1A7906DC2960400200ABF006 /* PutDataToFireBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906DB2960400200ABF006 /* PutDataToFireBase.swift */; };
 		1A7906E029607E6200ABF006 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906DF29607E6200ABF006 /* Account.swift */; };
 		1A7906E52961683900ABF006 /* CoustomUserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906E42961683900ABF006 /* CoustomUserTableViewCell.swift */; };
-		1A7906EB2961CB7800ABF006 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906EA2961CB7800ABF006 /* ProfileViewController.swift */; };
+		1A7906EB2961CB7800ABF006 /* CurrentUserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906EA2961CB7800ABF006 /* CurrentUserProfileViewController.swift */; };
 		1A975B0C29681EE700E89A9E /* CSUserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A975B0B29681EE700E89A9E /* CSUserTableViewCell.swift */; };
 		1A975B1129682D4100E89A9E /* MessageKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1A975B1029682D4100E89A9E /* MessageKit */; };
 		1A975B152968346F00E89A9E /* CSChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A975B142968346F00E89A9E /* CSChatViewController.swift */; };
 		1ACD024929697CA000B5A7A6 /* ChatSystemPutToFireBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD024829697CA000B5A7A6 /* ChatSystemPutToFireBase.swift */; };
 		1ACD028629698DC700B5A7A6 /* Chat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD028529698DC700B5A7A6 /* Chat.swift */; };
 		1ACD02882969976300B5A7A6 /* ChatSystemFetchDataFromFireBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD02872969976300B5A7A6 /* ChatSystemFetchDataFromFireBase.swift */; };
+		1AD33E87296E80F000AB1779 /* FullProfilePictureViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD33E86296E80F000AB1779 /* FullProfilePictureViewController.swift */; };
+		1AD33E89296E98A700AB1779 /* FollowersFollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD33E88296E98A700AB1779 /* FollowersFollowingViewController.swift */; };
+		1AD33E8B296ECBFA00AB1779 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD33E8A296ECBFA00AB1779 /* ProfileViewController.swift */; };
 		1AD34E27295C997100535B84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD34E26295C997100535B84 /* AppDelegate.swift */; };
 		1AD34E29295C997100535B84 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD34E28295C997100535B84 /* SceneDelegate.swift */; };
 		1AD34E2B295C997100535B84 /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD34E2A295C997100535B84 /* SplashViewController.swift */; };
@@ -117,12 +120,15 @@
 		1A7906DB2960400200ABF006 /* PutDataToFireBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PutDataToFireBase.swift; sourceTree = "<group>"; };
 		1A7906DF29607E6200ABF006 /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
 		1A7906E42961683900ABF006 /* CoustomUserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoustomUserTableViewCell.swift; sourceTree = "<group>"; };
-		1A7906EA2961CB7800ABF006 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		1A7906EA2961CB7800ABF006 /* CurrentUserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentUserProfileViewController.swift; sourceTree = "<group>"; };
 		1A975B0B29681EE700E89A9E /* CSUserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSUserTableViewCell.swift; sourceTree = "<group>"; };
 		1A975B142968346F00E89A9E /* CSChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSChatViewController.swift; sourceTree = "<group>"; };
 		1ACD024829697CA000B5A7A6 /* ChatSystemPutToFireBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSystemPutToFireBase.swift; sourceTree = "<group>"; };
 		1ACD028529698DC700B5A7A6 /* Chat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chat.swift; sourceTree = "<group>"; };
 		1ACD02872969976300B5A7A6 /* ChatSystemFetchDataFromFireBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSystemFetchDataFromFireBase.swift; sourceTree = "<group>"; };
+		1AD33E86296E80F000AB1779 /* FullProfilePictureViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullProfilePictureViewController.swift; sourceTree = "<group>"; };
+		1AD33E88296E98A700AB1779 /* FollowersFollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersFollowingViewController.swift; sourceTree = "<group>"; };
+		1AD33E8A296ECBFA00AB1779 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		1AD34E23295C997100535B84 /* News Connected Network.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "News Connected Network.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AD34E26295C997100535B84 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1AD34E28295C997100535B84 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -269,7 +275,10 @@
 		1A7906E92961CB6100ABF006 /* Profile View */ = {
 			isa = PBXGroup;
 			children = (
-				1A7906EA2961CB7800ABF006 /* ProfileViewController.swift */,
+				1A7906EA2961CB7800ABF006 /* CurrentUserProfileViewController.swift */,
+				1AD33E8A296ECBFA00AB1779 /* ProfileViewController.swift */,
+				1AD33E86296E80F000AB1779 /* FullProfilePictureViewController.swift */,
+				1AD33E88296E98A700AB1779 /* FollowersFollowingViewController.swift */,
 			);
 			path = "Profile View";
 			sourceTree = "<group>";
@@ -629,9 +638,10 @@
 				1A975B0C29681EE700E89A9E /* CSUserTableViewCell.swift in Sources */,
 				1AD34E74295C99CD00535B84 /* DataBaseHelper.swift in Sources */,
 				1AD34E76295C99CD00535B84 /* SignUpViewController.swift in Sources */,
-				1A7906EB2961CB7800ABF006 /* ProfileViewController.swift in Sources */,
+				1A7906EB2961CB7800ABF006 /* CurrentUserProfileViewController.swift in Sources */,
 				1AD34E6E295C99CD00535B84 /* EncryptionFile.swift in Sources */,
 				1A7906DA29603CA800ABF006 /* FetchDataFromFireBase.swift in Sources */,
+				1AD33E87296E80F000AB1779 /* FullProfilePictureViewController.swift in Sources */,
 				1AD34E29295C997100535B84 /* SceneDelegate.swift in Sources */,
 				1ACD024929697CA000B5A7A6 /* ChatSystemPutToFireBase.swift in Sources */,
 				1A7906E52961683900ABF006 /* CoustomUserTableViewCell.swift in Sources */,
@@ -639,6 +649,8 @@
 				1A1EC160295EA332006EA6AC /* PrimaryViewController.swift in Sources */,
 				1AD34E78295C99CD00535B84 /* SelectProfilePictureViewController.swift in Sources */,
 				1A68602B29630BA1001FF316 /* SplitViewController.swift in Sources */,
+				1AD33E8B296ECBFA00AB1779 /* ProfileViewController.swift in Sources */,
+				1AD33E89296E98A700AB1779 /* FollowersFollowingViewController.swift in Sources */,
 				1A3161FF2964414500760867 /* NewsFeedViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

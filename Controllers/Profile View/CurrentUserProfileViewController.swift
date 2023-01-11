@@ -2,13 +2,14 @@
 //  ProfileViewController.swift
 //  News Connected Network
 //
-//  Created by ram-16138 on 11/01/23.
+//  Created by ram-16138 on 01/01/23.
 //
 
 import UIKit
 
-class ProfileViewController: UIViewController {
-    var nonCurrentUser = Account()
+class CurrentUserProfileViewController: UIViewController {
+
+    var email = String()
     let data = UILabel()
     var scrollView = UIScrollView()
     var verticalStack = UIStackView()
@@ -26,7 +27,18 @@ class ProfileViewController: UIViewController {
         addNameLabel()
         addDescriptionLabel()
         addFollowersFollowingAndRecentActivityBlock()
+        //scrollView.contentSize = CGSize(width: view.frame.width, height: view.frame.height*1.1)
         // Do any additional setup after loading the view.
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        fetchCurrenUserProfileData(completionHandler: {_ in})
+        fetchProfilePicture(url: currentUserAccountObject().profilePicture!){ imageData in
+            DispatchQueue.main.async {
+                self.profilePicture.setImage(UIImage(data: imageData), for: .normal)
+            }
+        }
     }
     
     func loadImageToStack(){
@@ -62,7 +74,7 @@ class ProfileViewController: UIViewController {
         profilePicture.layer.borderWidth = 2
         profilePicture.layer.borderColor = UIColor.systemGray.cgColor
         profilePicture.layer.maskedCorners = [.layerMaxXMinYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
-        guard let profilePictureURL = nonCurrentUser.profilePicture else{
+        guard let profilePictureURL = curretAccount.profilePicture else{
             //profilePicture.image = UIImage(imageLiteralResourceName: "profile picture 3")
             profilePicture.setImage(UIImage(imageLiteralResourceName: "profile picture 3"), for: .normal)
             return
@@ -81,7 +93,7 @@ class ProfileViewController: UIViewController {
         let nameLabel = UILabel()
         nameLabel.textAlignment = .center
         nameLabel.font = .boldSystemFont(ofSize: 30)
-        nameLabel.text = nonCurrentUser.userName
+        nameLabel.text = curretAccount.userName
         verticalStack.addSubview(nameLabel)
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.leadingAnchor.constraint(equalTo: profilePicture.trailingAnchor,constant: 10).isActive = true
@@ -91,7 +103,7 @@ class ProfileViewController: UIViewController {
     }
     
     func addDescriptionLabel(){
-        descriptionLabel.text = nonCurrentUser.profileDescription
+        descriptionLabel.text = curretAccount.profileDescription
         descriptionLabel.numberOfLines = 0
         verticalStack.addSubview(descriptionLabel)
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -99,12 +111,22 @@ class ProfileViewController: UIViewController {
         descriptionLabel.widthAnchor.constraint(equalTo: verticalStack.widthAnchor, multiplier: 0.85).isActive = true
         descriptionLabel.centerXAnchor.constraint(equalTo: verticalStack.centerXAnchor).isActive = true
         
+        let editDescription = UIButton()
+        verticalStack.addSubview(editDescription)
+        editDescription.setImage(UIImage(systemName: "pencil"), for: .normal)
+        editDescription.translatesAutoresizingMaskIntoConstraints = false
+        editDescription.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        editDescription.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        editDescription.trailingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor).isActive = true
+        editDescription.topAnchor.constraint(equalTo: descriptionLabel.topAnchor).isActive = true
+        editDescription.addTarget(self, action: #selector(viewProfileImage), for: .touchUpInside) // requiers edit
+        
     }
     
     func addFollowersFollowingAndRecentActivityBlock(){
         let followersButton = UIButton()
         followersButton.backgroundColor = .black
-        followersButton.setTitle("Followers : \(nonCurrentUser.followersList.count)", for: .normal)
+        followersButton.setTitle("Followers : \(curretAccount.followersList.count)", for: .normal)
         followersButton.titleLabel?.textAlignment = .center
         followersButton.titleLabel?.font = .boldSystemFont(ofSize: 25)
         followersButton.setTitleColor(.white, for: .normal)
@@ -119,7 +141,7 @@ class ProfileViewController: UIViewController {
         
         let followingButton = UIButton()
         followingButton.backgroundColor = .black
-        followingButton.setTitle("Following : \(nonCurrentUser.followingList.count)", for: .normal)
+        followingButton.setTitle("Following : \(curretAccount.followingList.count)", for: .normal)
         followingButton.titleLabel?.textAlignment = .center
         followingButton.titleLabel?.font = .boldSystemFont(ofSize: 25)
         followingButton.setTitleColor(.white, for: .normal)
@@ -146,7 +168,7 @@ class ProfileViewController: UIViewController {
         RecentActivityButton.addTarget(self, action: #selector(recentActivityView), for: .touchUpInside)
         applyBorderForButton(button: RecentActivityButton)
         
-        fetchUserRecentActivity(email: nonCurrentUser.email){ articles in
+        fetchCurrentUserRecentActivity(){ articles in
             self.articlesArray  = articles
             DispatchQueue.main.async {
                 RecentActivityButton.setTitle("Recent activity : \(articles.count)", for: .normal)
@@ -184,19 +206,16 @@ class ProfileViewController: UIViewController {
     
     @objc func viewProfileImage(){
         let nextVC = FullProfilePictureViewController()
-        fetchProfilePicture(url: nonCurrentUser.profilePicture!){ imageData in
-            DispatchQueue.main.async {
-                nextVC.uiImage = UIImage(data: imageData)!
-                self.navigationController?.pushViewController(nextVC, animated: true)
-            }
-        }
+        nextVC.uiImage = profilePicture.currentImage!
+        nextVC.isCurrentUser = true
+        navigationController?.pushViewController(nextVC, animated: true)
     }
 
     @objc func loadFollowersView(){
         let nextVC = FollowersFollowingViewController()
         nextVC.title = "Followers"
-        nextVC.account = nonCurrentUser
-        nextVC.accountList = nonCurrentUser.followersList
+        nextVC.accountList = curretAccount.followingList
+        nextVC.account = currentUserAccountObject()
         navigationController?.pushViewController(nextVC, animated: true)
     }
     
@@ -209,13 +228,13 @@ class ProfileViewController: UIViewController {
     
     @objc func loadFollowingView(){
         let nextVC = FollowersFollowingViewController()
+        nextVC.accountList = curretAccount.followersList
         nextVC.title = "Following"
-        nextVC.accountList = nonCurrentUser.followingList
-        nextVC.account = nonCurrentUser
+        nextVC.account = currentUserAccountObject()
         navigationController?.pushViewController(nextVC, animated: true)
     }
     
-    
+
     /*
     // MARK: - Navigation
 

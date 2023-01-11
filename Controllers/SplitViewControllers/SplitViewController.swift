@@ -21,7 +21,8 @@ class SplitViewController: UISplitViewController{
     private func loadViewControllers() {
             let navController = UINavigationController(rootViewController: primaryViewController)
             let secondaryViewController = SecondaryViewController()
-            primaryViewController.navigationItem.backBarButtonItem = UIBarButtonItem(title: " ", image: UIImage(systemName: "list.dash"), target: self, action: nil)
+            secondaryViewController.title = "Home"
+            primaryViewController.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "list.dash"), target: self, action: nil)
             self.viewControllers = [navController, secondaryViewController]
     }
     
