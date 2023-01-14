@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 class ChattingViewController: UIViewController {
 
@@ -14,26 +15,37 @@ class ChattingViewController: UIViewController {
     var tableView = UITableView()
     var reachableAccounts = [String]()
     var reachableAccountsArray = [Account]()
+    let refreshControl = UIRefreshControl()
     var isSharing = false
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(tableView)
         view.backgroundColor = .systemBackground
+        addTableViewOfUsers()
+        loadAccountsForChatTableView()
+        // Do any additional setup after loading the view.
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if !hasNetworkConnection(){
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+    }
+    
+    func loadAccountsForChatTableView(){
         fetchCurrenUserProfileData(completionHandler: {_ in})
         currentUser = currentUserAccountObject()
         let set1:Set<String> = Set(currentUser.followersList)
         let set2:Set<String> = Set(currentUser.followingList)
         reachableAccounts = Array( set1.union(set2) )
-        addTableViewOfUsers()
         loadDataForTableView(){ status in
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
         }
-        
-        // Do any additional setup after loading the view.
     }
-
     
     func loadDataForTableView(completionHandler:@escaping (Bool)->()){
         reachableAccountsArray = []
@@ -60,8 +72,44 @@ class ChattingViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(CSUserTableViewCell.self, forCellReuseIdentifier: CSUserTableViewCell.identifier)
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
+        tableView.addSubview(refreshControl)
+    }
+    
+    func loadMessages(sendingtUser:Account,comletionHandler:@escaping (String)->()){
+        var messages = [Message]()
+        fetchMessageFromFireBaseChatSystem(sender: sendingtUser){ documents in
+            for document in documents {
+                
+                let documentData = document.data()
+                let timeStamp = documentData["sentDate"] as! Timestamp
+                let message = Message(sender: Sender(senderId: documentData["senderId"] as! String, displayName: documentData["displayName"] as! String),
+                                      messageId: documentData["messageId"] as! String,
+                                      sentDate: timeStamp.dateValue(),
+                                      kind: .text(documentData["message"] as! String))
+                messages.append(message)
+            }
+            messages.sort { $0.sentDate<$1.sentDate }
+            if messages.count > 0{
+                if case .text(let value) = messages[0].kind.self{
+                    comletionHandler(value)
+                }
+            }
+            else{
+                comletionHandler("")
+            }
+        }
     }
 
+    @objc func refresh(_ sender: AnyObject) {
+       // Code to refresh table view
+        loadAccountsForChatTableView()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.refreshControl.endRefreshing()
+        }
+    }
+    
     /*
     // MARK: - Navigation
 
@@ -83,9 +131,11 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: CSUserTableViewCell.identifier) as! CSUserTableViewCell
         let account = reachableAccountsArray[indexPath.row]
-        cell.userIDStamp.text = account.fetchUserID()
         cell.nameStamp.text = account.userName
         cell.imageUrl = account.profilePicture
+        loadMessages(sendingtUser: account){ lastMessage in
+            cell.desStamp.text = lastMessage
+        }
         fetchProfilePicture(url: account.profilePicture!){ imageData in
             DispatchQueue.main.async {
                 cell.img.image = UIImage(data: imageData)
@@ -110,7 +160,7 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
     }
     func tableView(_ tableView: UITableView,
                    heightForHeaderInSection section: Int) -> CGFloat {
-        return 60
+        return 80
     }
 
     func tableView(_ tableView: UITableView,
@@ -126,6 +176,17 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
         headerLabel.translatesAutoresizingMaskIntoConstraints = false
         headerLabel.frame = headerView.bounds
         return headerView
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let filterAction = UIContextualAction(style: .normal, title: "Delete") { (action, view, bool) in
+                print("Swiped to delete chat")
+                let account = self.reachableAccountsArray[indexPath.row]
+                deleteChatFromFireBase(sendingtUser: account){ }
+            }
+            filterAction.backgroundColor = UIColor.red
+
+            return UISwipeActionsConfiguration(actions: [filterAction])
     }
     
 }

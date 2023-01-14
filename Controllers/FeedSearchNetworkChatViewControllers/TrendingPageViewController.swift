@@ -30,25 +30,56 @@ class TrendingPageViewController: UIViewController {
         alert.view.addSubview(loadingIndicator)
         present(alert, animated: true, completion: nil)
         
-        loadHeadLinesForTrendingPage(keyword: nil, country: nil, newsCategory: nil)
+        loadHeadLinesForTrendingPage(keyword: nil, newsCategory: nil)
         // Do any additional setup after loading the view.
     }
     
     
-    func loadHeadLinesForTrendingPage(keyword:String?,country:Country?,newsCategory:NewsCategory?){
+    override func viewDidAppear(_ animated: Bool) {
+        if !hasNetworkConnection(){
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+    }
+    
+    func loadHeadLinesForTrendingPage(keyword:String?,newsCategory:NewsCategory?){
+        if !hasNetworkConnection(){
+            addWarningLabel()
+            self.dismiss(animated: false, completion: nil)
+            return
+        }
         fetchCurrenUserProfileData(completionHandler: { _ in})
         let currentUser = currentUserAccountObject()
-        newsAPI.sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory, language: currentUser.language){ data,error in
+        newsAPI.sessionToLoadHeadLines(keyword: keyword, newsCategory: newsCategory, language: currentUser.language){ data,error in
+            if error != nil || data == nil{
+                DispatchQueue.main.async {
+                    self.dismiss(animated: false, completion: nil)
+                    self.addWarningLabel()
+                }
+    
+            }
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                     self.dismiss(animated: false, completion: nil)
+                    if self.arrayOfArticles.count == 0{
+                        self.addWarningLabel()
+                    }
                 }
             }
         }
     }
     
+    func addWarningLabel(){
+        let warningLabel = UIImageView(image: UIImage(imageLiteralResourceName: "empty news paper"))
+        view.addSubview(warningLabel)
+        warningLabel.translatesAutoresizingMaskIntoConstraints = false
+        warningLabel.widthAnchor.constraint(equalToConstant: 250).isActive = true
+        warningLabel.heightAnchor.constraint(equalToConstant: 250).isActive = true
+        warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        warningLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+    }
     
     func addTableView(){
         view.addSubview(tableView)
@@ -71,7 +102,10 @@ class TrendingPageViewController: UIViewController {
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view
         let currentUser = currentUserAccountObject()
-        newsAPI.sessionToLoadHeadLines(keyword: nil, country: nil, newsCategory: nil, language: currentUser.language){ data,error in
+        newsAPI.sessionToLoadHeadLines(keyword: nil, newsCategory: nil, language: currentUser.language){ data,error in
+            if error == nil && data == nil{
+                print("error preparing url")
+            }
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
                 DispatchQueue.main.async {

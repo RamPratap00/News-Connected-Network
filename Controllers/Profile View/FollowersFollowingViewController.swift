@@ -23,6 +23,13 @@ class FollowersFollowingViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if !hasNetworkConnection(){
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+    }
     
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view
@@ -94,7 +101,7 @@ extension FollowersFollowingViewController:UITableViewDataSource,UITableViewDele
                     cell.img.image = UIImage(data: imageData)
                 }
             }
-            
+
             return cell
     }
     

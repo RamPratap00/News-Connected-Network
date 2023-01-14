@@ -10,6 +10,7 @@ import UIKit
 class CurrentUserProfileViewController: UIViewController {
 
     var email = String()
+    let tableView = UITableView()
     let data = UILabel()
     var scrollView = UIScrollView()
     var verticalStack = UIStackView()
@@ -17,6 +18,9 @@ class CurrentUserProfileViewController: UIViewController {
     var articlesArray = [Article]()
     let profilePicture = UIButton()
     let descriptionLabel = UILabel()
+    let RecentActivityButton = UIButton()
+    let followingButton = UIButton()
+    let followersButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,18 +31,46 @@ class CurrentUserProfileViewController: UIViewController {
         addNameLabel()
         addDescriptionLabel()
         addFollowersFollowingAndRecentActivityBlock()
-        //scrollView.contentSize = CGSize(width: view.frame.width, height: view.frame.height*1.1)
+        addTableView()
         // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        if !hasNetworkConnection(){
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+        
+        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator.startAnimating();
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
+        
         fetchCurrenUserProfileData(completionHandler: {_ in})
         fetchProfilePicture(url: currentUserAccountObject().profilePicture!){ imageData in
             DispatchQueue.main.async {
                 self.profilePicture.setImage(UIImage(data: imageData), for: .normal)
+                self.followingButton.setTitle("Following : \(currentUserAccountObject().followingList.count)", for: .normal)
+                self.followersButton.setTitle("Followers : \(currentUserAccountObject().followersList.count)", for: .normal)
+                self.descriptionLabel.text = currentUserAccountObject().profileDescription
             }
         }
+        fetchCurrentUserRecentActivity(){ articles in
+            self.articlesArray  = articles
+            DispatchQueue.main.async {
+                self.dismiss(animated: false,completion: nil)
+                self.tableView.reloadData()
+                self.scrollView.contentSize = CGSize(width: self.view.frame.width, height: self.verticalStack.frame.height)
+            }
+        }
+        
     }
     
     func loadImageToStack(){
@@ -65,11 +97,11 @@ class CurrentUserProfileViewController: UIViewController {
         
         verticalStack.addSubview(profilePicture)
         profilePicture.translatesAutoresizingMaskIntoConstraints = false
-        profilePicture.widthAnchor.constraint(equalToConstant: 130).isActive = true
-        profilePicture.heightAnchor.constraint(equalToConstant: 130).isActive = true
+        profilePicture.widthAnchor.constraint(equalToConstant: 110).isActive = true
+        profilePicture.heightAnchor.constraint(equalToConstant: 110).isActive = true
         profilePicture.centerXAnchor.constraint(equalTo: verticalStack.leadingAnchor, constant: 85+10).isActive = true
         profilePicture.centerYAnchor.constraint(equalTo: backroundImage.bottomAnchor,constant: 10+10).isActive = true
-        profilePicture.layer.cornerRadius = 65
+        profilePicture.layer.cornerRadius = 45
         profilePicture.layer.masksToBounds = true
         profilePicture.layer.borderWidth = 2
         profilePicture.layer.borderColor = UIColor.systemGray.cgColor
@@ -81,18 +113,28 @@ class CurrentUserProfileViewController: UIViewController {
         }
         fetchProfilePicture(url: profilePictureURL){ imageData in
             DispatchQueue.main.async {
-               // self.profilePicture.image = UIImage(data: imageData)
                 self.profilePicture.setImage(UIImage(data: imageData), for: .normal)
             }
         }
         profilePicture.addTarget(self, action: #selector(viewProfileImage), for: .touchUpInside)
         
+        let editProfilePicture = UIButton()
+        editProfilePicture.setImage( UIImage(systemName: "plus.circle.fill"), for: .normal)
+        editProfilePicture.imageView?.sizeToFit()
+        verticalStack.addSubview(editProfilePicture)
+        editProfilePicture.translatesAutoresizingMaskIntoConstraints = false
+        editProfilePicture.widthAnchor.constraint(equalToConstant: 44).isActive = true
+        editProfilePicture.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        editProfilePicture.centerXAnchor.constraint(equalTo: profilePicture.trailingAnchor,constant: -10).isActive = true
+        editProfilePicture.centerYAnchor.constraint(equalTo: profilePicture.bottomAnchor,constant: -10).isActive = true
+        editProfilePicture.addTarget(self, action: #selector(viewProfileImage), for: .touchUpInside)
+        
     }
     
     func addNameLabel(){
         let nameLabel = UILabel()
-        nameLabel.textAlignment = .center
-        nameLabel.font = .boldSystemFont(ofSize: 30)
+        nameLabel.textAlignment = .left
+        nameLabel.font = .boldSystemFont(ofSize: 25)
         nameLabel.text = curretAccount.userName
         verticalStack.addSubview(nameLabel)
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -100,6 +142,7 @@ class CurrentUserProfileViewController: UIViewController {
         nameLabel.centerYAnchor.constraint(equalTo: profilePicture.centerYAnchor).isActive = true
         nameLabel.trailingAnchor.constraint(equalTo: verticalStack.trailingAnchor,constant: -20).isActive = true
         nameLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        
     }
     
     func addDescriptionLabel(){
@@ -118,63 +161,41 @@ class CurrentUserProfileViewController: UIViewController {
         editDescription.widthAnchor.constraint(equalToConstant: 50).isActive = true
         editDescription.heightAnchor.constraint(equalToConstant: 50).isActive = true
         editDescription.trailingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor).isActive = true
-        editDescription.topAnchor.constraint(equalTo: descriptionLabel.topAnchor).isActive = true
-        editDescription.addTarget(self, action: #selector(viewProfileImage), for: .touchUpInside) // requiers edit
+        editDescription.centerYAnchor.constraint(equalTo: descriptionLabel.bottomAnchor,constant: -5).isActive = true
+        editDescription.addTarget(self, action: #selector(editAndUpdateDescription), for: .touchUpInside) // requiers edit
         
     }
     
     func addFollowersFollowingAndRecentActivityBlock(){
-        let followersButton = UIButton()
         followersButton.backgroundColor = .black
         followersButton.setTitle("Followers : \(curretAccount.followersList.count)", for: .normal)
         followersButton.titleLabel?.textAlignment = .center
-        followersButton.titleLabel?.font = .boldSystemFont(ofSize: 25)
+        followersButton.titleLabel?.font = .boldSystemFont(ofSize: 15)
         followersButton.setTitleColor(.white, for: .normal)
         verticalStack.addSubview(followersButton)
         followersButton.translatesAutoresizingMaskIntoConstraints = false
-        followersButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.80).isActive = true
+        followersButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.40).isActive = true
         followersButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor,constant: 30).isActive = true
-        followersButton.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        followersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        followersButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        followersButton.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor).isActive = true
         followersButton.addTarget(self, action: #selector(loadFollowersView), for: .touchUpInside)
         applyBorderForButton(button: followersButton)
         
-        let followingButton = UIButton()
+        
         followingButton.backgroundColor = .black
         followingButton.setTitle("Following : \(curretAccount.followingList.count)", for: .normal)
         followingButton.titleLabel?.textAlignment = .center
-        followingButton.titleLabel?.font = .boldSystemFont(ofSize: 25)
+        followingButton.titleLabel?.font = .boldSystemFont(ofSize: 15)
         followingButton.setTitleColor(.white, for: .normal)
         verticalStack.addSubview(followingButton)
         followingButton.translatesAutoresizingMaskIntoConstraints = false
-        followingButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.80).isActive = true
-        followingButton.topAnchor.constraint(equalTo: followersButton.bottomAnchor,constant: 30).isActive = true
-        followingButton.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        followingButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        followingButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.40).isActive = true
+        followingButton.topAnchor.constraint(equalTo: followersButton.topAnchor).isActive = true
+        followingButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        followingButton.trailingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor).isActive = true
         followingButton.addTarget(self, action: #selector(loadFollowingView), for: .touchUpInside)
         applyBorderForButton(button: followingButton)
         
-        let RecentActivityButton = UIButton()
-        RecentActivityButton.backgroundColor = .black
-        RecentActivityButton.titleLabel?.textAlignment = .center
-        RecentActivityButton.titleLabel?.font = .boldSystemFont(ofSize: 25)
-        RecentActivityButton.setTitleColor(.white, for: .normal)
-        verticalStack.addSubview(RecentActivityButton)
-        RecentActivityButton.translatesAutoresizingMaskIntoConstraints = false
-        RecentActivityButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.80).isActive = true
-        RecentActivityButton.topAnchor.constraint(equalTo: followingButton.bottomAnchor,constant: 30).isActive = true
-        RecentActivityButton.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        RecentActivityButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        RecentActivityButton.addTarget(self, action: #selector(recentActivityView), for: .touchUpInside)
-        applyBorderForButton(button: RecentActivityButton)
-        
-        fetchCurrentUserRecentActivity(){ articles in
-            self.articlesArray  = articles
-            DispatchQueue.main.async {
-                RecentActivityButton.setTitle("Recent activity : \(articles.count)", for: .normal)
-                self.scrollView.contentSize = CGSize(width: self.view.frame.width, height: self.verticalStack.frame.height)
-            }
-        }
 
     }
     
@@ -204,6 +225,20 @@ class CurrentUserProfileViewController: UIViewController {
         verticalStack.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
     }
     
+    func addTableView(){
+        verticalStack.addSubview(tableView)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: verticalStack.bottomAnchor).isActive = true
+        tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        tableView.topAnchor.constraint(equalTo: followersButton.bottomAnchor,constant: 30).isActive = true
+        tableView.register(NewsFeedPageTableViewCell.self, forCellReuseIdentifier: NewsFeedPageTableViewCell.identifier)
+        tableView.estimatedRowHeight = 80
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.delegate = self
+        tableView.dataSource = self
+    }
+    
     @objc func viewProfileImage(){
         let nextVC = FullProfilePictureViewController()
         nextVC.uiImage = profilePicture.currentImage!
@@ -214,21 +249,19 @@ class CurrentUserProfileViewController: UIViewController {
     @objc func loadFollowersView(){
         let nextVC = FollowersFollowingViewController()
         nextVC.title = "Followers"
-        nextVC.accountList = curretAccount.followingList
+        nextVC.accountList = curretAccount.followersList
         nextVC.account = currentUserAccountObject()
         navigationController?.pushViewController(nextVC, animated: true)
     }
     
-    @objc func recentActivityView(){
-        let nextVC = NewsFeedViewController()
-        nextVC.isRegularFeed = false
-        nextVC.arrayOfArticles = articlesArray
+    @objc func editAndUpdateDescription(){
+        let nextVC = EditDescriptionViewController()
         navigationController?.pushViewController(nextVC, animated: true)
     }
     
     @objc func loadFollowingView(){
         let nextVC = FollowersFollowingViewController()
-        nextVC.accountList = curretAccount.followersList
+        nextVC.accountList = curretAccount.followingList
         nextVC.title = "Following"
         nextVC.account = currentUserAccountObject()
         navigationController?.pushViewController(nextVC, animated: true)
@@ -245,4 +278,26 @@ class CurrentUserProfileViewController: UIViewController {
     }
     */
 
+}
+
+
+extension CurrentUserProfileViewController:UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return articlesArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedPageTableViewCell.identifier) as! NewsFeedPageTableViewCell
+        cell.loadNewscell(article: articlesArray[indexPath.row])
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let nextVC = DetailedNewsViewController()
+        nextVC.article = articlesArray[indexPath.row]
+        let indexesToRedraw = [indexPath]
+        tableView.reloadRows(at: indexesToRedraw, with: .fade)
+        navigationController?.pushViewController(nextVC, animated: true)
+    }
+    
 }

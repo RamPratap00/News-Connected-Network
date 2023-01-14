@@ -121,7 +121,7 @@ func fetchUsersForRecomendation(completionHandler:@escaping ([Account])->()){
         var arrayOfAccounts = [Account]()
         let db = Firestore.firestore()
         db.collection("IndividualUsersData")
-            .limit(to:30)
+            .limit(to:100)
             .getDocuments { (snapshot, error) in
                 ArrayOfAccountsAndNews.recomendedAccounts = []
                 if error == nil && snapshot != nil {
@@ -507,4 +507,24 @@ func currentUserAccountObject()->Account{
     account.email = documentData["EMAIL"] as! String
     account.language = documentData["Language"] as! String
     return account
+}
+
+func fetchLayerTwoUsers(completionHandler:@escaping ([Account])->()){
+    let currentUser = currentUserAccountObject()
+    var userList = [String]()
+    var layerTwoAccountList = [String]()
+    userList.append(contentsOf: currentUser.followersList)
+    userList.append(contentsOf: currentUser.followingList)
+    fetchArrayOfAccounts(emailArray: userList){ accounts in
+        layerTwoAccountList.append(contentsOf: currentUser.followersList)
+        for account in accounts{
+            layerTwoAccountList.append(contentsOf: account.followersList)
+        }
+        let set1:Set<String> = Set(layerTwoAccountList)
+        let set2:Set<String> = Set(currentUser.followingList)
+        let uniqueLayerTwoAccounts = Array(set1.subtracting(set2))
+        fetchArrayOfAccounts(emailArray: uniqueLayerTwoAccounts){ layerTwoAccountsArray in
+            completionHandler(layerTwoAccountsArray)
+        }
+    }
 }

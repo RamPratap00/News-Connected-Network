@@ -13,13 +13,23 @@ class SplashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         displayNcnLogo()
+        
         // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        viewNavigator()
+        
+        if hasNetworkConnection(){
+            view.backgroundColor = .systemGreen
+            viewNavigator()
+        }
+        else{
+            view.backgroundColor = .systemRed
+        }
+        
     }
+    
 
     // MARK: - This function is used to display the news app logo
     func displayNcnLogo(){
@@ -72,5 +82,13 @@ class SplashViewController: UIViewController {
             }
         }
     }
+    
 }
 
+func createSpinnerFooter(view:UIView) -> UIView {
+    let footerView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 100))
+     let spinner = UIActivityIndicatorView()
+    spinner.center = footerView.center
+    footerView.addSubview(spinner)
+    return footerView
+}

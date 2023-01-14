@@ -25,6 +25,10 @@ class SignUpViewController: UIViewController {
     }
     // Fix scroll content size
     override func viewDidAppear(_ animated: Bool) {
+        if !hasNetworkConnection(){
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
         scroll.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height*0.8)
     }
     /// this function is used to load the black and white galaxy picture with the text "signup" just below it
@@ -286,6 +290,10 @@ extension SignUpViewController:UITextFieldDelegate{
         textField.resignFirstResponder()
         warning(warningMessage: "")
         if confirmPasswordTextField.text != passwordTextField.text{
+            userNameField.layer.borderColor = UIColor.gray.cgColor
+            emailTextField.layer.borderColor = UIColor.gray.cgColor
+            passwordTextField.layer.borderColor = UIColor.red.cgColor
+            confirmPasswordTextField.layer.borderColor = UIColor.red.cgColor
             warning(warningMessage: "Password Mismatch")
             return true
         }
@@ -300,12 +308,65 @@ extension SignUpViewController:UITextFieldDelegate{
     func checkAllDataRequirementAndUploadToFireBase(email:String?,password:String?,userName:String?,warningCompletionHandler:(String)->()){
         if password == "" || userName == "" || email == ""{
             warningCompletionHandler("one or more data missing")
+            if password == ""{
+                userNameField.layer.borderColor = UIColor.gray.cgColor
+                emailTextField.layer.borderColor = UIColor.gray.cgColor
+                passwordTextField.layer.borderColor = UIColor.red.cgColor
+                confirmPasswordTextField.layer.borderColor = UIColor.red.cgColor
+            }
+            if userName == ""{
+                userNameField.layer.borderColor = UIColor.red.cgColor
+                emailTextField.layer.borderColor = UIColor.gray.cgColor
+                passwordTextField.layer.borderColor = UIColor.gray.cgColor
+                confirmPasswordTextField.layer.borderColor = UIColor.gray.cgColor
+            }
+            if email == ""{
+                userNameField.layer.borderColor = UIColor.gray.cgColor
+                emailTextField.layer.borderColor = UIColor.red.cgColor
+                passwordTextField.layer.borderColor = UIColor.gray.cgColor
+                confirmPasswordTextField.layer.borderColor = UIColor.gray.cgColor
+            }
+            if email == "" && password == ""{
+                userNameField.layer.borderColor = UIColor.gray.cgColor
+                emailTextField.layer.borderColor = UIColor.red.cgColor
+                passwordTextField.layer.borderColor = UIColor.red.cgColor
+                confirmPasswordTextField.layer.borderColor = UIColor.red.cgColor
+            }
+            if email == "" && userName == ""{
+                userNameField.layer.borderColor = UIColor.red.cgColor
+                emailTextField.layer.borderColor = UIColor.red.cgColor
+                passwordTextField.layer.borderColor = UIColor.gray.cgColor
+                confirmPasswordTextField.layer.borderColor = UIColor.gray.cgColor
+            }
+            if email == "" && userName == "" && password == ""{
+                userNameField.layer.borderColor = UIColor.red.cgColor
+                emailTextField.layer.borderColor = UIColor.red.cgColor
+                passwordTextField.layer.borderColor = UIColor.red.cgColor
+                confirmPasswordTextField.layer.borderColor = UIColor.red.cgColor
+            }
             return
         }
+        
         if !ENCDEC.isStrongPassword(password: password!) || !isValidEmail(email: email!){
-            if !ENCDEC.isStrongPassword(password: password!){warningCompletionHandler("weak password")}
-            if !isValidEmail(email: email!){warningCompletionHandler("invalid email")}
+            if userNameField.text!.count > 30{
+                warningCompletionHandler("user name too long")
+            }
+            if !ENCDEC.isStrongPassword(password: password!){
+                emailTextField.layer.borderColor = UIColor.gray.cgColor
+                passwordTextField.layer.borderColor = UIColor.red.cgColor
+                confirmPasswordTextField.layer.borderColor = UIColor.red.cgColor
+                warningCompletionHandler("weak password")
+            }
+            if !isValidEmail(email: email!){
+                emailTextField.layer.borderColor = UIColor.red.cgColor
+                passwordTextField.layer.borderColor = UIColor.gray.cgColor
+                confirmPasswordTextField.layer.borderColor = UIColor.gray.cgColor
+                warningCompletionHandler("invalid email")
+            }
             if !ENCDEC.isStrongPassword(password: password!) && !isValidEmail(email: email!){
+                passwordTextField.layer.borderColor = UIColor.red.cgColor
+                confirmPasswordTextField.layer.borderColor = UIColor.red.cgColor
+                emailTextField.layer.borderColor = UIColor.red.cgColor
                 warningCompletionHandler("invalid email and weak password")
             }
             return
@@ -338,4 +399,10 @@ extension SignUpViewController:UITextFieldDelegate{
     
     
     
+}
+
+extension String {
+    var isAlphanumeric: Bool {
+        return !isEmpty && range(of: "[^a-zA-Z0-9]", options: .regularExpression) == nil
+    }
 }

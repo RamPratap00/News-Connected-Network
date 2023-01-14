@@ -1,19 +1,19 @@
 //
-//  NewsFeedViewController.swift
+//  AllNewsFeedViewController.swift
 //  News Connected Network
 //
-//  Created by ram-16138 on 03/01/23.
+//  Created by ram-16138 on 14/01/23.
 //
 
 import UIKit
 
-class NewsFeedViewController: UIViewController {
+class AllNewsFeedViewController: UIViewController {
 
+    
     let tableView = UITableView()
     var arrayOfArticles = [Article]()
-    var newsCategory : NewsCategory? = nil
-    var keyword : String? = nil
-    var language : String? = currentUserAccountObject().language
+    var keyword = String()
+    var language = currentUserAccountObject().language
     var isPaginating = false
     var isDataLoaded = false
     let newsAPI = NewsAPINetworkManager()
@@ -27,11 +27,14 @@ class NewsFeedViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         arrayOfArticles = []
+        relodTableView()
         
+        newsAPI.headLinesActive = true
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = UIActivityIndicatorView.Style.medium
         loadingIndicator.startAnimating()
@@ -39,12 +42,12 @@ class NewsFeedViewController: UIViewController {
         alert.view.addSubview(loadingIndicator)
         present(alert, animated: true, completion: nil)
         
-        loadHeadLines(keyword: keyword, newsCategory: newsCategory, language: language){ _ in
+        loadNews(){ _ in
             DispatchQueue.main.async {
                 self.dismiss(animated: true)
+                self.relodTableView()
             }
         }
-        
     }
     
     func addWarningLabel(){
@@ -57,10 +60,9 @@ class NewsFeedViewController: UIViewController {
         warningLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
     
-    func loadHeadLines(keyword:String?,newsCategory:NewsCategory?,language:String?,completionHandler: @escaping (Bool)->()){
+    func loadNews(completionHandler: @escaping (Bool)->()){
         
-        newsAPI.sessionToLoadHeadLines(keyword: keyword, newsCategory: newsCategory, language: language){ data,error in
-            
+        newsAPI.session(keyword: keyword, searchIn: .content, language: language, sortBy: .relevancy){ data,error in
             if error == nil && data?.articles != nil{
                 self.arrayOfArticles = data!.articles
                 if self.arrayOfArticles.count == 0{
@@ -71,7 +73,6 @@ class NewsFeedViewController: UIViewController {
                     completionHandler(false)
                 }
                 completionHandler(true)
-                self.relodTableView()
             }
             else{
                 DispatchQueue.main.async {
@@ -82,6 +83,7 @@ class NewsFeedViewController: UIViewController {
             }
         }
     }
+
     
     func relodTableView(){
         DispatchQueue.main.async {
@@ -102,7 +104,7 @@ class NewsFeedViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
     }
-    
+
     /*
     // MARK: - Navigation
 
@@ -116,7 +118,8 @@ class NewsFeedViewController: UIViewController {
 }
 
 
-extension NewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate{
+
+extension AllNewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return arrayOfArticles.count
     }
@@ -155,6 +158,3 @@ extension NewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScr
     }
     
 }
-
-
-

@@ -32,6 +32,10 @@ class SelectProfilePictureViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        if !hasNetworkConnection(){
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
         if !isFirstVisit{
             navigationController?.dismiss(animated: false)
         }
@@ -105,6 +109,20 @@ class SelectProfilePictureViewController: UIViewController {
         button.layer.masksToBounds = true
     }
     
+    func warning(warningMessage:String){
+        let warningLabel = UILabel()
+            warningLabel.text = warningMessage
+            warningLabel.textColor = .red
+            warningLabel.textAlignment = .center
+            warningLabel.backgroundColor = .systemBackground
+            view.addSubview(warningLabel)
+            warningLabel.translatesAutoresizingMaskIntoConstraints = false
+            warningLabel.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+            warningLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+            warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+            warningLabel.topAnchor.constraint(equalTo: collectionView!.topAnchor,constant: -30).isActive = true
+    }
+    
     @objc func updatingProfilePicture(){
         
         loadingIndicator.hidesWhenStopped = true
@@ -141,6 +159,8 @@ class SelectProfilePictureViewController: UIViewController {
         }
         else{
             print("no image selected")
+            warning(warningMessage: "No Image selected")
+            self.dismiss(animated: false, completion: nil)
         }
     }
     /*

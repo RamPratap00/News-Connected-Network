@@ -66,18 +66,21 @@ func login(email:String,password:String,completionHandler:@escaping (Bool)->()){
 }
 
 func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCurrentUserAccount:Account){
+    
     ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
             let currentUserDataBase = Firestore.firestore()
                 currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["FOLLOWING_LIST":currentUserAccount.followingList])
         }
     }
+    
     ENCDEC.encryptMessage(message: nonCurrentUserAccount.email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
             let currentUserDataBase = Firestore.firestore()
                 currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["FOLLOWERS_LIST":nonCurrentUserAccount.followersList])
         }
     }
+    
 }
 
 func updateFireBaseRecentActivityStack(article:Article,reaction:String){
@@ -138,6 +141,17 @@ func updatingProfileImage(email:String,data:Data,completionHandler:@escaping (Bo
                     completionHandler(true)
                 }
             }
+        }
+    }
+}
+
+
+func updateProfileDescription(content:String){
+    let currentUserAccount = currentUserAccountObject()
+    ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+            currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["PROFILE_DESCRIPTION":content])
         }
     }
 }

@@ -10,6 +10,7 @@ import UIKit
 class SplitViewController: UISplitViewController{
 
     let primaryViewController = PrimaryViewController()
+    let secondaryViewController = SecondaryViewController()
     override func viewDidLoad() {
         super.viewDidLoad()
         loadViewControllers()
@@ -17,10 +18,9 @@ class SplitViewController: UISplitViewController{
         // Do any additional setup after loading the view.
     }
     
-
     private func loadViewControllers() {
             let navController = UINavigationController(rootViewController: primaryViewController)
-            let secondaryViewController = SecondaryViewController()
+            let secondaryViewController = UINavigationController(rootViewController: secondaryViewController)
             secondaryViewController.title = "Home"
             primaryViewController.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "list.dash"), target: self, action: nil)
             self.viewControllers = [navController, secondaryViewController]

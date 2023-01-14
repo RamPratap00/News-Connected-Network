@@ -31,7 +31,13 @@ class SelectLanguageViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if !hasNetworkConnection(){
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+    }
     let langauge = ["عربى","Deutsche","English","española","française","הברו","italiana","nederlands","Português","русский","svenska","中国人"]
     
     func loadBackgroundImageWithText(){
@@ -102,6 +108,20 @@ class SelectLanguageViewController: UIViewController {
         button.layer.masksToBounds = true
     }
     
+    func warning(warningMessage:String){
+        let warningLabel = UILabel()
+            warningLabel.text = warningMessage
+            warningLabel.textColor = .red
+            warningLabel.textAlignment = .center
+            warningLabel.backgroundColor = .systemBackground
+            view.addSubview(warningLabel)
+            warningLabel.translatesAutoresizingMaskIntoConstraints = false
+            warningLabel.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+            warningLabel.heightAnchor.constraint(equalToConstant: 44).isActive = true
+            warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+            warningLabel.topAnchor.constraint(equalTo: collectionView!.topAnchor).isActive = true
+    }
+    
     
     @objc func updatingLanguagePreference(){
         if isImageSelected{
@@ -110,6 +130,9 @@ class SelectLanguageViewController: UIViewController {
             nextVC.email = self.email
             nextVC.language = selectedCell.languageLabel.text!
             self.navigationController?.pushViewController(nextVC, animated: true)
+        }
+        else{
+            warning(warningMessage: "No Language Selected")
         }
     }
     /*

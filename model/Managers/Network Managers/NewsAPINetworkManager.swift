@@ -7,16 +7,15 @@
 /// THIS NETWORK MANAGER IS USED TO PREPARE AND MAKE API CALLS TO https://newsapi.org/
 import Foundation
 
-let apiKey = "8fa02b5718244406a73b413d03f0ecbe"
-//let apiKey = "327d15296670458bb67a34d9bc4648d6"
+//let apiKey = "8fa02b5718244406a73b413d03f0ecbe"
+let apiKey = "327d15296670458bb67a34d9bc4648d6"
 class NewsAPINetworkManager{
 
-    var pageNumber = 1
+    var pageNumber = 0
     var keyword : String? = nil
     var searchIn : SearchIn? = nil
-    var language : String? = "English"
+    var language : String? = currentUserAccountObject().language
     var sortBy : SortBy? = nil
-    var country:Country? = nil
     var newsCategory:NewsCategory? = nil
     var everyThingActive = false
     var headLinesActive = false
@@ -45,7 +44,12 @@ class NewsAPINetworkManager{
         urlString.append("&pageSize=10")
         urlString.append("&page=\(pageNumber)")
         urlString.append(apiKey)
-        return URL(string: urlString)
+        print(urlString)
+        guard let encodedString = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed), let url = URL(string: encodedString) else {
+              print("Url Preparation Failure")
+            return nil
+        }
+        return url
     }
     
     /// Creates a HTTPS session to fetch data from https://newsapi.org/ using prepareURL(...).
@@ -67,6 +71,7 @@ class NewsAPINetworkManager{
         
         guard let url = prepareURL(keyword: keyword,searchIn: searchIn,language:language,sortBy:sortBy) else{
             print(" URL peparation failed ! ")
+            completionHandler(nil,nil)
             return
         }
         everyThingActive = true
@@ -100,7 +105,6 @@ class NewsAPINetworkManager{
     
     
     func sessionToLoadHeadLines(keyword q:String?,
-                                country:Country?,
                                 newsCategory:NewsCategory?,
                                 language:String?,
                                 completionHandler: @escaping (Response?,Error?)->()){
@@ -108,7 +112,6 @@ class NewsAPINetworkManager{
         headLinesActive = true
         
         self.keyword = q
-        self.country = country
         self.newsCategory = newsCategory
         self.language = language
         
@@ -116,17 +119,10 @@ class NewsAPINetworkManager{
         let apiKey = "&apiKey=\(apiKey)"
         if let q = q{
             urlString.append("q=\(q)")
-            if let country = country{ urlString.append("&country=\(country.rawValue)")}
             if let newsCategory = newsCategory{urlString.append("&category=\(newsCategory.rawValue)") }
         }
         else{
-            if let country = country{
-                urlString.append("country=\(country.rawValue)")
-                if let newsCategory = newsCategory{urlString.append("&category=\(newsCategory.rawValue)") }
-            }
-            else{
-                if let newsCategory = newsCategory{urlString.append("category=\(newsCategory.rawValue)") }
-            }
+            if let newsCategory = newsCategory{urlString.append("category=\(newsCategory.rawValue)") }
         }
         if urlString == "https://newsapi.org/v2/top-headlines?"{
             if let language = language{urlString.append("language=\(languageKey(lang: language))")}
@@ -134,9 +130,13 @@ class NewsAPINetworkManager{
         else{
             if let language = language{urlString.append("&language=\(languageKey(lang: language))")}
         }
+        urlString.append("&pageSize=10")
+        urlString.append("&page=\(pageNumber)")
         urlString.append(apiKey)
-        guard let url = URL(string: urlString) else{
-            print(" URL peparation failed ! ")
+        print(urlString)
+        guard let encodedString = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed), let url = URL(string: encodedString) else {
+            print("Url Preparation Failure")
+            completionHandler(nil,nil)
             return
         }
         everyThingActive = false
@@ -173,7 +173,7 @@ class NewsAPINetworkManager{
     func fetchMore(completionHandler: @escaping (Response?,Error?)->()){
         pageNumber = pageNumber + 1
         if headLinesActive{
-            sessionToLoadHeadLines(keyword: keyword, country: country, newsCategory: newsCategory, language: language){ moreData,error  in
+            sessionToLoadHeadLines(keyword: keyword, newsCategory: newsCategory, language: language){ moreData,error  in
                 
                 if error == nil && moreData?.articles != nil{
                     completionHandler(moreData!, nil)
@@ -185,15 +185,18 @@ class NewsAPINetworkManager{
             }
         }
         else{
-            session(keyword: keyword!, searchIn: searchIn, language: language, sortBy: sortBy){ moreData,error  in
-                
-                if error == nil && moreData?.articles != nil{
-                    completionHandler(moreData!, nil)
+            if hasNetworkConnection(){
+                guard let keyword = keyword else{ return}
+                session(keyword: keyword, searchIn: searchIn, language: language, sortBy: sortBy){ moreData,error  in
+                    
+                    if error == nil && moreData?.articles != nil{
+                        completionHandler(moreData!, nil)
+                    }
+                    else{
+                        completionHandler(nil,error)
+                    }
+                    
                 }
-                else{
-                    completionHandler(nil,error)
-                }
-                
             }
         }
     }
@@ -201,45 +204,6 @@ class NewsAPINetworkManager{
     
 }
 
-
-enum Country:String{
-    case ae
-    case ar
-    case at
-    case au
-    case be
-    case bg
-    case br
-    case ca
-    case ch
-    case cn
-    case co
-    case cu
-    case cz
-    case de
-    case eg
-    case fr
-    case gb
-    case gr
-    case hk
-    case hu
-    case id
-    case ie
-    case il
-    case In = "in"
-    case it
-    case jp
-    case kr
-    case lt
-    case lv
-    case ma
-    case mx
-    case my
-    case ng
-    case nl
-    case no
-    case nz,ph,pl,pt,ro,rs,ru,sa,se,sg,si,sk,th,tr,tw,ua,us,ve,za
-}
 
 enum NewsCategory:String{
     case business,entertainment,general,health,science,sports,technology

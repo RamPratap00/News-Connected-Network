@@ -20,8 +20,8 @@ class CSUserTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         
-        img.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(img)
+        img.translatesAutoresizingMaskIntoConstraints = false
         img.widthAnchor.constraint(equalToConstant: 60).isActive = true
         img.heightAnchor.constraint(equalToConstant: 60).isActive = true
         img.layer.cornerRadius = 30
@@ -34,22 +34,19 @@ class CSUserTableViewCell: UITableViewCell {
         nameStamp.translatesAutoresizingMaskIntoConstraints = false
         nameStamp.font = .boldSystemFont(ofSize: 20)
         nameStamp.leadingAnchor.constraint(equalTo: img.trailingAnchor,constant: 10).isActive = true
-        nameStamp.topAnchor.constraint(equalTo: contentView.topAnchor,constant: 15).isActive = true
-
-        contentView.addSubview(userIDStamp)
-        userIDStamp.translatesAutoresizingMaskIntoConstraints = false
-        userIDStamp.font = .systemFont(ofSize: 15)
-        userIDStamp.topAnchor.constraint(equalTo: nameStamp.bottomAnchor).isActive = true
-        userIDStamp.leadingAnchor.constraint(equalTo: nameStamp.leadingAnchor).isActive = true
+        nameStamp.topAnchor.constraint(equalTo: img.topAnchor).isActive = true
+        nameStamp.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        nameStamp.widthAnchor.constraint(equalToConstant: 250).isActive = true
         
         contentView.addSubview(desStamp)
         desStamp.translatesAutoresizingMaskIntoConstraints = false
-        desStamp.numberOfLines = 0
-        desStamp.font = .systemFont(ofSize: 12)
+        desStamp.textColor = .gray
+        desStamp.font = .systemFont(ofSize: 15)
+        desStamp.heightAnchor.constraint(equalToConstant: 25).isActive = true
         desStamp.leadingAnchor.constraint(equalTo: nameStamp.leadingAnchor).isActive = true
-        desStamp.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.4).isActive = true
-        desStamp.topAnchor.constraint(equalTo: userIDStamp.bottomAnchor).isActive = true
-        desStamp.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,constant: -15).isActive = true
+        desStamp.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.45).isActive = true
+        desStamp.topAnchor.constraint(equalTo: nameStamp.bottomAnchor).isActive = true
+        desStamp.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,constant: -10).isActive = true
         
     }
     

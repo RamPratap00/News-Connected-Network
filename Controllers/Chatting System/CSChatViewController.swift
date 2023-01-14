@@ -25,7 +25,9 @@ class CSChatViewController: MessagesViewController {
                     layout.textMessageSizeCalculator.incomingAvatarSize = .zero
                     layout.setMessageIncomingAvatarSize(.zero)
                 }
-        addListner()
+        addListner(sendingtUser: sendingtUser){
+            self.loadMessages()
+        }
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
@@ -37,50 +39,23 @@ class CSChatViewController: MessagesViewController {
         // Do any additional setup after loading the view.
     }
     
-    
-    func addListner(){
-        let currentUserAccount = currentUserAccountObject()
-        ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
-            ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
-                let currentUserDataBase = Firestore.firestore()
-                currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/\(self.sendingtUser.email)")
-                    .addSnapshotListener { [self] documentSnapshot, error in
-                        reload()
-                    }
-            }
-        }
-    }
-    
     @objc func deleteChat(){
-        let currentUserAccount = currentUserAccountObject()
-        ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
-            ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
-                let currentUserDataBase = Firestore.firestore()
-                currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/\(self.sendingtUser.email)").getDocuments { (snapshot, error) in
-                    
-                    if error == nil && snapshot != nil {
-                        
-                        for document in snapshot!.documents {
-                            currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/\(self.sendingtUser.email)").document(document.documentID).delete()
-                            
-                        }
-                        
-                    }
-                }
-                self.reload()
+        deleteChatFromFireBase(sendingtUser: sendingtUser){
+            DispatchQueue.main.async {
+                self.loadMessages()
             }
         }
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        reload()
+        loadMessages()
     }
     
     
-    func reload(){
+    func loadMessages(){
         messages = []
         fetchMessageFromFireBaseChatSystem(sender: sendingtUser){ documents in
-            
             for document in documents {
                 
                 let documentData = document.data()
@@ -92,8 +67,9 @@ class CSChatViewController: MessagesViewController {
                 self.messages.append(message)
             }
             self.messages.sort { $0.sentDate<$1.sentDate }
+            DispatchQueue.main.async {
                 self.messagesCollectionView.reloadData()
-            
+            }
         }
     }
     /*

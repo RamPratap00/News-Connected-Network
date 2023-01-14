@@ -11,6 +11,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
 
     let tableView = UITableView()
     let currentUserAccount = currentUserAccountObject()
+    var backupForArrayOfAccouns = [Account]()
     var arrayOfAccounts = [Account]()
     let refreshControl = UIRefreshControl()
     var searchBar = UISearchBar()
@@ -22,13 +23,23 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         navigationController?.title = "Chat"
-        addSegementControlTableViewCollectionView()
+        view.addSubview(tableView)
+        addSegementControlAndCollectionView()
+        addTableView()
         fetchUsersForRecomendation(){accounts in
             self.arrayOfAccounts=accounts
+            self.backupForArrayOfAccouns = accounts
             self.tableView.reloadData()
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if !hasNetworkConnection(){
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+    }
     
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view
@@ -41,6 +52,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     func reloadDataForUsersListTableView(){
         fetchCurrenUserProfileData( ){ _ in
             fetchUsersForRecomendation(){ accounts in
+                self.arrayOfAccounts = []
                 self.arrayOfAccounts=accounts
                 self.tableView.reloadData()
                 
@@ -57,7 +69,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         }
     }
     
-    func addSegementControlTableViewCollectionView(){
+    func addSegementControlAndCollectionView(){
         let control = UISegmentedControl(items: segmentItems)
         control.addTarget(self, action: #selector(segmentControl(_:)), for: .valueChanged)
         control.selectedSegmentIndex = 0
@@ -80,6 +92,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         searchBar.topAnchor.constraint(equalTo: control.bottomAnchor,constant:10).isActive = true
         searchBar.leadingAnchor.constraint(equalTo: control.leadingAnchor).isActive = true
         searchBar.showsCancelButton = false
+        searchBar.delegate = self
         searchBar.placeholder = "  Discover News"
         
         let searchButton = UIButton()
@@ -91,22 +104,6 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         searchButton.centerYAnchor.constraint(equalTo: searchBar.centerYAnchor).isActive = true
         searchButton.trailingAnchor.constraint(equalTo: control.trailingAnchor).isActive = true
         searchButton.addTarget(self, action: #selector(newsSeacrhInitiate), for: .touchUpInside)
-        
-        view.addSubview(tableView)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor,constant:10).isActive = true
-        tableView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
-        tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
-        tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        tableView.register(CoustomUserTableViewCell.self, forCellReuseIdentifier: CoustomUserTableViewCell.identifier)
-        tableView.estimatedRowHeight = 100
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.isHidden = true
-        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
-        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
-        tableView.addSubview(refreshControl)
         
         
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -132,36 +129,31 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         collectionView?.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
     }
     
+    func addTableView(){
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor,constant:10).isActive = true
+        tableView.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier: 0.95).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        tableView.register(CoustomUserTableViewCell.self, forCellReuseIdentifier: CoustomUserTableViewCell.identifier)
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.isHidden = true
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
+        tableView.addSubview(refreshControl)
+    }
+    
     
     @objc func newsSeacrhInitiate(){
         
-        
-        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
-
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = UIActivityIndicatorView.Style.medium
-        loadingIndicator.startAnimating()
-
-        alert.view.addSubview(loadingIndicator)
-        present(alert, animated: true, completion: nil)
-        
-        let nextVC = NewsFeedViewController()
+        let nextVC = AllNewsFeedViewController()
         let currentUser = currentUserAccountObject()
         if let keyword = searchBar.text{
             nextVC.keyword = keyword
             nextVC.language = currentUser.language
-            nextVC.loadNews(){ status in
-                if status{
-                    DispatchQueue.main.async {
-                        self.dismiss(animated: true,completion: nil)
-                        self.navigationController?.pushViewController(nextVC, animated: true)
-                    }
-                }
-                else{
-                    print("failure fetching data")
-                }
-            }
+            navigationController?.pushViewController(nextVC, animated: true)
         }
     }
     
@@ -203,7 +195,6 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
         let cell = tableView.dequeueReusableCell(withIdentifier: CoustomUserTableViewCell.identifier, for: indexPath) as! CoustomUserTableViewCell
         let account = arrayOfAccounts[indexPath.row]
             cell.currentUserAccount = currentUserAccount
@@ -218,7 +209,6 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
                     cell.img.image = UIImage(data: imageData)
                 }
             }
-            
             return cell
     }
     
@@ -254,32 +244,40 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
     
     @objc func didtap(button:UIButton){
         
-        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
-
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = UIActivityIndicatorView.Style.medium
-        loadingIndicator.startAnimating()
-
-        alert.view.addSubview(loadingIndicator)
-        present(alert, animated: true, completion: nil)
+        if !hasNetworkConnection(){
+            view.backgroundColor = .systemRed
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
         
         let nextVC = NewsFeedViewController()
         fetchCurrenUserProfileData(completionHandler: { _ in})
-        let currentUser = currentUserAccountObject()
-        nextVC.loadHeadLines(keyword: nil, country: nil, newsCategory: NewsCategory(rawValue: (button.titleLabel?.text)!), language: currentUser.language){ status in
-            if status{
-                DispatchQueue.main.async {
-                    self.dismiss(animated: true,completion: nil)
-                    self.navigationController?.pushViewController(nextVC, animated: true)
-                }
-            }
-            else{
-                print("failure fetching data")
-            }
-        }
-        self.navigationController?.pushViewController(nextVC, animated: true)
+        nextVC.keyword = nil
+        nextVC.language = currentUserAccountObject().language
+        nextVC.newsCategory = NewsCategory(rawValue: (button.titleLabel?.text)!)
+        navigationController?.pushViewController(nextVC, animated: true)
     }
     
 }
 
+extension SearchUsersAndNewsViewController:UISearchBarDelegate{
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        guard let text = searchBar.text else{
+            arrayOfAccounts = backupForArrayOfAccouns
+            tableView.reloadData()
+            return
+        }
+        if searchBar.text == ""{
+            arrayOfAccounts = backupForArrayOfAccouns
+            tableView.reloadData()
+            return
+        }
+        if !tableView.isHidden{
+            let filteredAccounts =  backupForArrayOfAccouns.filter { $0.userName.contains(text) }
+            arrayOfAccounts = []
+            arrayOfAccounts = filteredAccounts
+            tableView.reloadData()
+        }
+    }
+    
+}

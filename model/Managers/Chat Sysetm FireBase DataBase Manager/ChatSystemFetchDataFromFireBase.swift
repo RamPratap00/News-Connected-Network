@@ -34,3 +34,19 @@ func fetchMessageFromFireBaseChatSystem(sender:Account,completionHandler:@escapi
         }
     }
 }
+
+
+func addListner(sendingtUser:Account,completionHandler: @escaping ()->()){
+    let currentUserAccount = currentUserAccountObject()
+    DispatchQueue.global().async {
+        ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
+            ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+                let currentUserDataBase = Firestore.firestore()
+                currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/\(sendingtUser.email)")
+                    .addSnapshotListener { documentSnapshot, error in
+                        completionHandler()
+                    }
+            }
+        }
+    }
+}

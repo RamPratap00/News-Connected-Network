@@ -24,6 +24,10 @@ class LoginPageViewController: UIViewController {
     // Fix scroll content size
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        if !hasNetworkConnection(){
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
        scroll.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height/2)
     }
     /// this function is used to load the black and white galaxy picture with the text "login" just below it
@@ -217,10 +221,15 @@ class LoginPageViewController: UIViewController {
                 }
             }
             else{
-                print("failed to login")
+                self.dismiss(animated: false, completion: nil)
+                self.passwordTextField.layer.borderColor = UIColor.red.cgColor
+                self.emailTextField.layer.borderColor = UIColor.red.cgColor
+                self.warning(warningMessage: "Invalid UserName/Password")
             }
         }
     }
+    
+    
     
     /*
     // MARK: - Navigation
