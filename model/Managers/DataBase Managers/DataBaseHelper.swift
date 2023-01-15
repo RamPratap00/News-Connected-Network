@@ -10,16 +10,11 @@ import SQLite3
 
 class DataBase{
     
-    var dataBasePointer:OpaquePointer?
-    var tableList = [String]()
+    internal var dataBasePointer:OpaquePointer?
+    internal var tableList = [String]()
     
     init(databasename:String) {
         self.dataBasePointer = createOrOpenDataBase(dataBaseName: databasename)
-    }
-    
-    /// Prints list of all atble available in the database.
-    func printTableList(){
-        print(tableList)
     }
     
     // MARK: - CREATE
@@ -28,7 +23,7 @@ class DataBase{
     /// - Parameters:
     ///   - dataBaseName: Name of the new database.
     /// - Returns: An OpaquePointer? pointing to the database.
-    func createOrOpenDataBase(dataBaseName:String)->OpaquePointer?{
+    internal func createOrOpenDataBase(dataBaseName:String)->OpaquePointer?{
         var pointer : OpaquePointer?
         
         let filepath = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathExtension(dataBaseName)
@@ -39,7 +34,7 @@ class DataBase{
         else{
             print("data base creation/open failure..")
         }
-        
+        //print(filepath)
         return pointer
         
     }
@@ -50,7 +45,7 @@ class DataBase{
     /// - Parameters:
     ///   - columnNameWithDataTypes: Name of the column with its type eg: ID TEXT,NAME TEXT.
     ///   - tableName: Name of the table.
-    func createTable(columnNameWithDataTypes:String,tableName:String){
+    internal func createTable(columnNameWithDataTypes:String,tableName:String){
         let query = "CREATE TABLE IF NOT EXISTS \(tableName)(\(columnNameWithDataTypes));"
         var tablePointer : OpaquePointer?
         
@@ -76,7 +71,7 @@ class DataBase{
     /// - Parameters:
     ///   - tableName: Name of the table.
     /// - Returns: An OpaquePointer? pointing to the table fetched by the query.
-    func readFullTable(tableName:String)->OpaquePointer?{
+    internal func readFullTable(tableName:String)->OpaquePointer?{
         let query = "SELECT * FROM \(tableName);"
         var selectStatement:OpaquePointer?
         guard sqlite3_prepare_v2(dataBasePointer, query, -1, &selectStatement, nil) != SQLITE_OK else{
@@ -90,7 +85,7 @@ class DataBase{
     /// - Parameters:
     ///   - query: sqlite query.
     /// - Returns: An OpaquePointer? pointing to the table fetched by the query.
-    func readWithConstrains(query:String)->OpaquePointer?{
+    internal func readWithConstrains(query:String)->OpaquePointer?{
         var selectStatement:OpaquePointer?
         if sqlite3_prepare_v2(dataBasePointer, query, -1, &selectStatement, nil) != SQLITE_OK{
             return selectStatement
@@ -107,7 +102,7 @@ class DataBase{
     ///  Delete the entire table.
     /// - Parameters:
     ///   - tableName: Name of the table to be deleted
-    func dropTable(tableName:String){
+    internal func dropTable(tableName:String){
         let query = "DROP TABLE \(tableName)"
         var dropStatement:OpaquePointer?
         if sqlite3_prepare_v2(dataBasePointer, query, -1, &dropStatement, nil) == SQLITE_OK{

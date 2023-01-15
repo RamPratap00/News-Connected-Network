@@ -10,13 +10,14 @@ import Firebase
 
 class ChattingViewController: UIViewController {
 
-    var currentUser = currentUserAccountObject()
-    var articleUrl = String()
-    var tableView = UITableView()
-    var reachableAccounts = [String]()
-    var reachableAccountsArray = [Account]()
-    let refreshControl = UIRefreshControl()
-    var isSharing = false
+    fileprivate var currentUser = currentUserAccountObject()
+    public var articleUrl = String()
+    fileprivate var tableView = UITableView()
+    fileprivate var reachableAccounts = [String]()
+    fileprivate var reachableAccountsArray = [Account]()
+    fileprivate let refreshControl = UIRefreshControl()
+    public var isSharing = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(tableView)
@@ -28,13 +29,10 @@ class ChattingViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
     }
     
-    func loadAccountsForChatTableView(){
+    fileprivate func loadAccountsForChatTableView(){
         fetchCurrenUserProfileData(completionHandler: {_ in})
         currentUser = currentUserAccountObject()
         let set1:Set<String> = Set(currentUser.followersList)
@@ -47,7 +45,7 @@ class ChattingViewController: UIViewController {
         }
     }
     
-    func loadDataForTableView(completionHandler:@escaping (Bool)->()){
+    fileprivate func loadDataForTableView(completionHandler:@escaping (Bool)->()){
         reachableAccountsArray = []
         var count = 0
         for email in reachableAccounts{
@@ -61,7 +59,7 @@ class ChattingViewController: UIViewController {
         }
     }
     
-    func addTableViewOfUsers(){
+    fileprivate func addTableViewOfUsers(){
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo:view.widthAnchor ).isActive = true
         tableView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
@@ -77,7 +75,7 @@ class ChattingViewController: UIViewController {
         tableView.addSubview(refreshControl)
     }
     
-    func loadMessages(sendingtUser:Account,comletionHandler:@escaping (String)->()){
+    fileprivate func loadMessages(sendingtUser:Account,comletionHandler:@escaping (String)->()){
         var messages = [Message]()
         fetchMessageFromFireBaseChatSystem(sender: sendingtUser){ documents in
             for document in documents {
@@ -107,6 +105,12 @@ class ChattingViewController: UIViewController {
         loadAccountsForChatTableView()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.refreshControl.endRefreshing()
+        }
+    }
+    
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
         }
     }
     
@@ -180,7 +184,6 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let filterAction = UIContextualAction(style: .normal, title: "Delete") { (action, view, bool) in
-                print("Swiped to delete chat")
                 let account = self.reachableAccountsArray[indexPath.row]
                 deleteChatFromFireBase(sendingtUser: account){ }
             }

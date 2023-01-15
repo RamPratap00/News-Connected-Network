@@ -11,17 +11,18 @@ import FirebaseStorage
 
 class SelectProfilePictureViewController: UIViewController {
     
-    var isFirstVisit = true
-    var isUpdating = false
-    let quoteForSelectingPicture = UILabel()
-    var collectionView : UICollectionView? = nil
-    var isImageSelected = false
-    var selectedImageIndexPath = IndexPath()
-    let nextButton = UIButton()
-    var language = String()
-    var email = String()
-    let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
-    let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    fileprivate var isFirstVisit = true
+    public var isUpdating = false
+    fileprivate let quoteForSelectingPicture = UILabel()
+    fileprivate var collectionView : UICollectionView? = nil
+    fileprivate var isImageSelected = false
+    fileprivate var selectedImageIndexPath = IndexPath()
+    fileprivate let nextButton = UIButton()
+    public var language = String()
+    public var email = String()
+    fileprivate let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -32,16 +33,13 @@ class SelectProfilePictureViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
         if !isFirstVisit{
             navigationController?.dismiss(animated: false)
         }
     }
     
-    func loadBackgroundImageWithText(){
+    fileprivate func loadBackgroundImageWithText(){
         let backroundImage = UIImageView(image: UIImage(named: "login Background"))
         view.addSubview(backroundImage)
         backroundImage.contentMode = .scaleToFill
@@ -67,7 +65,7 @@ class SelectProfilePictureViewController: UIViewController {
         
     }
     
-    func addCollectionViewForImageDoodle(){
+    fileprivate func addCollectionViewForImageDoodle(){
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
         collectionViewFlowLayout.itemSize = CGSize(width: 140, height: 100)
         collectionViewFlowLayout.scrollDirection = .vertical
@@ -85,7 +83,7 @@ class SelectProfilePictureViewController: UIViewController {
         collectionView?.bottomAnchor.constraint(equalTo: nextButton.topAnchor,constant: -10).isActive = true
     }
 
-    func addNextButton(){
+    fileprivate func addNextButton(){
         nextButton.backgroundColor = .black
         nextButton.setTitle("Next", for: .normal)
         nextButton.titleLabel?.textAlignment = .center
@@ -101,15 +99,7 @@ class SelectProfilePictureViewController: UIViewController {
         applyBorderForButton(button: nextButton)
     }
     
-    func applyBorderForButton(button:UIButton){
-        button.layer.borderWidth = 1.5
-        button.layer.borderColor = UIColor.white.cgColor
-        button.layer.cornerRadius = 17
-        button.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
-        button.layer.masksToBounds = true
-    }
-    
-    func warning(warningMessage:String){
+    fileprivate func warning(warningMessage:String){
         let warningLabel = UILabel()
             warningLabel.text = warningMessage
             warningLabel.textColor = .red
@@ -163,6 +153,13 @@ class SelectProfilePictureViewController: UIViewController {
             self.dismiss(animated: false, completion: nil)
         }
     }
+    
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+    
     /*
     // MARK: - Navigation
 

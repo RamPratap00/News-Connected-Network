@@ -12,15 +12,15 @@ import FirebaseStorage
 class SelectLanguageViewController: UIViewController {
 
     
-    var isFirstVisit = true
-    let quoteForSelectingLanguage = UILabel()
-    var collectionView : UICollectionView? = nil
-    var isImageSelected = false
-    var selectedImageIndexPath = IndexPath()
-    let nextButton = UIButton()
-    var email = String()
-    let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
-    let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    fileprivate var isFirstVisit = true
+    fileprivate let quoteForSelectingLanguage = UILabel()
+    fileprivate var collectionView : UICollectionView? = nil
+    fileprivate var isImageSelected = false
+    fileprivate var selectedImageIndexPath = IndexPath()
+    fileprivate let nextButton = UIButton()
+    public var email = String()
+    fileprivate let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,14 +33,10 @@ class SelectLanguageViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
     }
-    let langauge = ["عربى","Deutsche","English","española","française","הברו","italiana","nederlands","Português","русский","svenska","中国人"]
     
-    func loadBackgroundImageWithText(){
+    fileprivate func loadBackgroundImageWithText(){
         let backroundImage = UIImageView(image: UIImage(named: "login Background"))
         view.addSubview(backroundImage)
         backroundImage.contentMode = .scaleToFill
@@ -66,7 +62,7 @@ class SelectLanguageViewController: UIViewController {
         
     }
     
-    func addCollectionViewForLanguage(){
+    fileprivate func addCollectionViewForLanguage(){
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
         collectionViewFlowLayout.itemSize = CGSize(width: 120, height: 120)
         collectionViewFlowLayout.scrollDirection = .vertical
@@ -84,7 +80,7 @@ class SelectLanguageViewController: UIViewController {
         collectionView?.bottomAnchor.constraint(equalTo: nextButton.topAnchor,constant: -10).isActive = true
     }
     
-    func addNextButton(){
+    fileprivate func addNextButton(){
         nextButton.backgroundColor = .black
         nextButton.setTitle("Next", for: .normal)
         nextButton.titleLabel?.textAlignment = .center
@@ -100,15 +96,7 @@ class SelectLanguageViewController: UIViewController {
         applyBorderForButton(button: nextButton)
     }
     
-    func applyBorderForButton(button:UIButton){
-        button.layer.borderWidth = 1.5
-        button.layer.borderColor = UIColor.white.cgColor
-        button.layer.cornerRadius = 17
-        button.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
-        button.layer.masksToBounds = true
-    }
-    
-    func warning(warningMessage:String){
+    fileprivate func warning(warningMessage:String){
         let warningLabel = UILabel()
             warningLabel.text = warningMessage
             warningLabel.textColor = .red
@@ -122,7 +110,6 @@ class SelectLanguageViewController: UIViewController {
             warningLabel.topAnchor.constraint(equalTo: collectionView!.topAnchor).isActive = true
     }
     
-    
     @objc func updatingLanguagePreference(){
         if isImageSelected{
             let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! SelectLanguageCollectionViewCell
@@ -135,6 +122,13 @@ class SelectLanguageViewController: UIViewController {
             warning(warningMessage: "No Language Selected")
         }
     }
+    
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+    
     /*
     // MARK: - Navigation
 

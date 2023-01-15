@@ -10,20 +10,21 @@ import UIKit
 class AllNewsFeedViewController: UIViewController {
 
     
-    let tableView = UITableView()
-    var arrayOfArticles = [Article]()
-    var keyword = String()
-    var language = currentUserAccountObject().language
-    var isPaginating = false
-    var isDataLoaded = false
-    let newsAPI = NewsAPINetworkManager()
-    let alert = UIAlertController(title: nil, message: "Loading articles...", preferredStyle: .alert)
-    let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    fileprivate  let tableView = UITableView()
+    fileprivate var arrayOfArticles = [Article]()
+    public var keyword = String()
+    public var language = currentUserAccountObject().language
+    fileprivate var isPaginating = false
+    public var isOfflineMode = false
+    fileprivate let newsAPI = NewsAPINetworkManager()
+    fileprivate let alert = UIAlertController(title: nil, message: "Loading articles...", preferredStyle: .alert)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         addTableView()
+        newsAPI.headLinesActive = true
         // Do any additional setup after loading the view.
     }
     
@@ -34,23 +35,29 @@ class AllNewsFeedViewController: UIViewController {
         arrayOfArticles = []
         relodTableView()
         
-        newsAPI.headLinesActive = true
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = UIActivityIndicatorView.Style.medium
-        loadingIndicator.startAnimating()
+        if !isOfflineMode{
+            newsAPI.headLinesActive = true
+            loadingIndicator.hidesWhenStopped = true
+            loadingIndicator.style = UIActivityIndicatorView.Style.medium
+            loadingIndicator.startAnimating()
         
-        alert.view.addSubview(loadingIndicator)
-        present(alert, animated: true, completion: nil)
-        
-        loadNews(){ _ in
-            DispatchQueue.main.async {
-                self.dismiss(animated: true)
-                self.relodTableView()
+            alert.view.addSubview(loadingIndicator)
+            present(alert, animated: true, completion: nil)
+            loadNews(){ _ in
+                DispatchQueue.main.async {
+                    self.relodTableView()
+                }
             }
+            
+        }
+        
+        if isOfflineMode{
+            dataForOfflineMode()
+            NotificationCenter.default.addObserver(self,selector: #selector(handleBackOnline),name: NSNotification.Name("com.user.hasConnection"),object: nil)
         }
     }
     
-    func addWarningLabel(){
+    fileprivate func addWarningLabel(){
         let warningLabel = UIImageView(image: UIImage(imageLiteralResourceName: "empty news paper"))
         view.addSubview(warningLabel)
         warningLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -60,7 +67,7 @@ class AllNewsFeedViewController: UIViewController {
         warningLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
     
-    func loadNews(completionHandler: @escaping (Bool)->()){
+    fileprivate func loadNews(completionHandler: @escaping (Bool)->()){
         
         newsAPI.session(keyword: keyword, searchIn: .content, language: language, sortBy: .relevancy){ data,error in
             if error == nil && data?.articles != nil{
@@ -71,6 +78,9 @@ class AllNewsFeedViewController: UIViewController {
                         self.addWarningLabel()
                     }
                     completionHandler(false)
+                }
+                DispatchQueue.main.async {
+                    self.dismiss(animated: true)
                 }
                 completionHandler(true)
             }
@@ -84,20 +94,19 @@ class AllNewsFeedViewController: UIViewController {
         }
     }
 
-    
-    func relodTableView(){
+    fileprivate func relodTableView(){
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
     }
     
-    func addTableView(){
+    fileprivate func addTableView(){
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
-        tableView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor).isActive = true
         tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         tableView.register(NewsFeedPageTableViewCell.self, forCellReuseIdentifier: NewsFeedPageTableViewCell.identifier)
         tableView.estimatedRowHeight = 80
         tableView.rowHeight = UITableView.automaticDimension
@@ -105,6 +114,34 @@ class AllNewsFeedViewController: UIViewController {
         tableView.dataSource = self
     }
 
+    fileprivate func applyBorderForButton(button:UIButton){
+        button.layer.borderWidth = 1.5
+        button.layer.borderColor = UIColor.green.cgColor
+        button.layer.cornerRadius = 17
+        button.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
+        button.layer.masksToBounds = true
+    }
+    
+    fileprivate func dataForOfflineMode(){
+        isPaginating = true
+        let populator = NewsDataBasePopulator()
+        arrayOfArticles = populator.readFromDataBaseForOfflineMode()
+        tableView.reloadData()
+    }
+    
+    @objc func handleBackOnline(){
+        DispatchQueue.main.async {
+            
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Online", style: .plain, target: self, action: #selector(self.fallBackToSplash))
+            self.navigationItem.rightBarButtonItem?.tintColor = .systemGreen
+            
+        }
+    }
+    
+    @objc func fallBackToSplash(){
+        dismiss(animated: true)
+    }
+    
     /*
     // MARK: - Navigation
 
@@ -141,8 +178,7 @@ extension AllNewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UI
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let position = scrollView.contentOffset.y
-            self.tableView.tableFooterView = createSpinnerFooter(view: view)
-            if position > (tableView.contentSize.height+200-scrollView.frame.height) && !isPaginating{
+            if position > (tableView.contentSize.height+100-scrollView.frame.height) && !isPaginating{
                 isPaginating = true
                 newsAPI.fetchMore(){ moreData,error in
                     if error == nil && moreData?.articles != nil{

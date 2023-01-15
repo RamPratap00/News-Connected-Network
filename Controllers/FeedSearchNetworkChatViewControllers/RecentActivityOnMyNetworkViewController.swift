@@ -10,11 +10,12 @@ import UIKit
 class RecentActivityOnMyNetworkViewController: UIViewController{
     
 
-    let tableView = UITableView()
-    var isViewOnMyNetwork = true
-    let segmentItems = ["My Network", "Global Network"]
-    var arrayOfArticles = [ArticlesWithTimeStampAndReactions]()
-    let refreshControl = UIRefreshControl()
+    fileprivate let tableView = UITableView()
+    fileprivate var isViewOnMyNetwork = true
+    fileprivate let segmentItems = ["My Network", "Global Network"]
+    fileprivate var arrayOfArticles = [ArticlesWithTimeStampAndReactions]()
+    fileprivate let refreshControl = UIRefreshControl()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -31,32 +32,10 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
     }
     
-    @objc func refresh(_ sender: AnyObject) {
-       // Code to refresh table view
-        if isViewOnMyNetwork{
-            fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
-                self.arrayOfArticles = articleWithReactionDictionary
-                self.tableView.reloadData()
-            }
-        }
-        else{
-            fetchTrendingArticlesOnGlobalUsersNetwork(){ articleWithReactionDictionary in
-                self.arrayOfArticles = articleWithReactionDictionary
-                self.tableView.reloadData()
-            }
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.refreshControl.endRefreshing()
-        }
-    }
-    
-    func addTableView(){
+    fileprivate func addTableView(){
         
         let control = UISegmentedControl(items: segmentItems)
         control.addTarget(self, action: #selector(segmentControl(_:)), for: .valueChanged)
@@ -86,6 +65,30 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
         tableView.dataSource = self
     }
     
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+    
+    @objc func refresh(_ sender: AnyObject) {
+       // Code to refresh table view
+        if isViewOnMyNetwork{
+            fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
+                self.arrayOfArticles = articleWithReactionDictionary
+                self.tableView.reloadData()
+            }
+        }
+        else{
+            fetchTrendingArticlesOnGlobalUsersNetwork(){ articleWithReactionDictionary in
+                self.arrayOfArticles = articleWithReactionDictionary
+                self.tableView.reloadData()
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.refreshControl.endRefreshing()
+        }
+    }
     
     @objc func segmentControl(_ segmentedControl: UISegmentedControl) {
        switch (segmentedControl.selectedSegmentIndex) {

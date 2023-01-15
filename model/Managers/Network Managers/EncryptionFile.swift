@@ -144,6 +144,7 @@ enum KEY:String{
     case Email
     case DataBaseName
 }
+
 struct SecretKey:Codable{
     let encryptionKey:String
     let ivKey:String

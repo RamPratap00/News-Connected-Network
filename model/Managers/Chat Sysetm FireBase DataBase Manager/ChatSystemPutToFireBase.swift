@@ -10,7 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 
-func putNewMessageToFireBaseChatSystem(sender:Account,receiver:Account,message:Message,contentOfTheMessage:String){
+internal func putNewMessageToFireBaseChatSystem(sender:Account,receiver:Account,message:Message,contentOfTheMessage:String){
     DispatchQueue.global().async {
         fetchCurrenUserProfileData(completionHandler: {_ in})
         ENCDEC.encryptMessage(message: sender.email, messageType: .Email){ encryptedEmail in
@@ -37,7 +37,7 @@ func putNewMessageToFireBaseChatSystem(sender:Account,receiver:Account,message:M
     
 }
 
-func deleteChatFromFireBase(sendingtUser:Account,completionHandler: @escaping ()->()){
+internal func deleteChatFromFireBase(sendingtUser:Account,completionHandler: @escaping ()->()){
     let currentUserAccount = currentUserAccountObject()
     DispatchQueue.global().async {
         ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in

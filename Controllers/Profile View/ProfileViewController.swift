@@ -9,17 +9,17 @@ import UIKit
 
 class ProfileViewController: UIViewController {
     
-    var nonCurrentUser = Account()
-    let tableView = UITableView()
-    let data = UILabel()
-    var scrollView = UIScrollView()
-    var verticalStack = UIStackView()
-    var curretAccount = currentUserAccountObject()
-    var articlesArray = [Article]()
-    let profilePicture = UIButton()
-    let descriptionLabel = UILabel()
-    let followingButton = UIButton()
-    let followersButton = UIButton()
+    public var nonCurrentUser = Account()
+    fileprivate let tableView = UITableView()
+    fileprivate let data = UILabel()
+    fileprivate var scrollView = UIScrollView()
+    fileprivate var verticalStack = UIStackView()
+    fileprivate var curretAccount = currentUserAccountObject()
+    fileprivate var articlesArray = [Article]()
+    fileprivate let profilePicture = UIButton()
+    fileprivate let descriptionLabel = UILabel()
+    fileprivate let followingButton = UIButton()
+    fileprivate let followersButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,18 +30,24 @@ class ProfileViewController: UIViewController {
         addNameLabel()
         addDescriptionLabel()
         addFollowersFollowingAndRecentActivityBlock()
+        addTableView()
         // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
+        
+        fetchUserRecentActivity(email: nonCurrentUser.email){ articles in
+            self.articlesArray = articles
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+                self.scrollView.contentSize = CGSize(width: self.view.frame.width, height: self.verticalStack.frame.height)
+            }
         }
     }
     
-    func loadImageToStack(){
+    fileprivate func loadImageToStack(){
         let backroundImage = UIImageView(image: UIImage(named: "login Background"))
         verticalStack.addSubview(backroundImage)
         backroundImage.contentMode = .scaleToFill
@@ -88,7 +94,7 @@ class ProfileViewController: UIViewController {
         
     }
     
-    func addNameLabel(){
+    fileprivate func addNameLabel(){
         let nameLabel = UILabel()
         nameLabel.textAlignment = .left
         nameLabel.font = .boldSystemFont(ofSize: 25)
@@ -101,7 +107,7 @@ class ProfileViewController: UIViewController {
         nameLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
     }
     
-    func addDescriptionLabel(){
+    fileprivate func addDescriptionLabel(){
         descriptionLabel.text = nonCurrentUser.profileDescription
         descriptionLabel.numberOfLines = 0
         verticalStack.addSubview(descriptionLabel)
@@ -112,7 +118,7 @@ class ProfileViewController: UIViewController {
         
     }
     
-    func addFollowersFollowingAndRecentActivityBlock(){
+    fileprivate func addFollowersFollowingAndRecentActivityBlock(){
         followersButton.backgroundColor = .black
         followersButton.setTitle("Followers : \(nonCurrentUser.followersList.count)", for: .normal)
         followersButton.titleLabel?.textAlignment = .center
@@ -143,7 +149,7 @@ class ProfileViewController: UIViewController {
         applyBorderForButton(button: followingButton)
     }
     
-    func applyBorderForButton(button:UIButton){
+    fileprivate func applyBorderForButton(button:UIButton){
         button.layer.borderWidth = 1.5
         button.layer.borderColor = UIColor.white.cgColor
         button.layer.cornerRadius = 17
@@ -151,7 +157,7 @@ class ProfileViewController: UIViewController {
         button.layer.masksToBounds = true
     }
     
-    func addAndConfigureScrollView(){
+    fileprivate func addAndConfigureScrollView(){
         view.addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
@@ -160,7 +166,7 @@ class ProfileViewController: UIViewController {
         scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
     }
     
-    func confgureVerticalStack(){
+    fileprivate func confgureVerticalStack(){
         scrollView.addSubview(verticalStack)
         verticalStack.translatesAutoresizingMaskIntoConstraints = false
         verticalStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
@@ -169,7 +175,7 @@ class ProfileViewController: UIViewController {
         verticalStack.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
     }
     
-    func addTableView(){
+    fileprivate func addTableView(){
         verticalStack.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
@@ -208,6 +214,13 @@ class ProfileViewController: UIViewController {
         nextVC.account = nonCurrentUser
         navigationController?.pushViewController(nextVC, animated: true)
     }
+    
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+
     
     
     /*

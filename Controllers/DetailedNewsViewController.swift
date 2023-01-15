@@ -10,11 +10,11 @@ import SafariServices
 
 class DetailedNewsViewController: UIViewController {
 
-    var article = Article()
-    let positiveButton = UIButton()
-    let negativeButton = UIButton()
-    let neutralButton = UIButton()
-    let thumbNail = UIImageView()
+    public var article = Article()
+    fileprivate let positiveButton = UIButton()
+    fileprivate let negativeButton = UIButton()
+    fileprivate let neutralButton = UIButton()
+    fileprivate let thumbNail = UIImageView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,10 +25,9 @@ class DetailedNewsViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    
-    
-    func addReactionButton() {
+    fileprivate func addReactionButton() {
         positiveButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
+        positiveButton.tintColor = .gray
         view.addSubview(positiveButton)
         positiveButton.translatesAutoresizingMaskIntoConstraints = false
         positiveButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
@@ -38,6 +37,7 @@ class DetailedNewsViewController: UIViewController {
         positiveButton.addTarget(self, action: #selector(pushToCurrentUsersRecentActivityStackWithTimeStampAndPositiveReaction), for: .touchUpInside)
         
         negativeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        negativeButton.tintColor = .gray
         view.addSubview(negativeButton)
         negativeButton.translatesAutoresizingMaskIntoConstraints = false
         negativeButton.widthAnchor.constraint(equalToConstant: 80 ).isActive = true
@@ -48,6 +48,7 @@ class DetailedNewsViewController: UIViewController {
         
         
         neutralButton.setImage(UIImage(systemName: "exclamationmark"), for: .normal)
+        neutralButton.tintColor = .gray
         view.addSubview(neutralButton)
         neutralButton.translatesAutoresizingMaskIntoConstraints = false
         neutralButton.trailingAnchor.constraint(equalTo: positiveButton.leadingAnchor).isActive = true
@@ -57,7 +58,7 @@ class DetailedNewsViewController: UIViewController {
         neutralButton.addTarget(self, action: #selector(pushToCurrentUsersRecentActivityStackWithTimeStampAndNeutralReaction), for: .touchUpInside)
     }
     
-    func addDetailView() {
+    fileprivate func addDetailView() {
         view.addSubview(thumbNail)
         thumbNail.image = UIImage(imageLiteralResourceName: "default thubnail")
         thumbNail.translatesAutoresizingMaskIntoConstraints = false
@@ -103,7 +104,7 @@ class DetailedNewsViewController: UIViewController {
         loadTitleDescriptionAndLinkToFullArticleUIComponenets()
 }
     
-    func loadTitleDescriptionAndLinkToFullArticleUIComponenets(){
+    fileprivate func loadTitleDescriptionAndLinkToFullArticleUIComponenets(){
         let title = UILabel()
         title.text = article.title
         title.font = .boldSystemFont(ofSize: 20)

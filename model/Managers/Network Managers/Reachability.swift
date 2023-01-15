@@ -9,47 +9,37 @@ import Foundation
 import Network
 import SystemConfiguration
 
-public class InternetConnectionManager {
-    
-    
-    private init() {
-        
-    }
-    
-    public static func isConnectedToNetwork() -> Bool {
-        
-        var zeroAddress = sockaddr_in()
-        zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
-        zeroAddress.sin_family = sa_family_t(AF_INET)
-        guard let defaultRouteReachability = withUnsafePointer(to: &zeroAddress, {
-            
-            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                
-                SCNetworkReachabilityCreateWithAddress(nil, $0)
-                
+class NetworkMonitor {
+    static let shared = NetworkMonitor()
+
+    private let monitor = NWPathMonitor()
+    private var status: NWPath.Status = .requiresConnection
+    private var isReachable: Bool { status == .satisfied }
+
+    internal func startMonitoring() {
+        monitor.pathUpdateHandler = { [weak self] path in
+            self?.status = path.status
+
+            if path.status == .satisfied {
+                UserDefaults.standard.set(true, forKey: "hasInternetConnection")
+                NotificationCenter.default
+                            .post(name:           NSNotification.Name("com.user.hasConnection"),
+                             object: nil)
+            } else {
+                UserDefaults.standard.set(false, forKey: "hasInternetConnection")
+                NotificationCenter.default
+                            .post(name: NSNotification.Name("com.user.hasNoConnection"),
+                             object: nil)
             }
-            
-        }) else {
-            
-            return false
         }
-        var flags = SCNetworkReachabilityFlags()
-        if !SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags) {
-            return false
-        }
-        let isReachable = (flags.rawValue & UInt32(kSCNetworkFlagsReachable)) != 0
-        let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
-        return (isReachable && !needsConnection)
+
+        let queue = DispatchQueue(label: "NetworkMonitor")
+        monitor.start(queue: queue)
+    }
+
+    internal func stopMonitoring() {
+        monitor.cancel()
     }
     
 }
 
-
-func hasNetworkConnection()->Bool{
-    if InternetConnectionManager.isConnectedToNetwork(){
-        return true
-    }
-    else{
-        return false
-    }
-}

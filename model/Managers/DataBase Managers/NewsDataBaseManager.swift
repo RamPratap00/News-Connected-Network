@@ -9,18 +9,18 @@ import Foundation
 import SQLite3
 
 class NewsDataBaseManager{
-    var database:DataBase
-    var dataBaseName:String
+    internal var database:DataBase
+    internal var dataBaseName:String
+    
     init(dataBaseName:String) {
         self.dataBaseName = dataBaseName
         self.database = DataBase(databasename: dataBaseName)
     }
     
-    
     /// Creates a new table for storing news.
     /// - Parameters:
     ///   - tableName: Name of the table.
-    func createTableForStoringNews(tableName:String){
+    internal func createTableForStoringNews(tableName:String){
         database.createTable(columnNameWithDataTypes: "ID TEXT,NAME TEXT,AUTHOR TEXT,TITLE TEXT, DESCRIPTION TEXT, URL TEXT, URLTOIMAGE TEXT, CONTENT TEXT,PUBLISHEDAT TEXT", tableName: tableName)
     }
     
@@ -36,7 +36,7 @@ class NewsDataBaseManager{
     ///   - content: The unformatted content of the article.
     ///   - publisherdAt: The date and time that the article was published, in UTC (+000) .
     ///   - tableName: Name of the table.
-    func insertIntoTableOfTypeNews(
+    internal func insertIntoTableOfTypeNews(
         id:String,
         name:String,
         author:String,
@@ -89,11 +89,79 @@ class NewsDataBaseManager{
         else{
             print("preparation failure of insertion query")
         }
+            sqlite3_finalize(insertStatement)
     }
     
-    func closeDataBase(){
+    internal func closeDataBase(){
         if sqlite3_close(database.dataBasePointer) != SQLITE_OK {
             print("error closing database")
         }
     }
+    
+}
+
+
+class NewsDataBasePopulator{
+    private let newsDataBaseManager = NewsDataBaseManager(dataBaseName: "GlobalTrending")
+    private let newsAPINetworkManager = NewsAPINetworkManager()
+    
+    internal func refillDataBaseForOfflineMode(){
+        
+        newsDataBaseManager.database.dropTable(tableName: "GlobalNews")
+        newsDataBaseManager.createTableForStoringNews(tableName: "GlobalNews")
+        operation1()
+        
+    }
+    
+    private func operation1(){
+        newsAPINetworkManager.sessionToLoadHeadLines(keyword: nil, newsCategory: nil, language: currentUserAccountObject().language){
+            data,error in
+            if let arrayOfArticle = data?.articles{
+                for article in arrayOfArticle {
+                    self.newsDataBaseManager.insertIntoTableOfTypeNews(id: self.checkNil(data: article.source.id),
+                                                                       name: self.checkNil(data: article.source.name),
+                                                                       author: self.checkNil(data: article.author),
+                                                                       title: self.checkNil(data: article.title),
+                                                                       description: self.checkNil(data: article.description),
+                                                                       url: self.checkNil(data: article.url),
+                                                                       urlToImage: self.checkNil(data: article.urlToImage),
+                                                                       content: self.checkNil(data: article.content),
+                                                                       publishedAt: self.checkNil(data: article.publishedAt),
+                                                                       tableName: "GlobalNews")
+                }
+            }
+            self.newsDataBaseManager.closeDataBase()
+        }
+    }
+    
+    internal func readFromDataBaseForOfflineMode()->[Article]{
+        var arrayOfArticle = [Article]()
+        let selectStatement = newsDataBaseManager.database.readFullTable(tableName: "GlobalNews")
+        while( sqlite3_step(selectStatement) == SQLITE_ROW ){
+            var article = Article()
+            article.source.id = String(cString: sqlite3_column_text(selectStatement, 0))
+            article.source.name = String(cString: sqlite3_column_text(selectStatement, 1))
+            article.author = String(cString: sqlite3_column_text(selectStatement, 2))
+            article.title = String(cString: sqlite3_column_text(selectStatement, 3))
+            article.description = String(cString: sqlite3_column_text(selectStatement, 4))
+            article.url = String(cString: sqlite3_column_text(selectStatement, 5))
+            article.urlToImage = String(cString: sqlite3_column_text(selectStatement, 6))
+            article.content = String(cString: sqlite3_column_text(selectStatement, 7))
+            article.publishedAt = String(cString: sqlite3_column_text(selectStatement, 8))
+            arrayOfArticle.append(article)
+        }
+        
+        newsDataBaseManager.closeDataBase()
+        return arrayOfArticle
+    }
+    
+    private func checkNil(data:String?)->String{
+        if data == nil{
+            return "nil"
+        }
+        else{
+            return data!
+        }
+    }
+    
 }

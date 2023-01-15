@@ -10,7 +10,7 @@ import FirebaseAuth
 
 class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
     
-    let profilePicture = UIButton()
+    fileprivate let profilePicture = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,8 +26,7 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
         reloadProfileData()
     }
     
-    
-    func reloadProfileData(){
+    fileprivate func reloadProfileData(){
         fetchCurrenUserProfileData(completionHandler: {_ in})
         fetchProfilePicture(url: currentUserAccountObject().profilePicture!){ imageData in
             DispatchQueue.main.async {
@@ -36,7 +35,7 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
         }
     }
     
-    func addViewProfileButton(){
+    fileprivate func addViewProfileButton(){
         
         let userData = UserDefaults.standard.value(forKey: "USERMETADATA") as! [String:Any]?
         let account = Account()
@@ -83,13 +82,7 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
         
     }
     
-    @objc func profileDetailView(){
-            let nextVC = CurrentUserProfileViewController()
-        nextVC.email = UserDefaults.standard.value(forKey: "EMAIL") as! String
-            self.showDetailViewController(nextVC, sender: self)
-    }
-    
-    func addSignOutButton(){
+    fileprivate func addSignOutButton(){
         let signOutButton = UIButton()
         view.addSubview(signOutButton)
         signOutButton.setTitle("Sign Out", for: .normal)
@@ -115,6 +108,12 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
     @objc func toMainPage(){
         
         self.showDetailViewController(SecondaryViewController(), sender: self)
+    }
+    
+    @objc func profileDetailView(){
+            let nextVC = CurrentUserProfileViewController()
+        nextVC.email = UserDefaults.standard.value(forKey: "EMAIL") as! String
+            self.showDetailViewController(nextVC, sender: self)
     }
     
 }

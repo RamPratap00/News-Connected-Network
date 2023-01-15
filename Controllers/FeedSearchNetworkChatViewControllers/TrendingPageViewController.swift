@@ -9,20 +9,19 @@ import UIKit
 
 class TrendingPageViewController: UIViewController {
 
-    let tableView = UITableView()
-    var arrayOfArticles = [Article]()
-    let refreshControl = UIRefreshControl()
-    var isPaginating = false
-    let newsAPI = NewsAPINetworkManager()
+    fileprivate let tableView = UITableView()
+    fileprivate var arrayOfArticles = [Article]()
+    fileprivate let refreshControl = UIRefreshControl()
+    fileprivate var isPaginating = false
+    fileprivate let newsAPI = NewsAPINetworkManager()
+    fileprivate let alert = UIAlertController(title: nil, message: "Loading articles...", preferredStyle: .alert)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         
-        
         addTableView()
-        let alert = UIAlertController(title: nil, message: "Loading articles...", preferredStyle: .alert)
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = UIActivityIndicatorView.Style.medium
         loadingIndicator.startAnimating()
@@ -34,15 +33,12 @@ class TrendingPageViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    
     override func viewDidAppear(_ animated: Bool) {
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        super.viewDidAppear(animated)
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
     }
     
-    func loadHeadLinesForTrendingPage(keyword:String?,newsCategory:NewsCategory?){
+    fileprivate func loadHeadLinesForTrendingPage(keyword:String?,newsCategory:NewsCategory?){
         if !hasNetworkConnection(){
             addWarningLabel()
             self.dismiss(animated: false, completion: nil)
@@ -71,7 +67,7 @@ class TrendingPageViewController: UIViewController {
         }
     }
     
-    func addWarningLabel(){
+    fileprivate func addWarningLabel(){
         let warningLabel = UIImageView(image: UIImage(imageLiteralResourceName: "empty news paper"))
         view.addSubview(warningLabel)
         warningLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -81,7 +77,7 @@ class TrendingPageViewController: UIViewController {
         warningLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
     
-    func addTableView(){
+    fileprivate func addTableView(){
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
@@ -98,6 +94,11 @@ class TrendingPageViewController: UIViewController {
         tableView.addSubview(refreshControl)
     }
     
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
     
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view

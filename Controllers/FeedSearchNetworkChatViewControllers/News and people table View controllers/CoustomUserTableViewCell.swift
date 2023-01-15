@@ -9,13 +9,13 @@ import UIKit
 
 class CoustomUserTableViewCell: UITableViewCell {
 
-    var nameStamp = UILabel()
-    var userIDStamp = UILabel()
-    var desStamp = UILabel()
-    let img = UIImageView()
-    var nonCurrentUserAccount = Account()
-    var currentUserAccount = Account()
-    let follow = UIButton()
+    public var nameStamp = UILabel()
+    public var userIDStamp = UILabel()
+    public var desStamp = UILabel()
+    public let img = UIImageView()
+    public var nonCurrentUserAccount = Account()
+    public var currentUserAccount = Account()
+    fileprivate let follow = UIButton()
     
     static var identifier = "Cell"
     
@@ -72,6 +72,10 @@ class CoustomUserTableViewCell: UITableViewCell {
         
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     func followFollowingButtonSatus(){
         if isFollowing(email: nonCurrentUserAccount.email, followingList: currentUserAccount.followingList){
             follow.setTitle("Following", for: .normal)
@@ -100,11 +104,6 @@ class CoustomUserTableViewCell: UITableViewCell {
         follow.layer.borderColor = UIColor.white.cgColor
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    
     @objc func followButtonTapped(sender:UIButton){
         
         var removeFlag = false
@@ -130,7 +129,6 @@ class CoustomUserTableViewCell: UITableViewCell {
         fetchCurrenUserProfileData(){ currentUserFetchStatus in
             fetchUserProfileData(email: self.nonCurrentUserAccount.email){ newNonCurrentUser in
                 self.currentUserAccount = currentUserAccountObject()
-                print(!isFollowing(email: self.nonCurrentUserAccount.email, followingList: self.currentUserAccount.followingList))
                 self.nonCurrentUserAccount = newNonCurrentUser
                 if !isFollowing(email: self.nonCurrentUserAccount.email, followingList: self.currentUserAccount.followingList){
                     self.nonCurrentUserAccount.followersList.append(self.currentUserAccount.email)

@@ -9,8 +9,8 @@ import UIKit
 
 class ProfilePictureCollectionViewCell: UICollectionViewCell {
     static let reusableIdentifier = "profile picture cell"
-    var cellTapCount = 0
-    var profileImage = UIImageView()
+    public var cellTapCount = 0
+    public var profileImage = UIImageView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)

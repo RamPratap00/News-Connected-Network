@@ -9,15 +9,15 @@ import UIKit
 
 class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
 
-    let tableView = UITableView()
-    let currentUserAccount = currentUserAccountObject()
-    var backupForArrayOfAccouns = [Account]()
-    var arrayOfAccounts = [Account]()
-    let refreshControl = UIRefreshControl()
-    var searchBar = UISearchBar()
-    let segmentItems = ["News", "People"]
-    let newsCategory = ["business","entertainment","general","health","science","sports","technology"]
-    var collectionView : UICollectionView? = nil
+    fileprivate let tableView = UITableView()
+    fileprivate let currentUserAccount = currentUserAccountObject()
+    fileprivate var backupForArrayOfAccouns = [Account]()
+    fileprivate var arrayOfAccounts = [Account]()
+    fileprivate let refreshControl = UIRefreshControl()
+    fileprivate var searchBar = UISearchBar()
+    fileprivate let segmentItems = ["News", "People"]
+    fileprivate let newsCategory = ["business","entertainment","general","health","science","sports","technology"]
+    fileprivate var collectionView : UICollectionView? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,21 +35,10 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
     }
     
-    @objc func refresh(_ sender: AnyObject) {
-       // Code to refresh table view
-        reloadDataForUsersListTableView()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.refreshControl.endRefreshing()
-        }
-    }
-    
-    func reloadDataForUsersListTableView(){
+    fileprivate func reloadDataForUsersListTableView(){
         fetchCurrenUserProfileData( ){ _ in
             fetchUsersForRecomendation(){ accounts in
                 self.arrayOfAccounts = []
@@ -69,7 +58,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         }
     }
     
-    func addSegementControlAndCollectionView(){
+    fileprivate func addSegementControlAndCollectionView(){
         let control = UISegmentedControl(items: segmentItems)
         control.addTarget(self, action: #selector(segmentControl(_:)), for: .valueChanged)
         control.selectedSegmentIndex = 0
@@ -129,7 +118,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         collectionView?.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
     }
     
-    func addTableView(){
+    fileprivate func addTableView(){
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor,constant:10).isActive = true
         tableView.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier: 0.95).isActive = true
@@ -145,6 +134,19 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         tableView.addSubview(refreshControl)
     }
     
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+    
+    @objc func refresh(_ sender: AnyObject) {
+       // Code to refresh table view
+        reloadDataForUsersListTableView()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.refreshControl.endRefreshing()
+        }
+    }
     
     @objc func newsSeacrhInitiate(){
         

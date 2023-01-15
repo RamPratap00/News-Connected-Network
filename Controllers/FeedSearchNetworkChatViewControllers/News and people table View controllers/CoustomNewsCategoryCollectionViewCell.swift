@@ -9,8 +9,8 @@ import UIKit
 
 class CoustomNewsCategoryCollectionViewCell: UICollectionViewCell {
     static let reusableIdentifier = "Cell"
-    var newsCategory = UIButton()
-    var nameOfTheCategory = UILabel()
+    public var newsCategory = UIButton()
+    public var nameOfTheCategory = UILabel()
     
     override init(frame: CGRect) {
         super.init(frame: frame)

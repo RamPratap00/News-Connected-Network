@@ -9,8 +9,9 @@ import UIKit
 
 class SplitViewController: UISplitViewController{
 
-    let primaryViewController = PrimaryViewController()
-    let secondaryViewController = SecondaryViewController()
+    fileprivate let primaryViewController = PrimaryViewController()
+    fileprivate let secondaryViewController = SecondaryViewController()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         loadViewControllers()

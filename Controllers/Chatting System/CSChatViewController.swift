@@ -13,10 +13,10 @@ import SafariServices
 
 class CSChatViewController: MessagesViewController {
 
-    var urlToArticle = String()
-    var sendingtUser = Account()
-    var receivingUser = Account()
-    var messages = [Message]()
+    public var urlToArticle = String()
+    public var sendingtUser = Account()
+    public var receivingUser = Account()
+    fileprivate var messages = [Message]()
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,21 +39,11 @@ class CSChatViewController: MessagesViewController {
         // Do any additional setup after loading the view.
     }
     
-    @objc func deleteChat(){
-        deleteChatFromFireBase(sendingtUser: sendingtUser){
-            DispatchQueue.main.async {
-                self.loadMessages()
-            }
-        }
-        
-    }
-    
     override func viewDidAppear(_ animated: Bool) {
         loadMessages()
     }
     
-    
-    func loadMessages(){
+    fileprivate func loadMessages(){
         messages = []
         fetchMessageFromFireBaseChatSystem(sender: sendingtUser){ documents in
             for document in documents {
@@ -72,6 +62,16 @@ class CSChatViewController: MessagesViewController {
             }
         }
     }
+    
+    @objc func deleteChat(){
+        deleteChatFromFireBase(sendingtUser: sendingtUser){
+            DispatchQueue.main.async {
+                self.loadMessages()
+            }
+        }
+        
+    }
+    
     /*
     // MARK: - Navigation
 

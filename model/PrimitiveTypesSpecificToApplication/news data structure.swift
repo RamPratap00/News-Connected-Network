@@ -7,8 +7,6 @@
 /// GROBAL FILE TO REPRESENT THE NEWS STRUCTURE
 import Foundation
 
-
-
 struct Response:Codable{
     var status : String?
     var totalResults : Int?

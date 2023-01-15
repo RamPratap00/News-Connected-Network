@@ -9,9 +9,9 @@ import UIKit
 
 class FullProfilePictureViewController: UIViewController {
 
-    var uiImage = UIImage()
-    let image = UIImageView()
-    var isCurrentUser = false
+    fileprivate let image = UIImageView()
+    public var isCurrentUser = false
+    public var uiImage = UIImage()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,13 +25,10 @@ class FullProfilePictureViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
     }
     
-    func addImageView(){
+    fileprivate func addImageView(){
         view.addSubview(image)
         image.translatesAutoresizingMaskIntoConstraints = false
         image.widthAnchor.constraint(equalToConstant: 300).isActive = true
@@ -56,7 +53,13 @@ class FullProfilePictureViewController: UIViewController {
         present(imagePicker, animated: true)
     }
     
-   @objc  func showSimpleActionSheet(controller: UIViewController) {
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+    
+    @objc  func showSimpleActionSheet(controller: UIViewController) {
             let alert = UIAlertController(title: "Profile Picture Selection", message: "Please Select an Option", preferredStyle: .actionSheet)
             alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { (_) in
                 let vc = UIImagePickerController()

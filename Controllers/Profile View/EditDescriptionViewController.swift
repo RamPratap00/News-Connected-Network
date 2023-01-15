@@ -9,8 +9,8 @@ import UIKit
 
 class EditDescriptionViewController: UIViewController {
 
-    var content = UITextField()
-    let nextButton = UIButton()
+    fileprivate var content = UITextField()
+    fileprivate let nextButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,15 +19,13 @@ class EditDescriptionViewController: UIViewController {
         addNextButton()
         // Do any additional setup after loading the view.
     }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
     }
     
-    func loadDescriptionContentEntry(){
+    fileprivate func loadDescriptionContentEntry(){
         content.placeholder = " write something 200 characters"
         content.layer.borderWidth = 1
         content.layer.borderColor = UIColor.systemBlue.cgColor
@@ -42,7 +40,7 @@ class EditDescriptionViewController: UIViewController {
         content.delegate = self
     }
     
-    func addNextButton(){
+    fileprivate func addNextButton(){
         nextButton.backgroundColor = .black
         nextButton.setTitle("Next", for: .normal)
         nextButton.titleLabel?.textAlignment = .center
@@ -58,7 +56,7 @@ class EditDescriptionViewController: UIViewController {
         applyBorderForButton(button: nextButton)
     }
     
-    func applyBorderForButton(button:UIButton){
+    fileprivate func applyBorderForButton(button:UIButton){
         button.layer.borderWidth = 1.5
         button.layer.borderColor = UIColor.white.cgColor
         button.layer.cornerRadius = 17
@@ -66,7 +64,7 @@ class EditDescriptionViewController: UIViewController {
         button.layer.masksToBounds = true
     }
     
-    func addWarning(message:String){
+    fileprivate func addWarning(message:String){
         let warningLabel = UILabel()
         warningLabel.text = message
         warningLabel.textAlignment = .center
@@ -79,6 +77,11 @@ class EditDescriptionViewController: UIViewController {
         warningLabel.topAnchor.constraint(equalTo: content.bottomAnchor).isActive = true
     }
     
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
     
     @objc func updateDescription(){
         

@@ -9,13 +9,16 @@ import UIKit
 
 class SignUpViewController: UIViewController {
 
-    let scroll = UIScrollView()
-    let signUpLabel = UILabel()
-    let emailTextField = UITextField()
-    let passwordTextField = UITextField()
-    let userNameField = UITextField()
-    let confirmPasswordTextField = UITextField()
-    let signUpButton = UIButton()
+    fileprivate let scroll = UIScrollView()
+    fileprivate let signUpLabel = UILabel()
+    fileprivate let emailTextField = UITextField()
+    fileprivate let passwordTextField = UITextField()
+    fileprivate let userNameField = UITextField()
+    fileprivate let confirmPasswordTextField = UITextField()
+    fileprivate let signUpButton = UIButton()
+    fileprivate let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -23,16 +26,13 @@ class SignUpViewController: UIViewController {
         loadUserNamePasswordFieldsAndOthers()
         // Do any additional setup after loading the view.
     }
-    // Fix scroll content size
+   
     override func viewDidAppear(_ animated: Bool) {
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
         scroll.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height*0.8)
     }
-    /// this function is used to load the black and white galaxy picture with the text "signup" just below it
-    func loadBackgroundImageWithText(){
+    
+    fileprivate func loadBackgroundImageWithText(){
         
         let backroundImage = UIImageView(image: UIImage(named: "login Background"))
         view.addSubview(backroundImage)
@@ -58,8 +58,8 @@ class SignUpViewController: UIViewController {
         signUpLabel.layer.masksToBounds = true
         
     }
-    /// this function is used to load the email/password label and text filed and other fields for creating new account
-    func loadUserNamePasswordFieldsAndOthers(){
+    
+    fileprivate func loadUserNamePasswordFieldsAndOthers(){
         view.addSubview(scroll)
         scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
@@ -229,7 +229,7 @@ class SignUpViewController: UIViewController {
         
     }
     
-    func warning(warningMessage:String){
+    fileprivate func warning(warningMessage:String){
         let warningLabel = UILabel()
             warningLabel.text = warningMessage
             warningLabel.textColor = .red
@@ -242,28 +242,6 @@ class SignUpViewController: UIViewController {
             warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
             warningLabel.topAnchor.constraint(equalTo: signUpButton.bottomAnchor,constant: 10).isActive = true
     }
-
-    func applyBorderForButton(button:UIButton){
-        button.layer.borderWidth = 1.5
-        button.layer.borderColor = UIColor.white.cgColor
-        button.layer.cornerRadius = 17
-        button.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
-        button.layer.masksToBounds = true
-    }
-    
-    func applyBorderForTextField(textField:UITextField){
-        textField.layer.borderWidth = 2
-        textField.layer.borderColor = UIColor.gray.cgColor
-        textField.layer.cornerRadius = 17
-        textField.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
-        textField.layer.masksToBounds = true
-    }
-    
-    func isValidEmail(email: String) -> Bool {
-      let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-      let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-      return emailPred.evaluate(with: email)
-    }
     
     @objc func pushSelectProfilePictureViewController(){
             var _ = textFieldShouldReturn(passwordTextField)
@@ -272,6 +250,13 @@ class SignUpViewController: UIViewController {
     @objc func popSignUpViewController(){
         navigationController?.popViewController(animated: true)
     }
+    
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+    
     /*
     // MARK: - Navigation
 
@@ -305,7 +290,7 @@ extension SignUpViewController:UITextFieldDelegate{
         return true
     }
     
-    func checkAllDataRequirementAndUploadToFireBase(email:String?,password:String?,userName:String?,warningCompletionHandler:(String)->()){
+    fileprivate func checkAllDataRequirementAndUploadToFireBase(email:String?,password:String?,userName:String?,warningCompletionHandler:(String)->()){
         if password == "" || userName == "" || email == ""{
             warningCompletionHandler("one or more data missing")
             if password == ""{
@@ -372,9 +357,6 @@ extension SignUpViewController:UITextFieldDelegate{
             return
         }
         /// fire base signup
-        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
-
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = UIActivityIndicatorView.Style.medium
         loadingIndicator.startAnimating()
@@ -399,10 +381,4 @@ extension SignUpViewController:UITextFieldDelegate{
     
     
     
-}
-
-extension String {
-    var isAlphanumeric: Bool {
-        return !isEmpty && range(of: "[^a-zA-Z0-9]", options: .regularExpression) == nil
-    }
 }

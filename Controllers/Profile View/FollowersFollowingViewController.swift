@@ -9,11 +9,11 @@ import UIKit
 
 class FollowersFollowingViewController: UIViewController {
 
-    let tableView = UITableView()
-    let refreshControl = UIRefreshControl()
-    var account = Account()
-    var accountList = [String]()
-    var arrayOfAccounts = [Account]()
+    fileprivate let tableView = UITableView()
+    fileprivate let refreshControl = UIRefreshControl()
+    public var account = Account()
+    public var accountList = [String]()
+    fileprivate var arrayOfAccounts = [Account]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,21 +25,10 @@ class FollowersFollowingViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
     }
     
-    @objc func refresh(_ sender: AnyObject) {
-       // Code to refresh table view
-        reloadAccountDataForTableView()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.refreshControl.endRefreshing()
-        }
-    }
-    
-    func reloadAccountDataForTableView(){
+    fileprivate func reloadAccountDataForTableView(){
         arrayOfAccounts = []
         tableView.reloadData()
         
@@ -51,7 +40,7 @@ class FollowersFollowingViewController: UIViewController {
         }
     }
     
-    func addTableView(){
+    fileprivate func addTableView(){
         
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -67,6 +56,20 @@ class FollowersFollowingViewController: UIViewController {
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl)
+    }
+    
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+    
+    @objc func refresh(_ sender: AnyObject) {
+       // Code to refresh table view
+        reloadAccountDataForTableView()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.refreshControl.endRefreshing()
+        }
     }
 
     /*

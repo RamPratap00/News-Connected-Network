@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		1A07A47629728B080069499B /* AllNewsFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A07A47529728B080069499B /* AllNewsFeedViewController.swift */; };
+		1A07A4782974384F0069499B /* MiscFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A07A4772974384F0069499B /* MiscFunctions.swift */; };
+		1A07A47B297442C30069499B /* MildFetchTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A07A47A297442C30069499B /* MildFetchTasks.swift */; };
+		1A07A47D297442D10069499B /* BulkFetchTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A07A47C297442D10069499B /* BulkFetchTasks.swift */; };
 		1A11792E296AD69700508712 /* SelectLanguageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A11792D296AD69700508712 /* SelectLanguageViewController.swift */; };
 		1A117930296AD86200508712 /* SelectLanguageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A11792F296AD86200508712 /* SelectLanguageCollectionViewCell.swift */; };
 		1A1EC160295EA332006EA6AC /* PrimaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1EC15F295EA332006EA6AC /* PrimaryViewController.swift */; };
@@ -52,7 +55,6 @@
 		1A7906D3296025D900ABF006 /* SearchUsersAndNewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D2296025D900ABF006 /* SearchUsersAndNewsViewController.swift */; };
 		1A7906D52960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D42960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift */; };
 		1A7906D72960261900ABF006 /* ChattingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D62960261900ABF006 /* ChattingViewController.swift */; };
-		1A7906DA29603CA800ABF006 /* FetchDataFromFireBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906D929603CA800ABF006 /* FetchDataFromFireBase.swift */; };
 		1A7906DC2960400200ABF006 /* PutDataToFireBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906DB2960400200ABF006 /* PutDataToFireBase.swift */; };
 		1A7906E029607E6200ABF006 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906DF29607E6200ABF006 /* Account.swift */; };
 		1A7906E52961683900ABF006 /* CoustomUserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7906E42961683900ABF006 /* CoustomUserTableViewCell.swift */; };
@@ -105,6 +107,9 @@
 
 /* Begin PBXFileReference section */
 		1A07A47529728B080069499B /* AllNewsFeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllNewsFeedViewController.swift; sourceTree = "<group>"; };
+		1A07A4772974384F0069499B /* MiscFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiscFunctions.swift; sourceTree = "<group>"; };
+		1A07A47A297442C30069499B /* MildFetchTasks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MildFetchTasks.swift; sourceTree = "<group>"; };
+		1A07A47C297442D10069499B /* BulkFetchTasks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkFetchTasks.swift; sourceTree = "<group>"; };
 		1A11792D296AD69700508712 /* SelectLanguageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLanguageViewController.swift; sourceTree = "<group>"; };
 		1A11792F296AD86200508712 /* SelectLanguageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLanguageCollectionViewCell.swift; sourceTree = "<group>"; };
 		1A1EC15F295EA332006EA6AC /* PrimaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryViewController.swift; sourceTree = "<group>"; };
@@ -123,7 +128,6 @@
 		1A7906D2296025D900ABF006 /* SearchUsersAndNewsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUsersAndNewsViewController.swift; sourceTree = "<group>"; };
 		1A7906D42960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentActivityOnMyNetworkViewController.swift; sourceTree = "<group>"; };
 		1A7906D62960261900ABF006 /* ChattingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChattingViewController.swift; sourceTree = "<group>"; };
-		1A7906D929603CA800ABF006 /* FetchDataFromFireBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchDataFromFireBase.swift; sourceTree = "<group>"; };
 		1A7906DB2960400200ABF006 /* PutDataToFireBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PutDataToFireBase.swift; sourceTree = "<group>"; };
 		1A7906DF29607E6200ABF006 /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
 		1A7906E42961683900ABF006 /* CoustomUserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoustomUserTableViewCell.swift; sourceTree = "<group>"; };
@@ -212,6 +216,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A07A479297442960069499B /* Fetch tasks */ = {
+			isa = PBXGroup;
+			children = (
+				1A07A47A297442C30069499B /* MildFetchTasks.swift */,
+				1A07A47C297442D10069499B /* BulkFetchTasks.swift */,
+			);
+			path = "Fetch tasks";
+			sourceTree = "<group>";
+		};
 		1A3161FB2964375D00760867 /* Auxilary View controllers and their dependencies */ = {
 			isa = PBXGroup;
 			children = (
@@ -255,7 +268,7 @@
 		1A7906D829603AB800ABF006 /* AcessDataBaseOnFirebase */ = {
 			isa = PBXGroup;
 			children = (
-				1A7906D929603CA800ABF006 /* FetchDataFromFireBase.swift */,
+				1A07A479297442960069499B /* Fetch tasks */,
 				1A7906DB2960400200ABF006 /* PutDataToFireBase.swift */,
 			);
 			path = AcessDataBaseOnFirebase;
@@ -365,6 +378,7 @@
 				1A7906DE29607E2900ABF006 /* PrimitiveTypesSpecificToApplication */,
 				1AD34E5A295C99CD00535B84 /* Managers */,
 				1ACD028529698DC700B5A7A6 /* Chat.swift */,
+				1A07A4772974384F0069499B /* MiscFunctions.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -640,17 +654,19 @@
 				1AD34E75295C99CD00535B84 /* news data structure.swift in Sources */,
 				1A6860292962E8F1001FF316 /* SecondaryViewController.swift in Sources */,
 				1A7906D52960260700ABF006 /* RecentActivityOnMyNetworkViewController.swift in Sources */,
+				1A07A4782974384F0069499B /* MiscFunctions.swift in Sources */,
 				1A11792E296AD69700508712 /* SelectLanguageViewController.swift in Sources */,
 				1A7906DC2960400200ABF006 /* PutDataToFireBase.swift in Sources */,
 				1AD34E71295C99CD00535B84 /* NewsDataBaseManager.swift in Sources */,
 				1AD34E27295C997100535B84 /* AppDelegate.swift in Sources */,
 				1A7906D1296025AE00ABF006 /* TrendingPageViewController.swift in Sources */,
 				1A975B0C29681EE700E89A9E /* CSUserTableViewCell.swift in Sources */,
+				1A07A47D297442D10069499B /* BulkFetchTasks.swift in Sources */,
 				1AD34E74295C99CD00535B84 /* DataBaseHelper.swift in Sources */,
 				1AD34E76295C99CD00535B84 /* SignUpViewController.swift in Sources */,
 				1A7906EB2961CB7800ABF006 /* CurrentUserProfileViewController.swift in Sources */,
 				1AD34E6E295C99CD00535B84 /* EncryptionFile.swift in Sources */,
-				1A7906DA29603CA800ABF006 /* FetchDataFromFireBase.swift in Sources */,
+				1A07A47B297442C30069499B /* MildFetchTasks.swift in Sources */,
 				1AD33E87296E80F000AB1779 /* FullProfilePictureViewController.swift in Sources */,
 				1AD34E29295C997100535B84 /* SceneDelegate.swift in Sources */,
 				1ACD024929697CA000B5A7A6 /* ChatSystemPutToFireBase.swift in Sources */,

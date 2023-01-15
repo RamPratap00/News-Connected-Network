@@ -9,21 +9,21 @@ import UIKit
 
 class NewsFeedViewController: UIViewController {
 
-    let tableView = UITableView()
-    var arrayOfArticles = [Article]()
-    var newsCategory : NewsCategory? = nil
-    var keyword : String? = nil
-    var language : String? = currentUserAccountObject().language
-    var isPaginating = false
-    var isDataLoaded = false
-    let newsAPI = NewsAPINetworkManager()
-    let alert = UIAlertController(title: nil, message: "Loading articles...", preferredStyle: .alert)
-    let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    fileprivate let tableView = UITableView()
+    fileprivate var arrayOfArticles = [Article]()
+    public var newsCategory : NewsCategory? = nil
+    public var keyword : String? = nil
+    public var language : String? = currentUserAccountObject().language
+    fileprivate var isPaginating = false
+    fileprivate let newsAPI = NewsAPINetworkManager()
+    fileprivate let alert = UIAlertController(title: nil, message: "Loading articles...", preferredStyle: .alert)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         addTableView()
+        newsAPI.headLinesActive = true
         // Do any additional setup after loading the view.
     }
     
@@ -47,7 +47,7 @@ class NewsFeedViewController: UIViewController {
         
     }
     
-    func addWarningLabel(){
+    fileprivate func addWarningLabel(){
         let warningLabel = UIImageView(image: UIImage(imageLiteralResourceName: "empty news paper"))
         view.addSubview(warningLabel)
         warningLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -57,7 +57,7 @@ class NewsFeedViewController: UIViewController {
         warningLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
     
-    func loadHeadLines(keyword:String?,newsCategory:NewsCategory?,language:String?,completionHandler: @escaping (Bool)->()){
+    fileprivate func loadHeadLines(keyword:String?,newsCategory:NewsCategory?,language:String?,completionHandler: @escaping (Bool)->()){
         
         newsAPI.sessionToLoadHeadLines(keyword: keyword, newsCategory: newsCategory, language: language){ data,error in
             
@@ -83,13 +83,13 @@ class NewsFeedViewController: UIViewController {
         }
     }
     
-    func relodTableView(){
+    fileprivate func relodTableView(){
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
     }
     
-    func addTableView(){
+    fileprivate func addTableView(){
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
@@ -138,8 +138,7 @@ extension NewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScr
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let position = scrollView.contentOffset.y
-            self.tableView.tableFooterView = createSpinnerFooter(view: view)
-            if position > (tableView.contentSize.height+200-scrollView.frame.height) && !isPaginating{
+            if position > (tableView.contentSize.height+100-scrollView.frame.height) && !isPaginating{
                 isPaginating = true
                 newsAPI.fetchMore(){ moreData,error in
                     if error == nil && moreData?.articles != nil{

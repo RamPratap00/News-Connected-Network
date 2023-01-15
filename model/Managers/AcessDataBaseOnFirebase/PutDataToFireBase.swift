@@ -94,7 +94,6 @@ func updateFireBaseRecentActivityStack(article:Article,reaction:String){
     }
 }
 
-
 func uploadingImageAndLanguageToFireBase(email:String,data:Data,language:String,completionHandler:@escaping (Bool)->()){
     ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
@@ -120,7 +119,6 @@ func uploadingImageAndLanguageToFireBase(email:String,data:Data,language:String,
     }
 }
 
-
 func updatingProfileImage(email:String,data:Data,completionHandler:@escaping (Bool)->()){
     ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
@@ -144,7 +142,6 @@ func updatingProfileImage(email:String,data:Data,completionHandler:@escaping (Bo
         }
     }
 }
-
 
 func updateProfileDescription(content:String){
     let currentUserAccount = currentUserAccountObject()

@@ -9,18 +9,20 @@ import UIKit
 
 class CurrentUserProfileViewController: UIViewController {
 
-    var email = String()
-    let tableView = UITableView()
-    let data = UILabel()
-    var scrollView = UIScrollView()
-    var verticalStack = UIStackView()
-    var curretAccount = currentUserAccountObject()
-    var articlesArray = [Article]()
-    let profilePicture = UIButton()
-    let descriptionLabel = UILabel()
-    let RecentActivityButton = UIButton()
-    let followingButton = UIButton()
-    let followersButton = UIButton()
+    public var email = String()
+    fileprivate let tableView = UITableView()
+    fileprivate let data = UILabel()
+    fileprivate var scrollView = UIScrollView()
+    fileprivate var verticalStack = UIStackView()
+    fileprivate var curretAccount = currentUserAccountObject()
+    fileprivate var articlesArray = [Article]()
+    fileprivate let profilePicture = UIButton()
+    fileprivate let descriptionLabel = UILabel()
+    fileprivate let RecentActivityButton = UIButton()
+    fileprivate let followingButton = UIButton()
+    fileprivate let followersButton = UIButton()
+    fileprivate let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,14 +40,8 @@ class CurrentUserProfileViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if !hasNetworkConnection(){
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
         
-        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
-
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = UIActivityIndicatorView.Style.medium
         loadingIndicator.startAnimating();
@@ -62,7 +58,7 @@ class CurrentUserProfileViewController: UIViewController {
                 self.descriptionLabel.text = currentUserAccountObject().profileDescription
             }
         }
-        fetchCurrentUserRecentActivity(){ articles in
+        fetchCurrentUserRecentActivityArticlesArray(){ articles in
             self.articlesArray  = articles
             DispatchQueue.main.async {
                 self.dismiss(animated: false,completion: nil)
@@ -73,7 +69,7 @@ class CurrentUserProfileViewController: UIViewController {
         
     }
     
-    func loadImageToStack(){
+    fileprivate func loadImageToStack(){
         let backroundImage = UIImageView(image: UIImage(named: "login Background"))
         verticalStack.addSubview(backroundImage)
         backroundImage.contentMode = .scaleToFill
@@ -131,7 +127,7 @@ class CurrentUserProfileViewController: UIViewController {
         
     }
     
-    func addNameLabel(){
+    fileprivate func addNameLabel(){
         let nameLabel = UILabel()
         nameLabel.textAlignment = .left
         nameLabel.font = .boldSystemFont(ofSize: 25)
@@ -145,7 +141,7 @@ class CurrentUserProfileViewController: UIViewController {
         
     }
     
-    func addDescriptionLabel(){
+    fileprivate func addDescriptionLabel(){
         descriptionLabel.text = curretAccount.profileDescription
         descriptionLabel.numberOfLines = 0
         verticalStack.addSubview(descriptionLabel)
@@ -166,7 +162,7 @@ class CurrentUserProfileViewController: UIViewController {
         
     }
     
-    func addFollowersFollowingAndRecentActivityBlock(){
+    fileprivate func addFollowersFollowingAndRecentActivityBlock(){
         followersButton.backgroundColor = .black
         followersButton.setTitle("Followers : \(curretAccount.followersList.count)", for: .normal)
         followersButton.titleLabel?.textAlignment = .center
@@ -199,7 +195,7 @@ class CurrentUserProfileViewController: UIViewController {
 
     }
     
-    func applyBorderForButton(button:UIButton){
+    fileprivate func applyBorderForButton(button:UIButton){
         button.layer.borderWidth = 1.5
         button.layer.borderColor = UIColor.white.cgColor
         button.layer.cornerRadius = 17
@@ -207,7 +203,7 @@ class CurrentUserProfileViewController: UIViewController {
         button.layer.masksToBounds = true
     }
     
-    func addAndConfigureScrollView(){
+    fileprivate func addAndConfigureScrollView(){
         view.addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
@@ -216,7 +212,7 @@ class CurrentUserProfileViewController: UIViewController {
         scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
     }
     
-    func confgureVerticalStack(){
+    fileprivate func confgureVerticalStack(){
         scrollView.addSubview(verticalStack)
         verticalStack.translatesAutoresizingMaskIntoConstraints = false
         verticalStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
@@ -225,7 +221,7 @@ class CurrentUserProfileViewController: UIViewController {
         verticalStack.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
     }
     
-    func addTableView(){
+    fileprivate func addTableView(){
         verticalStack.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
@@ -265,6 +261,12 @@ class CurrentUserProfileViewController: UIViewController {
         nextVC.title = "Following"
         nextVC.account = currentUserAccountObject()
         navigationController?.pushViewController(nextVC, animated: true)
+    }
+    
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
     }
     
 

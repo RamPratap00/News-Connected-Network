@@ -10,7 +10,8 @@ import FirebaseAuth
 
 class SecondaryViewController: UITabBarController,UITabBarControllerDelegate {
 
-    let currentUserEmail = UserDefaults.standard.string(forKey: "EMAIL")!
+    fileprivate let currentUserEmail = UserDefaults.standard.string(forKey: "EMAIL")!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -37,12 +38,12 @@ class SecondaryViewController: UITabBarController,UITabBarControllerDelegate {
     override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
             
-        }
+    }
 
     //Delegate methods
-        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-            return true;
-        }
+//        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+//            return true;
+//        }
     /*
     // MARK: - Navigation
 
