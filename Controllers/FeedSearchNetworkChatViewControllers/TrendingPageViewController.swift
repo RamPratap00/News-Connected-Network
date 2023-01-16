@@ -139,6 +139,7 @@ extension TrendingPageViewController:UITableViewDataSource,UITableViewDelegate{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedPageTableViewCell.identifier) as! NewsFeedPageTableViewCell
         cell.loadNewscell(article: arrayOfArticles[indexPath.row])
+        cell.parent = self
         return cell
     }
     

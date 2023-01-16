@@ -10,7 +10,6 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 
-
 internal func fetchMessageFromFireBaseChatSystem(sender:Account,completionHandler:@escaping ([QueryDocumentSnapshot])->()){
     fetchCurrenUserProfileData(completionHandler: {_ in})
     let currentUserAccount = currentUserAccountObject()

@@ -102,7 +102,8 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
             print("signed out")
         }
         UserDefaults.standard.set(false, forKey: "ISLOGGEDIN")
-        navigationController?.dismiss(animated: false)
+        let nextVC = SplashViewController()
+        navigationController?.pushViewController(nextVC, animated: true)
     }
     
     @objc func toMainPage(){
@@ -115,6 +116,11 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
         nextVC.email = UserDefaults.standard.value(forKey: "EMAIL") as! String
             self.showDetailViewController(nextVC, sender: self)
     }
+    
+    //Delegate methods
+//        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+//            return true;
+//        }
     
 }
 

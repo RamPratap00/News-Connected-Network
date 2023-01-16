@@ -16,7 +16,7 @@ class SelectProfilePictureViewController: UIViewController {
     fileprivate let quoteForSelectingPicture = UILabel()
     fileprivate var collectionView : UICollectionView? = nil
     fileprivate var isImageSelected = false
-    fileprivate var selectedImageIndexPath = IndexPath()
+    fileprivate var selectedImageCell = ProfilePictureCollectionViewCell()
     fileprivate let nextButton = UIButton()
     public var language = String()
     public var email = String()
@@ -67,7 +67,7 @@ class SelectProfilePictureViewController: UIViewController {
     
     fileprivate func addCollectionViewForImageDoodle(){
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
-        collectionViewFlowLayout.itemSize = CGSize(width: 140, height: 100)
+        collectionViewFlowLayout.itemSize = CGSize(width: 140, height: 120)
         collectionViewFlowLayout.scrollDirection = .vertical
         collectionViewFlowLayout.minimumLineSpacing = 5
         collectionViewFlowLayout.sectionInset = .zero
@@ -123,7 +123,7 @@ class SelectProfilePictureViewController: UIViewController {
         present(alert, animated: true, completion: nil)
         
         if isImageSelected{
-            let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
+            let selectedCell = selectedImageCell
             
             if isUpdating{
                 updatingProfileImage(email: email, data: (selectedCell.profileImage.image?.pngData()!)!){ updateSatus in
@@ -175,7 +175,7 @@ class SelectProfilePictureViewController: UIViewController {
 extension SelectProfilePictureViewController: UICollectionViewDataSource, UICollectionViewDelegate{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 18
+        return 50
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -189,15 +189,14 @@ extension SelectProfilePictureViewController: UICollectionViewDataSource, UIColl
         let cell = collectionView.cellForItem(at: indexPath) as! ProfilePictureCollectionViewCell
         if cell.cellTapCount%2 == 0{
             if isImageSelected{
-                let selectedCell = collectionView.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
-                selectedCell.profileImage.layer.borderColor = UIColor.systemBackground.cgColor
-                selectedCell.cellTapCount+=1
+                selectedImageCell.profileImage.layer.borderColor = UIColor.systemBackground.cgColor
+                selectedImageCell.cellTapCount+=1
             }
             cell.profileImage.layer.borderWidth = 5
             cell.profileImage.layer.borderColor = UIColor.green.cgColor
             cell.cellTapCount+=1
             isImageSelected = true
-            selectedImageIndexPath = indexPath
+            selectedImageCell = cell
         }
         else{
             cell.profileImage.layer.borderColor = UIColor.systemBackground.cgColor

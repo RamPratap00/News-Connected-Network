@@ -7,8 +7,8 @@
 /// THIS NETWORK MANAGER IS USED TO PREPARE AND MAKE API CALLS TO https://newsapi.org/
 import Foundation
 
-//let apiKey = "8fa02b5718244406a73b413d03f0ecbe"
-let apiKey = "327d15296670458bb67a34d9bc4648d6"
+let apiKey = "8fa02b5718244406a73b413d03f0ecbe"
+//let apiKey = "327d15296670458bb67a34d9bc4648d6"
 
 class NewsAPINetworkManager{
 

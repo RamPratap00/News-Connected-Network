@@ -11,6 +11,7 @@ class FullProfilePictureViewController: UIViewController {
 
     fileprivate let image = UIImageView()
     public var isCurrentUser = false
+    public var isNavigationControllerNil = false
     public var uiImage = UIImage()
     
     override func viewDidLoad() {
@@ -26,6 +27,9 @@ class FullProfilePictureViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
+        if isNavigationControllerNil{
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(fallBack))
+        }
     }
     
     fileprivate func addImageView(){
@@ -84,8 +88,19 @@ class FullProfilePictureViewController: UIViewController {
             self.present(alert, animated: true, completion: {
                 print("completion block")
             })
+        
+        if let popoverController = alert.popoverPresentationController {
+            popoverController.sourceView = self.view //to set the source of your alert
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0) // you can set this as per your requirement.
+            popoverController.permittedArrowDirections = [] //to hide the arrow of any particular direction
+        }
+        
         }
 
+    @objc func fallBack(){
+        self.dismiss(animated: true)
+    }
+    
     /*
     // MARK: - Navigation
 

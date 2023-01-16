@@ -301,7 +301,6 @@ internal func fetchUsersForRecomendation(completionHandler:@escaping ([Account])
         db.collection("IndividualUsersData")
             .limit(to:100)
             .getDocuments { (snapshot, error) in
-                ArrayOfAccountsAndNews.recomendedAccounts = []
                 if error == nil && snapshot != nil {
                     
                     let currentUserAccount = currentUserAccountObject()

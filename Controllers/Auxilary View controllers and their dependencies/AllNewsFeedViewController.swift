@@ -15,6 +15,7 @@ class AllNewsFeedViewController: UIViewController {
     public var keyword = String()
     public var language = currentUserAccountObject().language
     fileprivate var isPaginating = false
+    fileprivate var isFirstVisit = true
     public var isOfflineMode = false
     fileprivate let newsAPI = NewsAPINetworkManager()
     fileprivate let alert = UIAlertController(title: nil, message: "Loading articles...", preferredStyle: .alert)
@@ -32,23 +33,26 @@ class AllNewsFeedViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        arrayOfArticles = []
-        relodTableView()
+        if isFirstVisit{
+            arrayOfArticles = []
+            relodTableView()
         
-        if !isOfflineMode{
-            newsAPI.headLinesActive = true
-            loadingIndicator.hidesWhenStopped = true
-            loadingIndicator.style = UIActivityIndicatorView.Style.medium
-            loadingIndicator.startAnimating()
-        
-            alert.view.addSubview(loadingIndicator)
-            present(alert, animated: true, completion: nil)
-            loadNews(){ _ in
-                DispatchQueue.main.async {
-                    self.relodTableView()
+            if !isOfflineMode{
+                newsAPI.headLinesActive = true
+                loadingIndicator.hidesWhenStopped = true
+                loadingIndicator.style = UIActivityIndicatorView.Style.medium
+                loadingIndicator.startAnimating()
+                
+                alert.view.addSubview(loadingIndicator)
+                present(alert, animated: true, completion: nil)
+                
+                loadNews(){ _ in
+                    DispatchQueue.main.async {
+                        self.relodTableView()
+                        self.isFirstVisit = false
+                    }
                 }
             }
-            
         }
         
         if isOfflineMode{
@@ -164,6 +168,7 @@ extension AllNewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UI
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedPageTableViewCell.identifier) as! NewsFeedPageTableViewCell
         cell.loadNewscell(article: arrayOfArticles[indexPath.row])
+        cell.parent = self
         return cell
     }
     

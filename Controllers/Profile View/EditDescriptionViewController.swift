@@ -10,6 +10,7 @@ import UIKit
 class EditDescriptionViewController: UIViewController {
 
     fileprivate var content = UITextField()
+    public var isNavigationControllerNil = false
     fileprivate let nextButton = UIButton()
     
     override func viewDidLoad() {
@@ -23,6 +24,9 @@ class EditDescriptionViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
+        if isNavigationControllerNil{
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(fallBack))
+        }
     }
     
     fileprivate func loadDescriptionContentEntry(){
@@ -96,6 +100,10 @@ class EditDescriptionViewController: UIViewController {
                 navigationController?.popViewController(animated: true)
             }
         }
+    }
+    
+    @objc func fallBack(){
+        self.dismiss(animated: true)
     }
     
     

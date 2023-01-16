@@ -15,7 +15,6 @@ class ChattingViewController: UIViewController {
     fileprivate var tableView = UITableView()
     fileprivate var reachableAccounts = [String]()
     fileprivate var reachableAccountsArray = [Account]()
-    fileprivate let refreshControl = UIRefreshControl()
     public var isSharing = false
     
     override func viewDidLoad() {
@@ -29,11 +28,13 @@ class ChattingViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
         NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
     }
     
     fileprivate func loadAccountsForChatTableView(){
         fetchCurrenUserProfileData(completionHandler: {_ in})
+        reachableAccounts = []
         currentUser = currentUserAccountObject()
         let set1:Set<String> = Set(currentUser.followersList)
         let set2:Set<String> = Set(currentUser.followingList)
@@ -62,17 +63,14 @@ class ChattingViewController: UIViewController {
     fileprivate func addTableViewOfUsers(){
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo:view.widthAnchor ).isActive = true
-        tableView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        tableView.heightAnchor.constraint(equalTo: view.heightAnchor,multiplier: 0.9).isActive = true
         tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        tableView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         tableView.estimatedRowHeight = 100
         tableView.rowHeight = UITableView.automaticDimension
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(CSUserTableViewCell.self, forCellReuseIdentifier: CSUserTableViewCell.identifier)
-        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
-        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
-        tableView.addSubview(refreshControl)
     }
     
     fileprivate func loadMessages(sendingtUser:Account,comletionHandler:@escaping (String)->()){
@@ -99,14 +97,6 @@ class ChattingViewController: UIViewController {
             }
         }
     }
-
-    @objc func refresh(_ sender: AnyObject) {
-       // Code to refresh table view
-        loadAccountsForChatTableView()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.refreshControl.endRefreshing()
-        }
-    }
     
     @objc func offlineTrigger(){
         DispatchQueue.main.async {
@@ -129,6 +119,7 @@ class ChattingViewController: UIViewController {
 
 extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print(reachableAccountsArray.count)
         return reachableAccountsArray.count
     }
     
@@ -167,20 +158,20 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
         return 80
     }
 
-    func tableView(_ tableView: UITableView,
-                   viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = UIView(frame: CGRect(x: 0,
-                                              y: 0,
-                                              width: self.tableView.frame.width,
-                                              height: 50))
-        let headerLabel = UILabel()
-        headerLabel.text = "    Contacts"
-        headerLabel.font = .boldSystemFont(ofSize: 30)
-        headerView.addSubview(headerLabel)
-        headerLabel.translatesAutoresizingMaskIntoConstraints = false
-        headerLabel.frame = headerView.bounds
-        return headerView
-    }
+//    func tableView(_ tableView: UITableView,
+//                   viewForHeaderInSection section: Int) -> UIView? {
+//        let headerView = UIView(frame: CGRect(x: 0,
+//                                              y: 0,
+//                                              width: self.tableView.frame.width,
+//                                              height: 50))
+//        let headerLabel = UILabel()
+//        headerLabel.text = "    Contacts"
+//        headerLabel.font = .boldSystemFont(ofSize: 30)
+//        headerView.addSubview(headerLabel)
+//        headerLabel.translatesAutoresizingMaskIntoConstraints = false
+//        headerLabel.frame = headerView.bounds
+//        return headerView
+//    }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let filterAction = UIContextualAction(style: .normal, title: "Delete") { (action, view, bool) in

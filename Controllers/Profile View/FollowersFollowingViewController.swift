@@ -13,6 +13,7 @@ class FollowersFollowingViewController: UIViewController {
     fileprivate let refreshControl = UIRefreshControl()
     public var account = Account()
     public var accountList = [String]()
+    public var isNavigationControllerNil = false
     fileprivate var arrayOfAccounts = [Account]()
     
     override func viewDidLoad() {
@@ -37,6 +38,10 @@ class FollowersFollowingViewController: UIViewController {
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
+        }
+        
+        if isNavigationControllerNil{
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(fallBack))
         }
     }
     
@@ -70,6 +75,10 @@ class FollowersFollowingViewController: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.refreshControl.endRefreshing()
         }
+    }
+    
+    @objc func fallBack(){
+        self.dismiss(animated: true)
     }
 
     /*

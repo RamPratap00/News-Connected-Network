@@ -24,7 +24,9 @@ class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+        if navigationController != nil{
+            navigationController?.dismiss(animated: false)
+        }
         if hasNetworkConnection(){
             view.backgroundColor = .systemGreen
             dataBasePopulator()
@@ -72,7 +74,7 @@ class SplashViewController: UIViewController {
     }
     
     fileprivate func skipLoginPage(){
-        
+        dataBasePopulator()
         fetchCurrenUserProfileData(){ _ in
             DispatchQueue.main.async{
                 
@@ -97,8 +99,7 @@ class SplashViewController: UIViewController {
     }
     
     @objc func initiateViewNavigator(){
-        dataBasePopulator()
-        DispatchQueue.main.async {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             self.warningLabel.removeFromSuperview()
             self.offlineMode.removeFromSuperview()
             self.view.backgroundColor = .systemGreen

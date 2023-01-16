@@ -13,6 +13,7 @@ class NewsFeedPageTableViewCell: UITableViewCell {
     public var articleThumbNail = UIImageView()
     fileprivate var article = Article()
     fileprivate var newsTitle = UILabel()
+    public var parent : UIViewController? = nil
     fileprivate var iconContainerView : UIView = {
         let containerView = UIView()
         containerView.frame = CGRect(x: 0, y: 0, width: 300, height: 150)
@@ -52,12 +53,22 @@ class NewsFeedPageTableViewCell: UITableViewCell {
     newsTitle.translatesAutoresizingMaskIntoConstraints = false
     contentView.addSubview(newsTitle)
     newsTitle.text = article.title
-    newsTitle.widthAnchor.constraint(equalToConstant: 300).isActive = true
+    newsTitle.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8).isActive = true
     newsTitle.leadingAnchor.constraint(equalTo: articleThumbNail.leadingAnchor).isActive = true
     newsTitle.topAnchor.constraint(equalTo: articleThumbNail.bottomAnchor, constant: 10).isActive = true
     newsTitle.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,constant: -10).isActive = true
     newsTitle.numberOfLines = 0
         
+        let shareButton = UIButton()
+        shareButton.setImage(UIImage(systemName: "paperplane"), for: .normal)
+        shareButton.tintColor = .darkGray
+        shareButton.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(shareButton)
+        shareButton.widthAnchor.constraint(equalToConstant: 45).isActive = true
+        shareButton.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        shareButton.leadingAnchor.constraint(equalTo: newsTitle.trailingAnchor).isActive = true
+        shareButton.centerYAnchor.constraint(equalTo: newsTitle.centerYAnchor).isActive = true
+        shareButton.addTarget(self, action: #selector(shareArticle), for: .touchUpInside)
         setupLongPressGesture()
         
     }
@@ -129,13 +140,11 @@ class NewsFeedPageTableViewCell: UITableViewCell {
         
     }
     
-}
-
-
-func createSpinnerFooter(view:UIView) -> UIView {
-    let footerView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 100))
-     let spinner = UIActivityIndicatorView()
-    spinner.center = footerView.center
-    footerView.addSubview(spinner)
-    return footerView
+    @objc func shareArticle(){
+        let nextVC = ChattingViewController()
+        nextVC.isSharing = true
+        nextVC.articleUrl = article.url!
+        parent?.navigationController?.pushViewController(nextVC, animated: true)
+    }
+    
 }

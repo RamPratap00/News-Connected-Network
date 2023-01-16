@@ -243,6 +243,7 @@ extension ProfileViewController:UITableViewDataSource,UITableViewDelegate{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedPageTableViewCell.identifier) as! NewsFeedPageTableViewCell
         cell.loadNewscell(article: articlesArray[indexPath.row])
+        cell.parent = self
         return cell
     }
     

@@ -134,6 +134,7 @@ extension RecentActivityOnMyNetworkViewController:UITableViewDataSource,UITableV
                              arrayOfArticles[indexPath.row].reaction.positiveCount,
                              arrayOfArticles[indexPath.row].reaction.neutralCount]
         let maxIndex = reactionArray.firstIndex(of: reactionArray.max()!)
+        cell.parent = self
         cell.loadNewscell(article: arrayOfArticles[indexPath.row].article)
         if maxIndex == 0{
             cell.articleThumbNail.layer.borderColor = .init(red: 33, green: 0, blue: 0, alpha: 0.4)
@@ -142,7 +143,7 @@ extension RecentActivityOnMyNetworkViewController:UITableViewDataSource,UITableV
             cell.articleThumbNail.layer.borderColor = .init(red: 0, green: 33, blue: 0, alpha: 0.4)
         }
         else{
-            cell.articleThumbNail.layer.borderColor = .init(red: 107, green: 114, blue: 142, alpha: 0.4)
+            cell.articleThumbNail.layer.borderColor = .init(red: 255, green: 255, blue: 0, alpha: 0.4)
         }
         
         return cell
@@ -151,6 +152,8 @@ extension RecentActivityOnMyNetworkViewController:UITableViewDataSource,UITableV
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let nextVC = DetailedNewsViewController()
         nextVC.article = arrayOfArticles[indexPath.row].article
+        let indexesToRedraw = [indexPath]
+        tableView.reloadRows(at: indexesToRedraw, with: .fade)
         navigationController?.pushViewController(nextVC, animated: true)
     }
 

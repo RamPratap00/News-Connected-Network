@@ -37,13 +37,15 @@ class SecondaryViewController: UITabBarController,UITabBarControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
-            
+        if navigationController == nil{
+            self.dismiss(animated: false)
+        }
     }
 
     //Delegate methods
-//        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-//            return true;
-//        }
+        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+            return true;
+        }
     /*
     // MARK: - Navigation
 

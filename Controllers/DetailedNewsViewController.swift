@@ -14,6 +14,7 @@ class DetailedNewsViewController: UIViewController {
     fileprivate let positiveButton = UIButton()
     fileprivate let negativeButton = UIButton()
     fileprivate let neutralButton = UIButton()
+    public var isNavigationControllerNil = false
     fileprivate let thumbNail = UIImageView()
     
     override func viewDidLoad() {
@@ -25,36 +26,43 @@ class DetailedNewsViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if isNavigationControllerNil{
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(fallBack))
+        }
+    }
+    
     fileprivate func addReactionButton() {
-        positiveButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
+        positiveButton.setBackgroundImage(UIImage(systemName: "person.crop.circle.fill.badge.checkmark"), for: .normal)
         positiveButton.tintColor = .gray
         view.addSubview(positiveButton)
         positiveButton.translatesAutoresizingMaskIntoConstraints = false
-        positiveButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        positiveButton.heightAnchor.constraint(equalToConstant: 80).isActive = true
+        positiveButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        positiveButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         positiveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        positiveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        positiveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,constant: -20).isActive = true
         positiveButton.addTarget(self, action: #selector(pushToCurrentUsersRecentActivityStackWithTimeStampAndPositiveReaction), for: .touchUpInside)
         
-        negativeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        negativeButton.setBackgroundImage(UIImage(systemName: "person.crop.circle.fill.badge.xmark"), for: .normal)
         negativeButton.tintColor = .gray
         view.addSubview(negativeButton)
         negativeButton.translatesAutoresizingMaskIntoConstraints = false
-        negativeButton.widthAnchor.constraint(equalToConstant: 80 ).isActive = true
-        negativeButton.heightAnchor.constraint(equalToConstant: 80).isActive = true
-        negativeButton.leadingAnchor.constraint(equalTo: positiveButton.trailingAnchor).isActive = true
+        negativeButton.widthAnchor.constraint(equalToConstant: 50 ).isActive = true
+        negativeButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        negativeButton.leadingAnchor.constraint(equalTo: positiveButton.trailingAnchor,constant: 15).isActive = true
         negativeButton.centerYAnchor.constraint(equalTo: positiveButton.centerYAnchor).isActive = true
         negativeButton.addTarget(self, action: #selector(pushToCurrentUsersRecentActivityStackWithTimeStampAndNegativeReaction), for: .touchUpInside)
         
         
-        neutralButton.setImage(UIImage(systemName: "exclamationmark"), for: .normal)
+        neutralButton.setBackgroundImage(UIImage(systemName: "person.crop.circle.badge.exclamationmark.fill"), for: .normal)
         neutralButton.tintColor = .gray
         view.addSubview(neutralButton)
         neutralButton.translatesAutoresizingMaskIntoConstraints = false
-        neutralButton.trailingAnchor.constraint(equalTo: positiveButton.leadingAnchor).isActive = true
-        neutralButton.heightAnchor.constraint(equalToConstant: 80).isActive = true
+        neutralButton.trailingAnchor.constraint(equalTo: positiveButton.leadingAnchor,constant: -15).isActive = true
+        neutralButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         neutralButton.centerYAnchor.constraint(equalTo: positiveButton.centerYAnchor).isActive = true
-        neutralButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        neutralButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
         neutralButton.addTarget(self, action: #selector(pushToCurrentUsersRecentActivityStackWithTimeStampAndNeutralReaction), for: .touchUpInside)
     }
     
@@ -113,7 +121,8 @@ class DetailedNewsViewController: UIViewController {
         title.translatesAutoresizingMaskIntoConstraints = false
         title.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
         title.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        title.topAnchor.constraint(equalTo: thumbNail.bottomAnchor,constant: 5).isActive = true
+        title.topAnchor.constraint(equalTo: thumbNail.bottomAnchor).isActive = true
+        title.heightAnchor.constraint(equalToConstant: 150).isActive = true
        
         let description = UILabel()
         description.text = article.description
@@ -124,6 +133,7 @@ class DetailedNewsViewController: UIViewController {
         description.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
         description.topAnchor.constraint(equalTo: title.bottomAnchor,constant: 5).isActive = true
         description.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        description.heightAnchor.constraint(equalToConstant: 200).isActive = true
         
         let linkToFullArticle = UIButton()
         linkToFullArticle.setTitle("View Full Article", for: .normal)
@@ -132,8 +142,8 @@ class DetailedNewsViewController: UIViewController {
         linkToFullArticle.translatesAutoresizingMaskIntoConstraints = false
         linkToFullArticle.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
         linkToFullArticle.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        linkToFullArticle.bottomAnchor.constraint(equalTo: positiveButton.topAnchor,constant: 10).isActive = true
-        linkToFullArticle.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        linkToFullArticle.bottomAnchor.constraint(equalTo: positiveButton.topAnchor).isActive = true
+        linkToFullArticle.heightAnchor.constraint(equalToConstant: 50).isActive = true
         linkToFullArticle.addTarget(self, action: #selector(openSafari), for: .touchUpInside)
         linkToFullArticle.titleLabel?.numberOfLines = 0
 
@@ -149,22 +159,22 @@ class DetailedNewsViewController: UIViewController {
     
     @objc func pushToCurrentUsersRecentActivityStackWithTimeStampAndPositiveReaction(){
         positiveButton.tintColor = .green
-        negativeButton.tintColor = .systemBlue
-        neutralButton.tintColor = .systemBlue
+        negativeButton.tintColor = .gray
+        neutralButton.tintColor = .gray
         updateFireBaseRecentActivityStack(article: article,reaction: "positive")
     }
     
     @objc func pushToCurrentUsersRecentActivityStackWithTimeStampAndNegativeReaction(){
-        positiveButton.tintColor = .systemBlue
+        positiveButton.tintColor = .gray
         negativeButton.tintColor = .red
-        neutralButton.tintColor = .systemBlue
+        neutralButton.tintColor = .gray
         updateFireBaseRecentActivityStack(article: article,reaction: "negative")
     }
     
     @objc func pushToCurrentUsersRecentActivityStackWithTimeStampAndNeutralReaction(){
-        positiveButton.tintColor = .systemBlue
-        negativeButton.tintColor = .systemBlue
-        neutralButton.tintColor = .black
+        positiveButton.tintColor = .gray
+        negativeButton.tintColor = .gray
+        neutralButton.tintColor = .yellow
         updateFireBaseRecentActivityStack(article: article,reaction: "neutral")
     }
 
@@ -173,6 +183,10 @@ class DetailedNewsViewController: UIViewController {
         nextVC.isSharing = true
         nextVC.articleUrl = article.url!
         navigationController?.pushViewController(nextVC, animated: true)
+    }
+    
+    @objc func fallBack(){
+        self.dismiss(animated: true)
     }
     
     /*

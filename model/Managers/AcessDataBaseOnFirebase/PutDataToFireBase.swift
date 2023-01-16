@@ -11,7 +11,7 @@ import FirebaseFirestore
 import FirebaseStorage
 import UIKit
 
-func uploadDefaultUserDataToFireBase(email:String,password:String,userName:String,completionHandler : @escaping (Bool,String?)->()){
+internal func uploadDefaultUserDataToFireBase(email:String,password:String,userName:String,completionHandler : @escaping (Bool,String?)->()){
     DispatchQueue.global(qos: .userInitiated).async {
         FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password){ authResult,error in
             if error == nil{
@@ -47,7 +47,7 @@ func uploadDefaultUserDataToFireBase(email:String,password:String,userName:Strin
     }
 }
 
-func login(email:String,password:String,completionHandler:@escaping (Bool)->()){
+internal func login(email:String,password:String,completionHandler:@escaping (Bool)->()){
     DispatchQueue.global(qos: .userInitiated).async {
         FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password){ authResult,error in
             guard let _ = authResult ,error == nil else{
@@ -65,7 +65,7 @@ func login(email:String,password:String,completionHandler:@escaping (Bool)->()){
     }
 }
 
-func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCurrentUserAccount:Account){
+internal func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCurrentUserAccount:Account){
     
     ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
@@ -83,7 +83,7 @@ func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCurrentUserA
     
 }
 
-func updateFireBaseRecentActivityStack(article:Article,reaction:String){
+internal func updateFireBaseRecentActivityStack(article:Article,reaction:String){
     let currentUserAccount = currentUserAccountObject()
     let articleUniqueSignature = (article.source.name!+" !!! NEWS CONNECTED NETWORK !!! "+article.title!)
     ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
@@ -94,7 +94,7 @@ func updateFireBaseRecentActivityStack(article:Article,reaction:String){
     }
 }
 
-func uploadingImageAndLanguageToFireBase(email:String,data:Data,language:String,completionHandler:@escaping (Bool)->()){
+internal func uploadingImageAndLanguageToFireBase(email:String,data:Data,language:String,completionHandler:@escaping (Bool)->()){
     ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
             let currentUserDataBase = Firestore.firestore()
@@ -119,7 +119,7 @@ func uploadingImageAndLanguageToFireBase(email:String,data:Data,language:String,
     }
 }
 
-func updatingProfileImage(email:String,data:Data,completionHandler:@escaping (Bool)->()){
+internal func updatingProfileImage(email:String,data:Data,completionHandler:@escaping (Bool)->()){
     ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
             let currentUserDataBase = Firestore.firestore()
@@ -143,7 +143,7 @@ func updatingProfileImage(email:String,data:Data,completionHandler:@escaping (Bo
     }
 }
 
-func updateProfileDescription(content:String){
+internal func updateProfileDescription(content:String){
     let currentUserAccount = currentUserAccountObject()
     ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in

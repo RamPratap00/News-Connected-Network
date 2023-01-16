@@ -240,6 +240,12 @@ class CurrentUserProfileViewController: UIViewController {
         nextVC.uiImage = profilePicture.currentImage!
         nextVC.isCurrentUser = true
         navigationController?.pushViewController(nextVC, animated: true)
+        if navigationController == nil{
+            nextVC.isNavigationControllerNil = true
+            let navVC = UINavigationController(rootViewController: nextVC)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        }
     }
 
     @objc func loadFollowersView(){
@@ -248,11 +254,23 @@ class CurrentUserProfileViewController: UIViewController {
         nextVC.accountList = curretAccount.followersList
         nextVC.account = currentUserAccountObject()
         navigationController?.pushViewController(nextVC, animated: true)
+        if navigationController == nil{
+            nextVC.isNavigationControllerNil = true
+            let navVC = UINavigationController(rootViewController: nextVC)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        }
     }
     
     @objc func editAndUpdateDescription(){
         let nextVC = EditDescriptionViewController()
         navigationController?.pushViewController(nextVC, animated: true)
+        if navigationController == nil{
+            nextVC.isNavigationControllerNil = true
+            let navVC = UINavigationController(rootViewController: nextVC)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        }
     }
     
     @objc func loadFollowingView(){
@@ -261,6 +279,12 @@ class CurrentUserProfileViewController: UIViewController {
         nextVC.title = "Following"
         nextVC.account = currentUserAccountObject()
         navigationController?.pushViewController(nextVC, animated: true)
+        if navigationController == nil{
+            nextVC.isNavigationControllerNil = true
+            let navVC = UINavigationController(rootViewController: nextVC)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        }
     }
     
     @objc func offlineTrigger(){
@@ -291,6 +315,7 @@ extension CurrentUserProfileViewController:UITableViewDataSource,UITableViewDele
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedPageTableViewCell.identifier) as! NewsFeedPageTableViewCell
         cell.loadNewscell(article: articlesArray[indexPath.row])
+        cell.parent = self
         return cell
     }
     
@@ -300,6 +325,12 @@ extension CurrentUserProfileViewController:UITableViewDataSource,UITableViewDele
         let indexesToRedraw = [indexPath]
         tableView.reloadRows(at: indexesToRedraw, with: .fade)
         navigationController?.pushViewController(nextVC, animated: true)
+        if navigationController == nil{
+            nextVC.isNavigationControllerNil = true
+            let navVC = UINavigationController(rootViewController: nextVC)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        }
     }
     
 }

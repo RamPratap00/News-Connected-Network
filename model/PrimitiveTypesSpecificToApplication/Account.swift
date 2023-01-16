@@ -35,10 +35,6 @@ class Account:Equatable{
     
 }
 
-class ArrayOfAccountsAndNews{
-    static var recomendedAccounts = [Account()]
-}
-
 struct ArticlesWithTimeStampAndReactions{
     var article = Article()
     var timeStamp = Date()

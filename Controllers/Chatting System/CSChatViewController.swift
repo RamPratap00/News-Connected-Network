@@ -131,10 +131,21 @@ extension CSChatViewController: MessageCellDelegate{
                 }
             if case .text(let value) = message.kind.self {
                 let url = URL(string: value)
-                if url != nil{
+                if url != nil && verifyUrl(urlString: value){
                     let vc = SFSafariViewController(url: url!)
                     present(vc, animated: true)
                 }
             }
         }
+    
+    
+    func verifyUrl (urlString: String?) -> Bool {
+        if let urlString = urlString {
+            if let url = NSURL(string: urlString) {
+                return UIApplication.shared.canOpenURL(url as URL)
+            }
+        }
+        return false
+    }
+    
 }

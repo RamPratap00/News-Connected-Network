@@ -16,6 +16,7 @@ class NewsFeedViewController: UIViewController {
     public var language : String? = currentUserAccountObject().language
     fileprivate var isPaginating = false
     fileprivate let newsAPI = NewsAPINetworkManager()
+    fileprivate var isFirstVisit = true
     fileprivate let alert = UIAlertController(title: nil, message: "Loading articles...", preferredStyle: .alert)
     fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
     
@@ -30,18 +31,22 @@ class NewsFeedViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        arrayOfArticles = []
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = UIActivityIndicatorView.Style.medium
-        loadingIndicator.startAnimating()
-        
-        alert.view.addSubview(loadingIndicator)
-        present(alert, animated: true, completion: nil)
-        
-        loadHeadLines(keyword: keyword, newsCategory: newsCategory, language: language){ _ in
-            DispatchQueue.main.async {
-                self.dismiss(animated: true)
+        if isFirstVisit{
+            arrayOfArticles = []
+            relodTableView()
+            
+            loadingIndicator.hidesWhenStopped = true
+            loadingIndicator.style = UIActivityIndicatorView.Style.medium
+            loadingIndicator.startAnimating()
+            
+            alert.view.addSubview(loadingIndicator)
+            present(alert, animated: true, completion: nil)
+            
+            loadHeadLines(keyword: keyword, newsCategory: newsCategory, language: language){ _ in
+                DispatchQueue.main.async {
+                    self.dismiss(animated: true)
+                    self.isFirstVisit = false
+                }
             }
         }
         
@@ -102,6 +107,7 @@ class NewsFeedViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
     }
+
     
     /*
     // MARK: - Navigation
@@ -124,6 +130,7 @@ extension NewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScr
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedPageTableViewCell.identifier) as! NewsFeedPageTableViewCell
         cell.loadNewscell(article: arrayOfArticles[indexPath.row])
+        cell.parent = self
         return cell
     }
     
