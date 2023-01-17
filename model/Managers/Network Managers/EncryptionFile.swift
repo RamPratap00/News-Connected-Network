@@ -17,12 +17,29 @@ struct ENCDEC{
     /// - Returns: encrypted message
     static func encryptMessage(message: String,messageType:KEY,encryptedDataCompletionHandler: @escaping (String)->()) {
         
-        ENCDEC.makeNetworkCallforFetchingKey(messageType: messageType){ key in
-            if let aes = try? AES(key: key.encryptionKey, iv: key.ivKey),
+//        ENCDEC.makeNetworkCallforFetchingKey(messageType: messageType){ key in
+//            if let aes = try? AES(key: key.encryptionKey, iv: key.ivKey),
+//               let encrypted = try? aes.encrypt(Array<UInt8>(message.utf8)) {
+//                encryptedDataCompletionHandler(  encrypted.toHexString() )
+//            }
+//        }
+        if messageType == .Email{
+            let key = "n2yBm36ET5CQNFtM"
+            let ivKey = "J8oHaKfHtpaFCXF4"
+            if let aes = try? AES(key: key, iv: ivKey),
                let encrypted = try? aes.encrypt(Array<UInt8>(message.utf8)) {
                 encryptedDataCompletionHandler(  encrypted.toHexString() )
             }
         }
+        else{
+            let key = "SodcVqtxpvbaviqh"
+            let ivKey = "EUmugD1qlnafNCdL"
+            if let aes = try? AES(key: key, iv: ivKey),
+               let encrypted = try? aes.encrypt(Array<UInt8>(message.utf8)) {
+                encryptedDataCompletionHandler(  encrypted.toHexString() )
+            }
+        }
+        
     }
     
     /// this function is used to decrypt any given message.
@@ -33,8 +50,25 @@ struct ENCDEC{
     /// - Returns: decrypted message
     static func decryptMessage(encryptedMessage: String,messageType:KEY,decryptedDataCompletionHandler: @escaping (String)->()) {
         
-        ENCDEC.makeNetworkCallforFetchingKey(messageType: messageType){ key in
-            if let aes = try? AES(key: key.encryptionKey, iv: key.ivKey),
+//        ENCDEC.makeNetworkCallforFetchingKey(messageType: messageType){ key in
+//            if let aes = try? AES(key: key.encryptionKey, iv: key.ivKey),
+//               let decrypted = try? aes.decrypt(Array<UInt8>(hex: encryptedMessage)) {
+//                decryptedDataCompletionHandler( String(data: Data(decrypted), encoding: .utf8)! )
+//            }
+//        }
+        
+        if messageType == .Email{
+            let key = "n2yBm36ET5CQNFtM"
+            let ivKey = "J8oHaKfHtpaFCXF4"
+            if let aes = try? AES(key: key, iv: ivKey),
+               let decrypted = try? aes.decrypt(Array<UInt8>(hex: encryptedMessage)) {
+                decryptedDataCompletionHandler( String(data: Data(decrypted), encoding: .utf8)! )
+            }
+        }
+        else{
+            let key = "SodcVqtxpvbaviqh"
+            let ivKey = "EUmugD1qlnafNCdL"
+            if let aes = try? AES(key: key, iv: ivKey),
                let decrypted = try? aes.decrypt(Array<UInt8>(hex: encryptedMessage)) {
                 decryptedDataCompletionHandler( String(data: Data(decrypted), encoding: .utf8)! )
             }
@@ -43,7 +77,7 @@ struct ENCDEC{
     
     static func makeNetworkCallforFetchingKey(messageType:KEY,keyCompletionHandler: @escaping (SecretKey)->()){
         DispatchQueue.global(qos: .userInteractive).async {
-            let urlString = "https://2bc5601e-11a2-4eaa-a2f5-1f1e29e6fa2b.mock.pstmn.io/" + messageType.rawValue
+            let urlString = "https://5ceb9d57-cedf-4729-9391-2eadd6d900aa.mock.pstmn.io/" + messageType.rawValue
             let dataTask = URLSession.shared.dataTask(with: URL(string: urlString)!){ data,response,error in
                 if error != nil || data == nil {
                     print("Client error!")
@@ -51,7 +85,7 @@ struct ENCDEC{
                 }
                 
                 guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
-                    print("Server error!")
+                    print("Server error! key failure")
                     return
                 }
                 
@@ -107,11 +141,15 @@ struct ENCDEC{
 }
 
 enum KEY:String{
-    case Password
     case Email
     case DataBaseName
 }
+
 struct SecretKey:Codable{
     let encryptionKey:String
     let ivKey:String
 }
+
+
+//{"encryptionKeyEmail":"n2yBm36ET5CQNFtM","ivKeyEmail":"J8oHaKfHtpaFCXF4"}
+//{"encryptionKeyDataBaseName":"SodcVqtxpvbaviqh","ivKeyDataBaseName":"EUmugD1qlnafNCdL"}

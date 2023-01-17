@@ -6,30 +6,32 @@
 //
 /// THIS VIEW CONTROLLER IS USED TO RECEIVE USER INPUTS LIKE EMAIL AND PASSWORD FOR LOGING IN
 import UIKit
+import FirebaseAuth
 
 class LoginPageViewController: UIViewController {
-    let scroll = UIScrollView()
-    let loginLabel = UILabel()
-    let emailTextField = UITextField()
-    let passwordTextField = UITextField()
-    let loginButton = UIButton()
+    fileprivate let scroll = UIScrollView()
+    fileprivate let loginLabel = UILabel()
+    fileprivate let emailTextField = UITextField()
+    fileprivate let passwordTextField = UITextField()
+    fileprivate let loginButton = UIButton()
+    fileprivate let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         loadBackgroundImageWithText()
         loadEmailPasswordFieldsAndOthers()
-        if UserDefaults.standard.bool(forKey: "ISLOGGEDIN"){
-            let nextVC = FeedPageViewController()
-            navigationController?.pushViewController(nextVC, animated: false)
-        }
         // Do any additional setup after loading the view.
     }
-    // Fix scroll content size
+    
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
        scroll.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height/2)
     }
-    /// this function is used to load the black and white galaxy picture with the text "login" just below it
-    func loadBackgroundImageWithText(){
+    
+    fileprivate func loadBackgroundImageWithText(){
         let backroundImage = UIImageView(image: UIImage(named: "login Background"))
         view.addSubview(backroundImage)
         backroundImage.contentMode = .scaleToFill
@@ -54,11 +56,8 @@ class LoginPageViewController: UIViewController {
         loginLabel.layer.masksToBounds = true
         
     }
-    /// this function is used to load the email/password label and text filed
-    func loadEmailPasswordFieldsAndOthers(){
-        
-//        passwordTextField.leftView = paddingView
-//        passwordTextField.leftViewMode = .always
+    
+    fileprivate func loadEmailPasswordFieldsAndOthers(){
         
         view.addSubview(scroll)
         scroll.translatesAutoresizingMaskIntoConstraints = false
@@ -166,22 +165,6 @@ class LoginPageViewController: UIViewController {
         signUpButton.addTarget(self, action: #selector(pushSignUpViewController), for: .touchUpInside)
         
     }
-    
-    func applyBorderForButton(button:UIButton){
-        button.layer.borderWidth = 1.5
-        button.layer.borderColor = UIColor.white.cgColor
-        button.layer.cornerRadius = 17
-        button.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
-        button.layer.masksToBounds = true
-    }
-    
-    func applyBorderForTextField(textField:UITextField){
-        textField.layer.borderWidth = 2
-        textField.layer.borderColor = UIColor.gray.cgColor
-        textField.layer.cornerRadius = 17
-        textField.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
-        textField.layer.masksToBounds = true
-    }
 
     @objc func pushSignUpViewController(){
         let nextVC = SignUpViewController()
@@ -189,24 +172,47 @@ class LoginPageViewController: UIViewController {
     }
     
     @objc func loginCheck(){
+        
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator.startAnimating();
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
+        
+        
         let email = emailTextField.text!
         let password = passwordTextField.text!
-        GlobalUserAccountDataBaseManager.checkMinimumLoginRequirement(email:email,password:password){loginStatus in
-            DispatchQueue.main.async {
-                if loginStatus == "log in"{
-                    let nextVC = FeedPageViewController()
-                    UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
-                    ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
-                        UserDefaults.standard.set(String(encryptedEmail), forKey: "EMAIL")
-                        DispatchQueue.main.async {
-                            self.navigationController?.pushViewController(nextVC, animated: true)
-                        }
-                    }
+        /// fire base login
+        login(email: email, password: password){ loginStatus in
+            if loginStatus {
+                UserDefaults.standard.set(email, forKey: "EMAIL")
+                DispatchQueue.main.async {
+                    self.emailTextField.text = ""
+                    self.passwordTextField.text = ""
+                    
+                    self.dismiss(animated: false, completion: nil)
+                    
+                    let splitView = SplitViewController() // ===> Your splitViewController
+                    splitView.modalPresentationStyle = .fullScreen
+                    self.present(splitView, animated: true)
                 }
-                self.warning(warningMessage: loginStatus)
+            }
+            else{
+                self.dismiss(animated: false, completion: nil)
+                self.passwordTextField.layer.borderColor = UIColor.red.cgColor
+                self.emailTextField.layer.borderColor = UIColor.red.cgColor
+                self.warning(warningMessage: "Invalid UserName/Password")
             }
         }
     }
+    
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+    
     /*
     // MARK: - Navigation
 
@@ -229,7 +235,7 @@ extension LoginPageViewController:UITextFieldDelegate{
         return true
     }
     
-    func warning(warningMessage:String){
+    fileprivate func warning(warningMessage:String){
         let warningLabel = UILabel()
             warningLabel.text = warningMessage
             warningLabel.textColor = .red

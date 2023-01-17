@@ -6,16 +6,23 @@
 //
 /// THIS VIEW CONTROLLER IS USED TO RECEIVE USER INPUTS LIKE EMAIL AND PASSWORD FOR SIGNINGUP FOR NEW ACCOUNT
 import UIKit
+import FirebaseFirestore
+import FirebaseStorage
 
 class SelectProfilePictureViewController: UIViewController {
     
-
-    let quoteForSelectingPicture = UILabel()
-    var collectionView : UICollectionView? = nil
-    var isImageSelected = false
-    var selectedImageIndexPath = IndexPath()
-    let nextButton = UIButton()
-    var email = String()
+    fileprivate var isFirstVisit = true
+    public var isUpdating = false
+    fileprivate let quoteForSelectingPicture = UILabel()
+    fileprivate var collectionView : UICollectionView? = nil
+    fileprivate var isImageSelected = false
+    fileprivate var selectedImageCell = ProfilePictureCollectionViewCell()
+    fileprivate let nextButton = UIButton()
+    public var language = String()
+    public var email = String()
+    fileprivate let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -25,7 +32,14 @@ class SelectProfilePictureViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    func loadBackgroundImageWithText(){
+    override func viewDidAppear(_ animated: Bool) {
+        NotificationCenter.default.addObserver(self,selector: #selector(offlineTrigger),name: NSNotification.Name("com.user.hasNoConnection"),object: nil)
+        if !isFirstVisit{
+            navigationController?.dismiss(animated: false)
+        }
+    }
+    
+    fileprivate func loadBackgroundImageWithText(){
         let backroundImage = UIImageView(image: UIImage(named: "login Background"))
         view.addSubview(backroundImage)
         backroundImage.contentMode = .scaleToFill
@@ -51,10 +65,9 @@ class SelectProfilePictureViewController: UIViewController {
         
     }
     
-    func addCollectionViewForImageDoodle(){
-        
+    fileprivate func addCollectionViewForImageDoodle(){
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
-        collectionViewFlowLayout.itemSize = CGSize(width: 140, height: 100)
+        collectionViewFlowLayout.itemSize = CGSize(width: 140, height: 120)
         collectionViewFlowLayout.scrollDirection = .vertical
         collectionViewFlowLayout.minimumLineSpacing = 5
         collectionViewFlowLayout.sectionInset = .zero
@@ -70,7 +83,7 @@ class SelectProfilePictureViewController: UIViewController {
         collectionView?.bottomAnchor.constraint(equalTo: nextButton.topAnchor,constant: -10).isActive = true
     }
 
-    func addNextButton(){
+    fileprivate func addNextButton(){
         nextButton.backgroundColor = .black
         nextButton.setTitle("Next", for: .normal)
         nextButton.titleLabel?.textAlignment = .center
@@ -86,27 +99,67 @@ class SelectProfilePictureViewController: UIViewController {
         applyBorderForButton(button: nextButton)
     }
     
-    func applyBorderForButton(button:UIButton){
-        button.layer.borderWidth = 1.5
-        button.layer.borderColor = UIColor.white.cgColor
-        button.layer.cornerRadius = 17
-        button.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
-        button.layer.masksToBounds = true
+    fileprivate func warning(warningMessage:String){
+        let warningLabel = UILabel()
+            warningLabel.text = warningMessage
+            warningLabel.textColor = .red
+            warningLabel.textAlignment = .center
+            warningLabel.backgroundColor = .systemBackground
+            view.addSubview(warningLabel)
+            warningLabel.translatesAutoresizingMaskIntoConstraints = false
+            warningLabel.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+            warningLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+            warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+            warningLabel.topAnchor.constraint(equalTo: collectionView!.topAnchor,constant: -30).isActive = true
     }
     
     @objc func updatingProfilePicture(){
+        
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator.startAnimating();
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
+        
         if isImageSelected{
-            let selectedCell = collectionView?.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
-            LocalUserAccountDataBaseManager.updateProfilePicture(image: selectedCell.profileImage.image!,email: email)
-            let nextVC = FeedPageViewController()
-            UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
-            UserDefaults.standard.set(String(email), forKey: "EMAIL")
-            navigationController?.pushViewController(nextVC, animated: true)
+            let selectedCell = selectedImageCell
+            
+            if isUpdating{
+                updatingProfileImage(email: email, data: (selectedCell.profileImage.image?.pngData()!)!){ updateSatus in
+                    if updateSatus{
+                        self.navigationController?.popViewController(animated: true)
+                        self.dismiss(animated: false, completion: nil)
+                    }
+                }
+            }
+            
+            uploadingImageAndLanguageToFireBase(email: email, data: (selectedCell.profileImage.image?.pngData()!)!, language: language){ imageUpdateStatus in
+                fetchCurrenUserProfileData(){ _ in
+                    DispatchQueue.main.async {
+                        UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
+                        self.dismiss(animated: false, completion: nil)
+                            let splitView = SplitViewController() // ===> Your splitViewController
+                            splitView.modalPresentationStyle = .fullScreen
+                            self.present(splitView, animated: true)
+                    }
+                }
+            }
+            isFirstVisit = false
         }
         else{
             print("no image selected")
+            warning(warningMessage: "No Image selected")
+            self.dismiss(animated: false, completion: nil)
         }
     }
+    
+    @objc func offlineTrigger(){
+        DispatchQueue.main.async {
+            self.dismiss(animated: true)
+        }
+    }
+    
     /*
     // MARK: - Navigation
 
@@ -122,7 +175,7 @@ class SelectProfilePictureViewController: UIViewController {
 extension SelectProfilePictureViewController: UICollectionViewDataSource, UICollectionViewDelegate{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 18
+        return 50
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -136,15 +189,14 @@ extension SelectProfilePictureViewController: UICollectionViewDataSource, UIColl
         let cell = collectionView.cellForItem(at: indexPath) as! ProfilePictureCollectionViewCell
         if cell.cellTapCount%2 == 0{
             if isImageSelected{
-                let selectedCell = collectionView.cellForItem(at: selectedImageIndexPath) as! ProfilePictureCollectionViewCell
-                selectedCell.profileImage.layer.borderColor = UIColor.systemBackground.cgColor
-                selectedCell.cellTapCount+=1
+                selectedImageCell.profileImage.layer.borderColor = UIColor.systemBackground.cgColor
+                selectedImageCell.cellTapCount+=1
             }
             cell.profileImage.layer.borderWidth = 5
             cell.profileImage.layer.borderColor = UIColor.green.cgColor
             cell.cellTapCount+=1
             isImageSelected = true
-            selectedImageIndexPath = indexPath
+            selectedImageCell = cell
         }
         else{
             cell.profileImage.layer.borderColor = UIColor.systemBackground.cgColor
