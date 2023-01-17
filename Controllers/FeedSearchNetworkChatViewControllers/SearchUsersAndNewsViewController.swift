@@ -26,10 +26,20 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         view.addSubview(tableView)
         addSegementControlAndCollectionView()
         addTableView()
-        fetchUsersForRecomendation(){accounts in
-            self.arrayOfAccounts=accounts
-            self.backupForArrayOfAccouns = accounts
-            self.tableView.reloadData()
+        if (currentUserAccount.followersList.count+currentUserAccount.followingList.count)<10{
+            fetchUsersForRecomendation(){accounts in
+                self.arrayOfAccounts=accounts
+                self.backupForArrayOfAccouns = accounts
+                self.tableView.reloadData()
+            }
+        }
+        else{
+            fetchLayerTwoUsers(){accounts in
+                self.arrayOfAccounts=accounts
+                self.backupForArrayOfAccouns = accounts
+                self.tableView.reloadData()
+                
+            }
         }
     }
     
@@ -40,20 +50,29 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     
     fileprivate func reloadDataForUsersListTableView(){
         fetchCurrenUserProfileData( ){ _ in
-            fetchUsersForRecomendation(){ accounts in
-                self.arrayOfAccounts = []
-                self.arrayOfAccounts=accounts
-                self.tableView.reloadData()
-                
-                let cells = self.tableView.visibleCells
-
+            if (self.self.currentUserAccount.followersList.count+self.currentUserAccount.followingList.count)<10{
+                fetchUsersForRecomendation(){ accounts in
+                    self.arrayOfAccounts = []
+                    self.arrayOfAccounts=accounts
+                    self.tableView.reloadData()
+                    
+                    let cells = self.tableView.visibleCells
+                    
                     for cell in cells {
                         // look at data
                         let currentCell = cell as! CoustomUserTableViewCell
                         currentCell.refreshButton()
                         
                     }
-                
+                    
+                }
+            }
+            else{
+                fetchLayerTwoUsers(){accounts in
+                    self.arrayOfAccounts=accounts
+                    self.backupForArrayOfAccouns = accounts
+                    self.tableView.reloadData()
+                }
             }
         }
     }
