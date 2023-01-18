@@ -33,7 +33,7 @@ class FollowersFollowingViewController: UIViewController {
         arrayOfAccounts = []
         tableView.reloadData()
         
-        fetchArrayOfAccounts(emailArray: accountList){ accounts in
+        fetchArrayOfAccountsForGivenEmailList(emailArray: accountList){ accounts in
             self.arrayOfAccounts = accounts
             DispatchQueue.main.async {
                 self.tableView.reloadData()
@@ -102,15 +102,15 @@ extension FollowersFollowingViewController:UITableViewDataSource,UITableViewDele
 
         let cell = tableView.dequeueReusableCell(withIdentifier: CoustomUserTableViewCell.identifier, for: indexPath) as! CoustomUserTableViewCell
         let account = arrayOfAccounts[indexPath.row]
-            cell.currentUserAccount = currentUserAccountObject()
+            cell.currentUserAccount = currentLoggedInUserAccount()
             cell.nameStamp.text = account.userName
             cell.userIDStamp.text = account.fetchUserID()
             cell.desStamp.text = account.profileDescription
         
         cell.nonCurrentUserAccount = account
-            fetchProfilePicture(url: account.profilePicture!){ imageData in
+        fetchNewsImage(url: account.profilePicture!){ imageData,_  in
                 DispatchQueue.main.async{
-                    cell.img.image = UIImage(data: imageData)
+                    cell.img.image = UIImage(data: imageData!)
                 }
             }
 
@@ -121,7 +121,7 @@ extension FollowersFollowingViewController:UITableViewDataSource,UITableViewDele
         
         tableView.deselectRow(at: indexPath, animated: true)
         let nextVC = ProfileViewController()
-        fetchUserProfileData(email: arrayOfAccounts[indexPath.row].email){ account in
+        fetchUserProfileData(isCurrentUser:true,email: arrayOfAccounts[indexPath.row].email){ account in
             nextVC.nonCurrentUser = account
             let indexesToRedraw = [indexPath]
             tableView.reloadRows(at: indexesToRedraw, with: .fade)

@@ -13,7 +13,7 @@ class AllNewsFeedViewController: UIViewController {
     fileprivate  let tableView = UITableView()
     fileprivate var arrayOfArticles = [Article]()
     public var keyword = String()
-    public var language = currentUserAccountObject().language
+    public var language = currentLoggedInUserAccount().language
     fileprivate var isPaginating = false
     fileprivate var isFirstVisit = true
     public var isOfflineMode = false

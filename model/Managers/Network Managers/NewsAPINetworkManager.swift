@@ -15,7 +15,7 @@ class NewsAPINetworkManager{
     private var pageNumber = 0
     private var keyword : String? = nil
     private var searchIn : SearchIn? = nil
-    private var language : String? = currentUserAccountObject().language
+    private var language : String? = currentLoggedInUserAccount().language
     private var sortBy : SortBy? = nil
     internal var newsCategory:NewsCategory? = nil
     private var everyThingActive = false

@@ -64,7 +64,7 @@ class CSChatViewController: MessagesViewController {
     }
     
     @objc func deleteChat(){
-        deleteChatFromFireBase(sendingtUser: sendingtUser){
+        deleteMessagesLogFromFireBaseForCurrentUser(sendingtUser: sendingtUser){
             DispatchQueue.main.async {
                 self.loadMessages()
             }
@@ -109,7 +109,7 @@ extension CSChatViewController:InputBarAccessoryViewDelegate{
                                    sentDate: Date(),
                                    kind: .text(text))
 
-            putNewMessageToFireBaseChatSystem(sender: sendingtUser, receiver: receivingUser, message: newMessage,contentOfTheMessage: text)
+            putNewMessageToFireBaseChatSystemForCurrentAndNonCurrentUser(sender: sendingtUser, receiver: receivingUser, message: newMessage,contentOfTheMessage: text)
             messages.append(newMessage)
             messagesCollectionView.reloadData()
 

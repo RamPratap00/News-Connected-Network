@@ -100,8 +100,12 @@ class NewsDataBaseManager{
     
 }
 
+protocol NewsDataInterface {
+    func refillDataBaseForOfflineMode()
+}
 
-class NewsDataBasePopulator{
+
+class NewsDataBasePopulator : NewsDataInterface {
     private let newsDataBaseManager = NewsDataBaseManager(dataBaseName: "GlobalTrending")
     private let newsAPINetworkManager = NewsAPINetworkManager()
     
@@ -114,7 +118,7 @@ class NewsDataBasePopulator{
     }
     
     private func operation1(){
-        newsAPINetworkManager.sessionToLoadHeadLines(keyword: nil, newsCategory: nil, language: currentUserAccountObject().language){
+        newsAPINetworkManager.sessionToLoadHeadLines(keyword: nil, newsCategory: nil, language: currentLoggedInUserAccount().language){
             data,error in
             if let arrayOfArticle = data?.articles{
                 for article in arrayOfArticle {

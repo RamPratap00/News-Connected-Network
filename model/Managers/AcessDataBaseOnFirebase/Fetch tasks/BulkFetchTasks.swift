@@ -12,11 +12,11 @@ import FirebaseFirestore
 
 
 /// Fetches array of accounts based on request
-internal func fetchArrayOfAccounts(emailArray:[String],completionHandler: @escaping ([Account])->()){
+internal func fetchArrayOfAccountsForGivenEmailList(emailArray:[String],completionHandler: @escaping ([Account])->()){
     var arrayOfAccounts = [Account]()
     var count = 0
     for email in emailArray{
-        fetchUserProfileData(email: email){ account in
+        fetchUserProfileData(isCurrentUser:true,email: email){ account in
             count+=1
             arrayOfAccounts.append(account)
             if count == emailArray.count{
@@ -28,12 +28,12 @@ internal func fetchArrayOfAccounts(emailArray:[String],completionHandler: @escap
 
 /// Fetchs array of article with timestamp and reaction
 /// CURRENT USER
-internal func fetchTrendingArticlesOnCurrentUsersNetwork(completionHandler: @escaping ([ArticlesWithTimeStampAndReactions])->()){
+internal func fetchTrendingArticlesOnCurrentlyLoggedInUserNetwork(completionHandler: @escaping ([ArticleWithTimeStampAndReactions])->()){
     
-    var articleWithTimeStampArray = [ArticlesWithTimeStampAndReactions]()
+    var articleWithTimeStampArray = [ArticleWithTimeStampAndReactions]()
     
-    filterRecentActivityDocumentsOfCurrentUsersNetwork(){ uniqueDocuments,allDocuments,reactionDictionary in
-        var articleWithTimeStamp = ArticlesWithTimeStampAndReactions()
+    filterRecentActivityDocumentsFromCurrentlyLoggedInUsersNetwork(){ uniqueDocuments,allDocuments,reactionDictionary in
+        var articleWithTimeStamp = ArticleWithTimeStampAndReactions()
         for document in uniqueDocuments {
             let documentData = document.data()
             
@@ -62,9 +62,9 @@ internal func fetchTrendingArticlesOnCurrentUsersNetwork(completionHandler: @esc
     }
 }
 
-internal func fetchCurrentUserRecentActivityArticlesArray(completionHandler:@escaping ([Article])->()){
+internal func fetchCurrentlyLoggedInUsersRecentActivityArticlesArray(completionHandler:@escaping ([Article])->()){
     var articles = [Article]()
-    fetchCurrentUserRecentActivityDocumentsArray{ documentsArray in
+    fetchCurrentlyLoggedInUserRecentActivityDocumentsArray{ documentsArray in
         for document in documentsArray{
             let documentData = document.data()
             var article = Article()
@@ -85,9 +85,9 @@ internal func fetchCurrentUserRecentActivityArticlesArray(completionHandler:@esc
     }
 }
 
-internal func filterRecentActivityDocumentsOfCurrentUsersNetwork(completionHandler:@escaping([QueryDocumentSnapshot],[QueryDocumentSnapshot],[String:Reaction])->()){
+internal func filterRecentActivityDocumentsFromCurrentlyLoggedInUsersNetwork(completionHandler:@escaping([QueryDocumentSnapshot],[QueryDocumentSnapshot],[String:Reaction])->()){
     var uniqueDocuments = [QueryDocumentSnapshot]()
-    fetchRecentActivityDocumentsFromCurrentUsersNetwork(){ documentsArray in
+    fetchRecentActivityDocumentsFromCurrentlyLoggedInUsersNetwork(){ documentsArray in
         let uniqueDocumentIDArray = fetchDocumentID(documentsList: documentsArray)
         for documentID in uniqueDocumentIDArray{
             for document in documentsArray {
@@ -125,12 +125,12 @@ internal func filterRecentActivityDocumentsOfCurrentUsersNetwork(completionHandl
     }
 }
 
-internal func fetchRecentActivityDocumentsFromCurrentUsersNetwork(completionHandler:@escaping ([QueryDocumentSnapshot])->()){
-    let currentUserAccount = currentUserAccountObject()
+internal func fetchRecentActivityDocumentsFromCurrentlyLoggedInUsersNetwork(completionHandler:@escaping ([QueryDocumentSnapshot])->()){
+    let currentUserAccount = currentLoggedInUserAccount()
     var documentsArray = [QueryDocumentSnapshot]()
     var count = 0
     if currentUserAccount.followingList.count == 0{
-        fetchCurrentUserRecentActivityDocumentsArray(){ documents in
+        fetchCurrentlyLoggedInUserRecentActivityDocumentsArray(){ documents in
             documentsArray.append(contentsOf: documents)
             completionHandler(documentsArray)
         }
@@ -150,7 +150,7 @@ internal func fetchRecentActivityDocumentsFromCurrentUsersNetwork(completionHand
                     }
                         count+=1
                         if count == currentUserAccount.followingList.count{
-                            fetchCurrentUserRecentActivityDocumentsArray(){ documents in
+                            fetchCurrentlyLoggedInUserRecentActivityDocumentsArray(){ documents in
                                 documentsArray.append(contentsOf: documents)
                                 completionHandler(documentsArray)
                             }
@@ -165,7 +165,7 @@ internal func fetchRecentActivityDocumentsFromCurrentUsersNetwork(completionHand
     }
 }
 
-internal func fetchCurrentUserRecentActivityDocumentsArray(completionHandler:@escaping ([QueryDocumentSnapshot])->()){
+internal func fetchCurrentlyLoggedInUserRecentActivityDocumentsArray(completionHandler:@escaping ([QueryDocumentSnapshot])->()){
     
     let users = UserDefaults.standard.value(forKey:"EMAIL") as! String
     ENCDEC.encryptMessage(message: users, messageType: .Email){ encryptedEmail in
@@ -211,7 +211,7 @@ internal func fetchUserRecentActivity(email:String,completionHandler:@escaping (
     }
 }
 
-internal func filterRecentActivityDocumentsOfGlobalUsersNetwork(completionHandler:@escaping([QueryDocumentSnapshot],[QueryDocumentSnapshot],[String:Reaction])->()){
+internal func filterRecentActivityDocumentsFromGlobalUsersNetwork(completionHandler:@escaping([QueryDocumentSnapshot],[QueryDocumentSnapshot],[String:Reaction])->()){
     var uniqueDocuments = [QueryDocumentSnapshot]()
     fetchRecentActivityDocumentsOfAllUsers(){ documentsArray in
         let uniqueDocumentIDArray = fetchDocumentID(documentsList: documentsArray)
@@ -303,7 +303,7 @@ internal func fetchUsersForRecomendation(completionHandler:@escaping ([Account])
             .getDocuments { (snapshot, error) in
                 if error == nil && snapshot != nil {
                     
-                    let currentUserAccount = currentUserAccountObject()
+                    let currentUserAccount = currentLoggedInUserAccount()
                     for document in snapshot!.documents {
                         
                         let documentData = document.data()
@@ -327,13 +327,13 @@ internal func fetchUsersForRecomendation(completionHandler:@escaping ([Account])
     }
 }
 
-internal func fetchLayerTwoUsers(completionHandler:@escaping ([Account])->()){
-    let currentUser = currentUserAccountObject()
+internal func fetchLayerTwoUsersForRecommendation(completionHandler:@escaping ([Account])->()){
+    let currentUser = currentLoggedInUserAccount()
     var userList = [String]()
     var layerTwoAccountList = [String]()
     userList.append(contentsOf: currentUser.followersList)
     userList.append(contentsOf: currentUser.followingList)
-    fetchArrayOfAccounts(emailArray: userList){ accounts in
+    fetchArrayOfAccountsForGivenEmailList(emailArray: userList){ accounts in
         layerTwoAccountList.append(contentsOf: currentUser.followersList)
         for account in accounts{
             layerTwoAccountList.append(contentsOf: account.followersList)
@@ -341,19 +341,19 @@ internal func fetchLayerTwoUsers(completionHandler:@escaping ([Account])->()){
         let set1:Set<String> = Set(layerTwoAccountList)
         let set2:Set<String> = Set(currentUser.followingList)
         let uniqueLayerTwoAccounts = Array(set1.subtracting(set2))
-        fetchArrayOfAccounts(emailArray: uniqueLayerTwoAccounts){ layerTwoAccountsArray in
+        fetchArrayOfAccountsForGivenEmailList(emailArray: uniqueLayerTwoAccounts){ layerTwoAccountsArray in
             completionHandler(layerTwoAccountsArray)
         }
     }
 }
 
 /// Fetch array of articles from global users network
-internal func fetchTrendingArticlesOnGlobalUsersNetwork(completionHandler: @escaping ([ArticlesWithTimeStampAndReactions])->()){
+internal func fetchTrendingArticlesOnGlobalUsersNetwork(completionHandler: @escaping ([ArticleWithTimeStampAndReactions])->()){
     
-    var articleWithTimeStampArray = [ArticlesWithTimeStampAndReactions]()
+    var articleWithTimeStampArray = [ArticleWithTimeStampAndReactions]()
     
-    filterRecentActivityDocumentsOfGlobalUsersNetwork(){ uniqueDocuments,allDocuments,reactionDictionary in
-        var articleWithTimeStamp = ArticlesWithTimeStampAndReactions()
+    filterRecentActivityDocumentsFromGlobalUsersNetwork(){ uniqueDocuments,allDocuments,reactionDictionary in
+        var articleWithTimeStamp = ArticleWithTimeStampAndReactions()
         for document in uniqueDocuments {
             let documentData = document.data()
             

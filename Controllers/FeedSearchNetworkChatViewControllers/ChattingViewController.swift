@@ -10,7 +10,7 @@ import Firebase
 
 class ChattingViewController: UIViewController {
 
-    fileprivate var currentUser = currentUserAccountObject()
+    fileprivate var currentUser = currentLoggedInUserAccount()
     public var articleUrl = String()
     fileprivate var tableView = UITableView()
     fileprivate var reachableAccounts = [String]()
@@ -33,9 +33,9 @@ class ChattingViewController: UIViewController {
     }
     
     fileprivate func loadAccountsForChatTableView(){
-        fetchCurrenUserProfileData(completionHandler: {_ in})
+        fetchUserProfileData(isCurrentUser:true,email: currentUser.email,completionHandler: {_ in})
         reachableAccounts = []
-        currentUser = currentUserAccountObject()
+        currentUser = currentLoggedInUserAccount()
         let set1:Set<String> = Set(currentUser.followersList)
         let set2:Set<String> = Set(currentUser.followingList)
         reachableAccounts = Array( set1.union(set2) )
@@ -50,7 +50,7 @@ class ChattingViewController: UIViewController {
         reachableAccountsArray = []
         var count = 0
         for email in reachableAccounts{
-            fetchUserProfileData(email: email){ account in
+            fetchUserProfileData(isCurrentUser:true,email: email){ account in
                 self.reachableAccountsArray.append(account)
                 count+=1
                 if count == self.reachableAccounts.count{
@@ -131,9 +131,9 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
         loadMessages(sendingtUser: account){ lastMessage in
             cell.desStamp.text = lastMessage
         }
-        fetchProfilePicture(url: account.profilePicture!){ imageData in
+        fetchNewsImage(url: account.profilePicture!){ imageData,_  in
             DispatchQueue.main.async {
-                cell.img.image = UIImage(data: imageData)
+                cell.img.image = UIImage(data: imageData!)
             }
         }
         
@@ -176,7 +176,7 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let filterAction = UIContextualAction(style: .normal, title: "Delete") { (action, view, bool) in
                 let account = self.reachableAccountsArray[indexPath.row]
-                deleteChatFromFireBase(sendingtUser: account){ }
+                deleteMessagesLogFromFireBaseForCurrentUser(sendingtUser: account){ }
             }
             filterAction.backgroundColor = UIColor.red
 

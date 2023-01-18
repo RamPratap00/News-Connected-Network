@@ -11,8 +11,8 @@ import FirebaseFirestore
 import FirebaseStorage
 
 internal func fetchMessageFromFireBaseChatSystem(sender:Account,completionHandler:@escaping ([QueryDocumentSnapshot])->()){
-    fetchCurrenUserProfileData(completionHandler: {_ in})
-    let currentUserAccount = currentUserAccountObject()
+    fetchUserProfileData(isCurrentUser: true, email: currentLoggedInUserAccount().email,completionHandler: {_ in})
+    let currentUserAccount = currentLoggedInUserAccount()
     DispatchQueue.global(qos: .userInteractive).async {
         ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
             ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
@@ -35,7 +35,7 @@ internal func fetchMessageFromFireBaseChatSystem(sender:Account,completionHandle
 }
 
 internal func addListner(sendingtUser:Account,completionHandler: @escaping ()->()){
-    let currentUserAccount = currentUserAccountObject()
+    let currentUserAccount = currentLoggedInUserAccount()
     DispatchQueue.global().async {
         ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
             ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in

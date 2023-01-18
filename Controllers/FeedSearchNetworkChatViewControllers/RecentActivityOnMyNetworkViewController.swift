@@ -13,7 +13,7 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
     fileprivate let tableView = UITableView()
     fileprivate var isViewOnMyNetwork = true
     fileprivate let segmentItems = ["My Network", "Global Network"]
-    fileprivate var arrayOfArticles = [ArticlesWithTimeStampAndReactions]()
+    fileprivate var arrayOfArticles = [ArticleWithTimeStampAndReactions]()
     fileprivate let refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
@@ -23,7 +23,7 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl)
-        fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
+        fetchTrendingArticlesOnCurrentlyLoggedInUserNetwork(){ articleWithReactionDictionary in
             self.arrayOfArticles = articleWithReactionDictionary
             self.tableView.reloadData()
         }
@@ -74,7 +74,7 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view
         if isViewOnMyNetwork{
-            fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
+            fetchTrendingArticlesOnCurrentlyLoggedInUserNetwork(){ articleWithReactionDictionary in
                 self.arrayOfArticles = articleWithReactionDictionary
                 self.tableView.reloadData()
             }
@@ -93,7 +93,7 @@ class RecentActivityOnMyNetworkViewController: UIViewController{
     @objc func segmentControl(_ segmentedControl: UISegmentedControl) {
        switch (segmentedControl.selectedSegmentIndex) {
           case 0:
-           fetchTrendingArticlesOnCurrentUsersNetwork(){ articleWithReactionDictionary in
+           fetchTrendingArticlesOnCurrentlyLoggedInUserNetwork(){ articleWithReactionDictionary in
                self.arrayOfArticles = articleWithReactionDictionary
                self.tableView.reloadData()
            }

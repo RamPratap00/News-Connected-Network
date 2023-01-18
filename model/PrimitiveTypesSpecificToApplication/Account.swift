@@ -35,7 +35,7 @@ class Account:Equatable{
     
 }
 
-struct ArticlesWithTimeStampAndReactions{
+struct ArticleWithTimeStampAndReactions{
     var article = Article()
     var timeStamp = Date()
     var reaction = Reaction()

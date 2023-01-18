@@ -10,7 +10,7 @@ import UIKit
 class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
 
     fileprivate let tableView = UITableView()
-    fileprivate let currentUserAccount = currentUserAccountObject()
+    fileprivate let currentUserAccount = currentLoggedInUserAccount()
     fileprivate var backupForArrayOfAccouns = [Account]()
     fileprivate var arrayOfAccounts = [Account]()
     fileprivate let refreshControl = UIRefreshControl()
@@ -34,7 +34,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
             }
         }
         else{
-            fetchLayerTwoUsers(){accounts in
+            fetchLayerTwoUsersForRecommendation(){accounts in
                 self.arrayOfAccounts=accounts
                 self.backupForArrayOfAccouns = accounts
                 self.tableView.reloadData()
@@ -49,7 +49,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     }
     
     fileprivate func reloadDataForUsersListTableView(){
-        fetchCurrenUserProfileData( ){ _ in
+        fetchUserProfileData(isCurrentUser: true, email: currentUserAccount.email ){ _ in
             if (self.self.currentUserAccount.followersList.count+self.currentUserAccount.followingList.count)<10{
                 fetchUsersForRecomendation(){ accounts in
                     self.arrayOfAccounts = []
@@ -68,7 +68,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
                 }
             }
             else{
-                fetchLayerTwoUsers(){accounts in
+                fetchLayerTwoUsersForRecommendation(){accounts in
                     self.arrayOfAccounts=accounts
                     self.backupForArrayOfAccouns = accounts
                     self.tableView.reloadData()
@@ -170,7 +170,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     @objc func newsSeacrhInitiate(){
         
         let nextVC = AllNewsFeedViewController()
-        let currentUser = currentUserAccountObject()
+        let currentUser = currentLoggedInUserAccount()
         if let keyword = searchBar.text{
             nextVC.keyword = keyword
             nextVC.language = currentUser.language
@@ -222,12 +222,12 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
             cell.nameStamp.text = account.userName
             cell.userIDStamp.text = account.fetchUserID()
             cell.desStamp.text = account.profileDescription
-            fetchUserProfileData(email:account.email ){ nonCurrentUserAccount in
+        fetchUserProfileData(isCurrentUser: false, email:account.email ){ nonCurrentUserAccount in
                 cell.nonCurrentUserAccount = nonCurrentUserAccount
             }
-            fetchProfilePicture(url: account.profilePicture!){ imageData in
+        fetchNewsImage(url: account.profilePicture!){ imageData,_  in
                 DispatchQueue.main.async{
-                    cell.img.image = UIImage(data: imageData)
+                    cell.img.image = UIImage(data: imageData!)
                 }
             }
             return cell
@@ -237,7 +237,7 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
         
         tableView.deselectRow(at: indexPath, animated: true)
         let nextVC = ProfileViewController()
-        fetchUserProfileData(email: arrayOfAccounts[indexPath.row].email){ account in
+        fetchUserProfileData(isCurrentUser: false, email: arrayOfAccounts[indexPath.row].email){ account in
             nextVC.nonCurrentUser = account
             let indexesToRedraw = [indexPath]
             tableView.reloadRows(at: indexesToRedraw, with: .fade)
@@ -272,9 +272,9 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
         }
         
         let nextVC = NewsFeedViewController()
-        fetchCurrenUserProfileData(completionHandler: { _ in})
+        fetchUserProfileData(isCurrentUser: true, email: currentUserAccount.email, completionHandler: {_ in})
         nextVC.keyword = nil
-        nextVC.language = currentUserAccountObject().language
+        nextVC.language = currentLoggedInUserAccount().language
         nextVC.newsCategory = NewsCategory(rawValue: (button.titleLabel?.text)!)
         navigationController?.pushViewController(nextVC, animated: true)
     }

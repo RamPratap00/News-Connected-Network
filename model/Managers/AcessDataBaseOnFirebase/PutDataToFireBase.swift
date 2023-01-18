@@ -57,7 +57,7 @@ internal func login(email:String,password:String,completionHandler:@escaping (Bo
             ENCDEC.encryptMessage(message: email, messageType: .Email){encryptedEmail in
                 UserDefaults.standard.set(String(email), forKey: "EMAIL")
                 UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
-                fetchCurrenUserProfileData(){ _ in
+                fetchUserProfileData(isCurrentUser: true, email: email){ _ in
                     completionHandler(true)
                 }
             }
@@ -84,7 +84,7 @@ internal func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCur
 }
 
 internal func updateFireBaseRecentActivityStack(article:Article,reaction:String){
-    let currentUserAccount = currentUserAccountObject()
+    let currentUserAccount = currentLoggedInUserAccount()
     let articleUniqueSignature = (article.source.name!+" !!! NEWS CONNECTED NETWORK !!! "+article.title!)
     ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
@@ -144,7 +144,7 @@ internal func updatingProfileImage(email:String,data:Data,completionHandler:@esc
 }
 
 internal func updateProfileDescription(content:String){
-    let currentUserAccount = currentUserAccountObject()
+    let currentUserAccount = currentLoggedInUserAccount()
     ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
             let currentUserDataBase = Firestore.firestore()

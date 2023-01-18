@@ -75,6 +75,7 @@ class NewsFeedPageTableViewCell: UITableViewCell {
     
     fileprivate func setupLongPressGesture(){
         contentView.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress)))
+        
     }
     
     fileprivate func thumbnailHandle(){
@@ -82,7 +83,7 @@ class NewsFeedPageTableViewCell: UITableViewCell {
             if article.urlToImage != "" && article.urlToImage != nil{
                 
                 if URL(string: article.urlToImage!) != nil{
-                    fetchNewsThumbNail(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail,error in
+                    fetchNewsImage(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail,error in
                         if currentArticleThumbNail == nil || error != nil{
                             DispatchQueue.main.async {
                                 self.articleThumbNail.image = UIImage(imageLiteralResourceName: "default thubnail")

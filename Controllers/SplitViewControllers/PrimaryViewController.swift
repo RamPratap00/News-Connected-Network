@@ -27,10 +27,10 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
     }
     
     fileprivate func reloadProfileData(){
-        fetchCurrenUserProfileData(completionHandler: {_ in})
-        fetchProfilePicture(url: currentUserAccountObject().profilePicture!){ imageData in
+        fetchUserProfileData(isCurrentUser: true, email: currentLoggedInUserAccount().email, completionHandler: {_ in})
+        fetchNewsImage(url: currentLoggedInUserAccount().profilePicture!){ imageData,_  in
             DispatchQueue.main.async {
-                self.profilePicture.setImage(UIImage(data: imageData), for: .normal)
+                self.profilePicture.setImage(UIImage(data: imageData!), for: .normal)
             }
         }
     }

@@ -44,8 +44,8 @@ class TrendingPageViewController: UIViewController {
             self.dismiss(animated: false, completion: nil)
             return
         }
-        fetchCurrenUserProfileData(completionHandler: { _ in})
-        let currentUser = currentUserAccountObject()
+        fetchUserProfileData(isCurrentUser: true, email: currentLoggedInUserAccount().email,completionHandler: { _ in})
+        let currentUser = currentLoggedInUserAccount()
         newsAPI.sessionToLoadHeadLines(keyword: keyword, newsCategory: newsCategory, language: currentUser.language){ data,error in
             if error != nil || data == nil{
                 DispatchQueue.main.async {
@@ -102,7 +102,7 @@ class TrendingPageViewController: UIViewController {
     
     @objc func refresh(_ sender: AnyObject) {
        // Code to refresh table view
-        let currentUser = currentUserAccountObject()
+        let currentUser = currentLoggedInUserAccount()
         newsAPI.sessionToLoadHeadLines(keyword: nil, newsCategory: nil, language: currentUser.language){ data,error in
             if error == nil && data == nil{
                 print("error preparing url")

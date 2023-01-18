@@ -86,18 +86,18 @@ class DetailedNewsViewController: UIViewController {
         
         if article.urlToImage == nil{
             thumbNail.image = UIImage(imageLiteralResourceName: "login Background")
-            loadTitleDescriptionAndLinkToFullArticleUIComponenets()
+            loadTitleDescriptionAndLinkToFullArticleUIViews()
             return
         }
         
         if URL(string: article.urlToImage!) == nil{
             thumbNail.image = UIImage(imageLiteralResourceName: "login Background")
-            loadTitleDescriptionAndLinkToFullArticleUIComponenets()
+            loadTitleDescriptionAndLinkToFullArticleUIViews()
             return
         }
         
         
-        fetchNewsThumbNail(url: URL(string: article.urlToImage!)! ){ imageData,error in
+        fetchNewsImage(url: URL(string: article.urlToImage!)! ){ imageData,error in
             if error == nil && imageData != nil{
                 DispatchQueue.main.async {
                     self.thumbNail.image = UIImage(data: imageData!)
@@ -109,10 +109,10 @@ class DetailedNewsViewController: UIViewController {
                 }
             }
         }
-        loadTitleDescriptionAndLinkToFullArticleUIComponenets()
+        loadTitleDescriptionAndLinkToFullArticleUIViews()
 }
     
-    fileprivate func loadTitleDescriptionAndLinkToFullArticleUIComponenets(){
+    fileprivate func loadTitleDescriptionAndLinkToFullArticleUIViews(){
         let title = UILabel()
         title.text = article.title
         title.font = .boldSystemFont(ofSize: 20)

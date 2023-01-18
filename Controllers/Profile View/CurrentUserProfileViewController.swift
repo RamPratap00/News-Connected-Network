@@ -14,7 +14,7 @@ class CurrentUserProfileViewController: UIViewController {
     fileprivate let data = UILabel()
     fileprivate var scrollView = UIScrollView()
     fileprivate var verticalStack = UIStackView()
-    fileprivate var curretAccount = currentUserAccountObject()
+    fileprivate var curretAccount = currentLoggedInUserAccount()
     fileprivate var articlesArray = [Article]()
     fileprivate let profilePicture = UIButton()
     fileprivate let descriptionLabel = UILabel()
@@ -49,16 +49,16 @@ class CurrentUserProfileViewController: UIViewController {
         alert.view.addSubview(loadingIndicator)
         present(alert, animated: true, completion: nil)
         
-        fetchCurrenUserProfileData(completionHandler: {_ in})
-        fetchProfilePicture(url: currentUserAccountObject().profilePicture!){ imageData in
+        fetchUserProfileData(isCurrentUser: true, email: curretAccount.email,completionHandler: {_ in})
+        fetchNewsImage(url: currentLoggedInUserAccount().profilePicture!){ imageData,_  in
             DispatchQueue.main.async {
-                self.profilePicture.setImage(UIImage(data: imageData), for: .normal)
-                self.followingButton.setTitle("Following : \(currentUserAccountObject().followingList.count)", for: .normal)
-                self.followersButton.setTitle("Followers : \(currentUserAccountObject().followersList.count)", for: .normal)
-                self.descriptionLabel.text = currentUserAccountObject().profileDescription
+                self.profilePicture.setImage(UIImage(data: imageData!), for: .normal)
+                self.followingButton.setTitle("Following : \(currentLoggedInUserAccount().followingList.count)", for: .normal)
+                self.followersButton.setTitle("Followers : \(currentLoggedInUserAccount().followersList.count)", for: .normal)
+                self.descriptionLabel.text = currentLoggedInUserAccount().profileDescription
             }
         }
-        fetchCurrentUserRecentActivityArticlesArray(){ articles in
+        fetchCurrentlyLoggedInUsersRecentActivityArticlesArray(){ articles in
             self.articlesArray  = articles
             DispatchQueue.main.async {
                 self.dismiss(animated: false,completion: nil)
@@ -107,9 +107,9 @@ class CurrentUserProfileViewController: UIViewController {
             profilePicture.setImage(UIImage(imageLiteralResourceName: "profile picture 3"), for: .normal)
             return
         }
-        fetchProfilePicture(url: profilePictureURL){ imageData in
+        fetchNewsImage(url: profilePictureURL){ imageData,_  in
             DispatchQueue.main.async {
-                self.profilePicture.setImage(UIImage(data: imageData), for: .normal)
+                self.profilePicture.setImage(UIImage(data: imageData!), for: .normal)
             }
         }
         profilePicture.addTarget(self, action: #selector(viewProfileImage), for: .touchUpInside)
@@ -252,7 +252,7 @@ class CurrentUserProfileViewController: UIViewController {
         let nextVC = FollowersFollowingViewController()
         nextVC.title = "Followers"
         nextVC.accountList = curretAccount.followersList
-        nextVC.account = currentUserAccountObject()
+        nextVC.account = currentLoggedInUserAccount()
         navigationController?.pushViewController(nextVC, animated: true)
         if navigationController == nil{
             nextVC.isNavigationControllerNil = true
@@ -277,7 +277,7 @@ class CurrentUserProfileViewController: UIViewController {
         let nextVC = FollowersFollowingViewController()
         nextVC.accountList = curretAccount.followingList
         nextVC.title = "Following"
-        nextVC.account = currentUserAccountObject()
+        nextVC.account = currentLoggedInUserAccount()
         navigationController?.pushViewController(nextVC, animated: true)
         if navigationController == nil{
             nextVC.isNavigationControllerNil = true

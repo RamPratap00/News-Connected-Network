@@ -135,7 +135,7 @@ class SelectProfilePictureViewController: UIViewController {
             }
             
             uploadingImageAndLanguageToFireBase(email: email, data: (selectedCell.profileImage.image?.pngData()!)!, language: language){ imageUpdateStatus in
-                fetchCurrenUserProfileData(){ _ in
+                fetchUserProfileData(isCurrentUser: true, email: self.email){ _ in
                     DispatchQueue.main.async {
                         UserDefaults.standard.set(true, forKey: "ISLOGGEDIN")
                         self.dismiss(animated: false, completion: nil)

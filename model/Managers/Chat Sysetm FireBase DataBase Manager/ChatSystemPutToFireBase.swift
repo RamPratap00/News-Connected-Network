@@ -10,9 +10,9 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 
-internal func putNewMessageToFireBaseChatSystem(sender:Account,receiver:Account,message:Message,contentOfTheMessage:String){
+internal func putNewMessageToFireBaseChatSystemForCurrentAndNonCurrentUser(sender:Account,receiver:Account,message:Message,contentOfTheMessage:String){
     DispatchQueue.global().async {
-        fetchCurrenUserProfileData(completionHandler: {_ in})
+        fetchUserProfileData(isCurrentUser: true, email: currentLoggedInUserAccount().email, completionHandler: {_ in})
         ENCDEC.encryptMessage(message: sender.email, messageType: .Email){ encryptedEmail in
             ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
                 let currentUserDataBase = Firestore.firestore()
@@ -37,8 +37,8 @@ internal func putNewMessageToFireBaseChatSystem(sender:Account,receiver:Account,
     
 }
 
-internal func deleteChatFromFireBase(sendingtUser:Account,completionHandler: @escaping ()->()){
-    let currentUserAccount = currentUserAccountObject()
+internal func deleteMessagesLogFromFireBaseForCurrentUser(sendingtUser:Account,completionHandler: @escaping ()->()){
+    let currentUserAccount = currentLoggedInUserAccount()
     DispatchQueue.global().async {
         ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
             ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in

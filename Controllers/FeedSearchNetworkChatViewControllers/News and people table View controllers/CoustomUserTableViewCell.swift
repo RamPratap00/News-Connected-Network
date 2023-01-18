@@ -126,9 +126,9 @@ class CoustomUserTableViewCell: UITableViewCell {
         }
         
         
-        fetchCurrenUserProfileData(){ currentUserFetchStatus in
-            fetchUserProfileData(email: self.nonCurrentUserAccount.email){ newNonCurrentUser in
-                self.currentUserAccount = currentUserAccountObject()
+        fetchUserProfileData(isCurrentUser: true, email: currentUserAccount.email){ currentUserFetchStatus in
+            fetchUserProfileData(isCurrentUser: false, email: self.nonCurrentUserAccount.email){ newNonCurrentUser in
+                self.currentUserAccount = currentLoggedInUserAccount()
                 self.nonCurrentUserAccount = newNonCurrentUser
                 if !isFollowing(email: self.nonCurrentUserAccount.email, followingList: self.currentUserAccount.followingList){
                     self.nonCurrentUserAccount.followersList.append(self.currentUserAccount.email)

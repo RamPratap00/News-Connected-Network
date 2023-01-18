@@ -45,7 +45,7 @@ class FullProfilePictureViewController: UIViewController {
     @objc func selectProfilePictureFromDefaultAvatars(){
         let nextVC = SelectProfilePictureViewController()
         nextVC.isUpdating = true
-        nextVC.email = currentUserAccountObject().email
+        nextVC.email = currentLoggedInUserAccount().email
         navigationController?.pushViewController(nextVC, animated: true)
     }
     
@@ -122,7 +122,7 @@ extension FullProfilePictureViewController: UIImagePickerControllerDelegate,UINa
                 print("failed to update")
                 return
             }
-            updatingProfileImage(email: currentUserAccountObject().email, data: imageData, completionHandler: {_ in})
+            updatingProfileImage(email: currentLoggedInUserAccount().email, data: imageData, completionHandler: {_ in})
         }
         else{
             return

@@ -14,7 +14,7 @@ class ProfileViewController: UIViewController {
     fileprivate let data = UILabel()
     fileprivate var scrollView = UIScrollView()
     fileprivate var verticalStack = UIStackView()
-    fileprivate var curretAccount = currentUserAccountObject()
+    fileprivate var curretAccount = currentLoggedInUserAccount()
     fileprivate var articlesArray = [Article]()
     fileprivate let profilePicture = UIButton()
     fileprivate let descriptionLabel = UILabel()
@@ -85,9 +85,9 @@ class ProfileViewController: UIViewController {
             profilePicture.setImage(UIImage(imageLiteralResourceName: "profile picture 3"), for: .normal)
             return
         }
-        fetchProfilePicture(url: profilePictureURL){ imageData in
+        fetchNewsImage(url: profilePictureURL){ imageData,_  in
             DispatchQueue.main.async {
-                self.profilePicture.setImage(UIImage(data: imageData), for: .normal)
+                self.profilePicture.setImage(UIImage(data: imageData!), for: .normal)
             }
         }
         profilePicture.addTarget(self, action: #selector(viewProfileImage), for: .touchUpInside)
@@ -191,9 +191,9 @@ class ProfileViewController: UIViewController {
     
     @objc func viewProfileImage(){
         let nextVC = FullProfilePictureViewController()
-        fetchProfilePicture(url: nonCurrentUser.profilePicture!){ imageData in
+        fetchNewsImage(url: nonCurrentUser.profilePicture!){ imageData,_  in
             DispatchQueue.main.async {
-                nextVC.uiImage = UIImage(data: imageData)!
+                nextVC.uiImage = UIImage(data: imageData!)!
                 self.navigationController?.pushViewController(nextVC, animated: true)
             }
         }

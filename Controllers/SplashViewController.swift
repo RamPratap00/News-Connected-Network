@@ -11,13 +11,13 @@ class SplashViewController: UIViewController {
 
     fileprivate var isFirstVisit = true
     fileprivate let network = NetworkMonitor()
-    fileprivate let warningLabel = UIImageView()
+    fileprivate let warningImageViewForNoInternet = UIImageView()
     fileprivate let offlineMode = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        displayNcnLogo()
-        NotificationCenter.default.addObserver(self,selector: #selector(initiateViewNavigator),name: NSNotification.Name("com.user.hasConnection"),object: nil)
+        showNcnLogo()
+        NotificationCenter.default.addObserver(self,selector: #selector(initiateViewNavigationAfterComingBackOnline),name: NSNotification.Name("com.user.hasConnection"),object: nil)
         network.startMonitoring()
         // Do any additional setup after loading the view.
     }
@@ -34,26 +34,26 @@ class SplashViewController: UIViewController {
         }
         else{
             view.backgroundColor = .systemRed
-            noInternetMode()
+            switchToNoInternetMode()
         }
         
     }
 
     // MARK: - This function is used to display the news app logo
     
-    fileprivate func displayNcnLogo(){
+    fileprivate func showNcnLogo(){
         
-        let image = UIImageView(image: UIImage(named: "appstore"))
+        let ncnImageView = UIImageView(image: UIImage(named: "appstore"))
         let imageDimension = CGFloat(200)
-        view.addSubview(image)
+        view.addSubview(ncnImageView)
         // image configuration
-        image.translatesAutoresizingMaskIntoConstraints = false
-        image.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        image.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        image.widthAnchor.constraint(equalToConstant: imageDimension).isActive = true
-        image.heightAnchor.constraint(equalToConstant: imageDimension).isActive = true
-        image.layer.masksToBounds = true
-        image.layer.cornerRadius = imageDimension/2
+        ncnImageView.translatesAutoresizingMaskIntoConstraints = false
+        ncnImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        ncnImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        ncnImageView.widthAnchor.constraint(equalToConstant: imageDimension).isActive = true
+        ncnImageView.heightAnchor.constraint(equalToConstant: imageDimension).isActive = true
+        ncnImageView.layer.masksToBounds = true
+        ncnImageView.layer.cornerRadius = imageDimension/2
     }
     
     // MARK: - funtions to call api and db
@@ -65,7 +65,7 @@ class SplashViewController: UIViewController {
     
     // MARK: - This set of functions is used to initiate Navigation controller and auto push to next View Controller
     
-    fileprivate func moveToLoginPage(){
+    fileprivate func goToLoginPage(){
         let rootVC = LoginPageViewController()
         isFirstVisit = false
         let navigationController = UINavigationController(rootViewController: rootVC)
@@ -75,7 +75,7 @@ class SplashViewController: UIViewController {
     
     fileprivate func skipLoginPage(){
         dataBasePopulator()
-        fetchCurrenUserProfileData(){ _ in
+        fetchUserProfileData(isCurrentUser: true, email: currentLoggedInUserAccount().email ){ _ in
             DispatchQueue.main.async{
                 
                 let splitView = SplitViewController() // ===> Your splitViewController
@@ -93,36 +93,36 @@ class SplashViewController: UIViewController {
         else{
             let seconds = 2.0
             DispatchQueue.main.asyncAfter(deadline: .now() + seconds){
-                self.moveToLoginPage()
+                self.goToLoginPage()
             }
         }
     }
     
-    @objc func initiateViewNavigator(){
+    @objc func initiateViewNavigationAfterComingBackOnline(){
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.warningLabel.removeFromSuperview()
+            self.warningImageViewForNoInternet.removeFromSuperview()
             self.offlineMode.removeFromSuperview()
             self.view.backgroundColor = .systemGreen
             if UserDefaults.standard.bool(forKey: "ISLOGGEDIN"){
                 self.skipLoginPage()
             }
             else{
-                self.moveToLoginPage()
+                self.goToLoginPage()
             }
         }
     }
     
     // MARK: - Fetches news data from local storage
     
-    fileprivate  func noInternetMode(){
-        warningLabel.image = UIImage(systemName: "wifi.exclamationmark")
-        warningLabel.tintColor = .yellow
-        view.addSubview(warningLabel)
-        warningLabel.translatesAutoresizingMaskIntoConstraints = false
-        warningLabel.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        warningLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        warningLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor,constant: -150).isActive = true
+    fileprivate  func switchToNoInternetMode(){
+        warningImageViewForNoInternet.image = UIImage(systemName: "wifi.exclamationmark")
+        warningImageViewForNoInternet.tintColor = .yellow
+        view.addSubview(warningImageViewForNoInternet)
+        warningImageViewForNoInternet.translatesAutoresizingMaskIntoConstraints = false
+        warningImageViewForNoInternet.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        warningImageViewForNoInternet.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        warningImageViewForNoInternet.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        warningImageViewForNoInternet.bottomAnchor.constraint(equalTo: view.bottomAnchor,constant: -150).isActive = true
         
         offlineMode.setTitle("Switch to offline mode", for: .normal)
         offlineMode.tintColor = .systemGreen
@@ -131,11 +131,11 @@ class SplashViewController: UIViewController {
         offlineMode.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5).isActive = true
         offlineMode.heightAnchor.constraint(equalToConstant: 50).isActive = true
         offlineMode.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        offlineMode.topAnchor.constraint(equalTo: warningLabel.bottomAnchor).isActive = true
-        offlineMode.addTarget(self, action: #selector(handleOfflineMode), for: .touchUpInside)
+        offlineMode.topAnchor.constraint(equalTo: warningImageViewForNoInternet.bottomAnchor).isActive = true
+        offlineMode.addTarget(self, action: #selector(showNewsInOfflineMode), for: .touchUpInside)
     }
     
-    @objc func handleOfflineMode(){
+    @objc func showNewsInOfflineMode(){
         let rootVC = AllNewsFeedViewController()
         rootVC.isOfflineMode = true
         let navigationController = UINavigationController(rootViewController: rootVC)
