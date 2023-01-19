@@ -1,44 +1,43 @@
 //
-//  AllNewsFeedViewController.swift
+//  NewsFeedViewController.swift
 //  News Connected Network
 //
-//  Created by ram-16138 on 14/01/23.
+//  Created by ram-16138 on 03/01/23.
 //
 
 import UIKit
 
-class AllNewsFeedViewController: UIViewController {
+class NewsFeedViewController: UIViewController {
 
-    
-    fileprivate  let tableView = UITableView()
-    fileprivate var arrayOfArticles = [Article]()
-    public var keyword = String()
-    public var language = currentLoggedInUserAccount().language
+    fileprivate let tableView = UITableView()
+    fileprivate var articlesArray = [Article]()
     fileprivate var isPaginating = false
+    fileprivate let newsAPINetworkManager = NewsAPINetworkManager()
     fileprivate var isFirstVisit = true
-    public var isOfflineMode = false
-    fileprivate let newsAPI = NewsAPINetworkManager()
     fileprivate let alert = UIAlertController(title: nil, message: "Loading articles...", preferredStyle: .alert)
     fileprivate let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    public var isOfflineMode = false
+    public var isHeadLine = false
+    public var newsCategory : NewsCategory? = nil
+    public var keyword : String? = nil
+    public var language : String? = currentLoggedInUserAccount().language
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         addTableView()
-        newsAPI.headLinesActive = true
+        newsAPINetworkManager.headLinesActive = true
         // Do any additional setup after loading the view.
     }
-    
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         if isFirstVisit{
-            arrayOfArticles = []
+            articlesArray = []
             relodTableView()
-        
+            
             if !isOfflineMode{
-                newsAPI.headLinesActive = true
                 loadingIndicator.hidesWhenStopped = true
                 loadingIndicator.style = UIActivityIndicatorView.Style.medium
                 loadingIndicator.startAnimating()
@@ -46,12 +45,25 @@ class AllNewsFeedViewController: UIViewController {
                 alert.view.addSubview(loadingIndicator)
                 present(alert, animated: true, completion: nil)
                 
-                loadNews(){ _ in
-                    DispatchQueue.main.async {
-                        self.relodTableView()
-                        self.isFirstVisit = false
+                
+                if isHeadLine{
+                    newsAPINetworkManager.headLinesActive = true
+                    loadHeadLines(keyword: keyword, newsCategory: newsCategory, language: language){ _ in
+                        DispatchQueue.main.async {
+                            self.dismiss(animated: true)
+                            self.isFirstVisit = false
+                        }
                     }
                 }
+                else{
+                    loadNews(){ _ in
+                        DispatchQueue.main.async {
+                            self.relodTableView()
+                            self.isFirstVisit = false
+                        }
+                    }
+                }
+                
             }
         }
         
@@ -59,6 +71,8 @@ class AllNewsFeedViewController: UIViewController {
             dataForOfflineMode()
             NotificationCenter.default.addObserver(self,selector: #selector(handleBackOnline),name: NSNotification.Name("com.user.hasConnection"),object: nil)
         }
+        
+        
     }
     
     fileprivate func addWarningLabel(){
@@ -71,12 +85,38 @@ class AllNewsFeedViewController: UIViewController {
         warningLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
     
+    fileprivate func loadHeadLines(keyword:String?,newsCategory:NewsCategory?,language:String?,completionHandler: @escaping (Bool)->()){
+        
+        newsAPINetworkManager.sessionToLoadHeadLines(keyword: keyword, newsCategory: newsCategory, language: language){ data,error in
+            
+            if error == nil && data?.articles != nil{
+                self.articlesArray = data!.articles
+                if self.articlesArray.count == 0{
+                    DispatchQueue.main.async {
+                        self.dismiss(animated: true)
+                        self.addWarningLabel()
+                    }
+                    completionHandler(false)
+                }
+                completionHandler(true)
+                self.relodTableView()
+            }
+            else{
+                DispatchQueue.main.async {
+                    self.dismiss(animated: true)
+                    self.addWarningLabel()
+                }
+                completionHandler(false)
+            }
+        }
+    }
+    
     fileprivate func loadNews(completionHandler: @escaping (Bool)->()){
         
-        newsAPI.session(keyword: keyword, searchIn: .content, language: language, sortBy: .relevancy){ data,error in
+        newsAPINetworkManager.session(keyword: keyword!, searchIn: .content, language: language, sortBy: .relevancy){ data,error in
             if error == nil && data?.articles != nil{
-                self.arrayOfArticles = data!.articles
-                if self.arrayOfArticles.count == 0{
+                self.articlesArray = data!.articles
+                if self.articlesArray.count == 0{
                     DispatchQueue.main.async {
                         self.dismiss(animated: true)
                         self.addWarningLabel()
@@ -97,7 +137,7 @@ class AllNewsFeedViewController: UIViewController {
             }
         }
     }
-
+    
     fileprivate func relodTableView(){
         DispatchQueue.main.async {
             self.tableView.reloadData()
@@ -108,28 +148,20 @@ class AllNewsFeedViewController: UIViewController {
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
+        tableView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor).isActive = true
         tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         tableView.register(NewsFeedPageTableViewCell.self, forCellReuseIdentifier: NewsFeedPageTableViewCell.identifier)
         tableView.estimatedRowHeight = 80
         tableView.rowHeight = UITableView.automaticDimension
         tableView.delegate = self
         tableView.dataSource = self
     }
-
-    fileprivate func applyBorderForButton(button:UIButton){
-        button.layer.borderWidth = 1.5
-        button.layer.borderColor = UIColor.green.cgColor
-        button.layer.cornerRadius = 17
-        button.layer.maskedCorners = [.layerMaxXMaxYCorner,.layerMinXMinYCorner,.layerMinXMaxYCorner]
-        button.layer.masksToBounds = true
-    }
     
     fileprivate func dataForOfflineMode(){
         isPaginating = true
         let populator = NewsDataBasePopulator()
-        arrayOfArticles = populator.readFromDataBaseForOfflineMode()
+        articlesArray = populator.readFromDataBaseForOfflineMode()
         tableView.reloadData()
     }
     
@@ -145,6 +177,7 @@ class AllNewsFeedViewController: UIViewController {
     @objc func fallBackToSplash(){
         dismiss(animated: true)
     }
+
     
     /*
     // MARK: - Navigation
@@ -159,22 +192,21 @@ class AllNewsFeedViewController: UIViewController {
 }
 
 
-
-extension AllNewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate{
+extension NewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return arrayOfArticles.count
+        return articlesArray.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedPageTableViewCell.identifier) as! NewsFeedPageTableViewCell
-        cell.loadNewscell(article: arrayOfArticles[indexPath.row])
+        cell.loadNewscell(article: articlesArray[indexPath.row])
         cell.parent = self
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let nextVC = DetailedNewsViewController()
-        nextVC.article = arrayOfArticles[indexPath.row]
+        nextVC.article = articlesArray[indexPath.row]
         let indexesToRedraw = [indexPath]
         tableView.reloadRows(at: indexesToRedraw, with: .fade)
         navigationController?.pushViewController(nextVC, animated: true)
@@ -185,9 +217,9 @@ extension AllNewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UI
             let position = scrollView.contentOffset.y
             if position > (tableView.contentSize.height+100-scrollView.frame.height) && !isPaginating{
                 isPaginating = true
-                newsAPI.fetchMore(){ moreData,error in
+                newsAPINetworkManager.fetchMore(){ moreData,error in
                     if error == nil && moreData?.articles != nil{
-                        self.arrayOfArticles.append(contentsOf: moreData!.articles)
+                        self.articlesArray.append(contentsOf: moreData!.articles)
                         DispatchQueue.main.async {
                             self.relodTableView()
                             self.tableView.tableFooterView = nil
@@ -199,3 +231,6 @@ extension AllNewsFeedViewController:UITableViewDataSource,UITableViewDelegate,UI
     }
     
 }
+
+
+

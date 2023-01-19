@@ -29,7 +29,7 @@ class SplashViewController: UIViewController {
         }
         if hasNetworkConnection(){
             view.backgroundColor = .systemGreen
-            dataBasePopulator()
+            //dataBasePopulator()
             viewNavigator()
         }
         else{
@@ -136,7 +136,7 @@ class SplashViewController: UIViewController {
     }
     
     @objc func showNewsInOfflineMode(){
-        let rootVC = AllNewsFeedViewController()
+        let rootVC = NewsFeedViewController()
         rootVC.isOfflineMode = true
         let navigationController = UINavigationController(rootViewController: rootVC)
         navigationController.modalPresentationStyle = .fullScreen

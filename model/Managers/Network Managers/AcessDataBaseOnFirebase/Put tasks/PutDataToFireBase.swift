@@ -65,35 +65,6 @@ internal func login(email:String,password:String,completionHandler:@escaping (Bo
     }
 }
 
-internal func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCurrentUserAccount:Account){
-    
-    ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
-        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
-            let currentUserDataBase = Firestore.firestore()
-                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["FOLLOWING_LIST":currentUserAccount.followingList])
-        }
-    }
-    
-    ENCDEC.encryptMessage(message: nonCurrentUserAccount.email, messageType: .Email){ encryptedEmail in
-        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
-            let currentUserDataBase = Firestore.firestore()
-                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["FOLLOWERS_LIST":nonCurrentUserAccount.followersList])
-        }
-    }
-    
-}
-
-internal func updateFireBaseRecentActivityStack(article:Article,reaction:String){
-    let currentUserAccount = currentLoggedInUserAccount()
-    let articleUniqueSignature = (article.source.name!+" !!! NEWS CONNECTED NETWORK !!! "+article.title!)
-    ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
-        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
-            let currentUserDataBase = Firestore.firestore()
-            currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/RecentActivity").document(articleUniqueSignature).setData(["sourceID":article.source.id as Any,"sourceName":article.source.name as Any,"author":article.author as Any,"title":article.title as Any,"description":article.description as Any,"url":article.url as Any,"urlToImage":article.urlToImage as Any,"publishedAt":article.publishedAt as Any,"content":article.content as Any,"reaction":reaction,"reactionMadeAtTime":Date.now])
-        }
-    }
-}
-
 internal func uploadingImageAndLanguageToFireBase(email:String,data:Data,language:String,completionHandler:@escaping (Bool)->()){
     ENCDEC.encryptMessage(message: email, messageType: .Email){ encryptedEmail in
         ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
@@ -151,4 +122,34 @@ internal func updateProfileDescription(content:String){
             currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["PROFILE_DESCRIPTION":content])
         }
     }
+}
+
+internal func updateFireBaseRecentActivityStack(article:Article,reaction:String){
+    let currentUserAccount = currentLoggedInUserAccount()
+    let articleUniqueSignature = (article.source.name!+" !!! NEWS CONNECTED NETWORK !!! "+article.title!)
+    ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+            currentUserDataBase.collection("IndividualUsersData/\(encryptedDataBaseName)/RecentActivity").document(articleUniqueSignature).setData(["sourceID":article.source.id as Any,"sourceName":article.source.name as Any,"author":article.author as Any,"title":article.title as Any,"description":article.description as Any,"url":article.url as Any,"urlToImage":article.urlToImage as Any,"publishedAt":article.publishedAt as Any,"content":article.content as Any,"reaction":reaction,"reactionMadeAtTime":Date.now])
+        }
+    }
+}
+
+
+internal func updateFireBaseFollowersFollowing(currentUserAccount:Account,nonCurrentUserAccount:Account){
+    
+    ENCDEC.encryptMessage(message: currentUserAccount.email, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["FOLLOWING_LIST":currentUserAccount.followingList])
+        }
+    }
+    
+    ENCDEC.encryptMessage(message: nonCurrentUserAccount.email, messageType: .Email){ encryptedEmail in
+        ENCDEC.encryptMessage(message: (encryptedEmail+encryptedEmail),messageType: .DataBaseName){ encryptedDataBaseName in
+            let currentUserDataBase = Firestore.firestore()
+                currentUserDataBase.collection("IndividualUsersData").document(encryptedDataBaseName).updateData(["FOLLOWERS_LIST":nonCurrentUserAccount.followersList])
+        }
+    }
+    
 }

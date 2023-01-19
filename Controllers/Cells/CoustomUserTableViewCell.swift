@@ -93,6 +93,10 @@ class CoustomUserTableViewCell: UITableViewCell {
             follow.layer.borderWidth = 1
             follow.layer.borderColor = UIColor.white.cgColor
         }
+        if nonCurrentUserAccount.email == currentUserAccount.email{
+            print(nonCurrentUserAccount.email,"----",currentUserAccount.email)
+            follow.isHidden = true
+        }
     }
     
     func refreshButton(){
@@ -156,10 +160,6 @@ class CoustomUserTableViewCell: UITableViewCell {
         
         followFollowingButtonSatus()
         
-        
-        if nonCurrentUserAccount.email == currentUserAccount.email{
-            follow.isHidden = true
-        }
     }
 
 }

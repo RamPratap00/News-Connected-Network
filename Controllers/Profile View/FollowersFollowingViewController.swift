@@ -108,9 +108,14 @@ extension FollowersFollowingViewController:UITableViewDataSource,UITableViewDele
             cell.desStamp.text = account.profileDescription
         
         cell.nonCurrentUserAccount = account
-        fetchNewsImage(url: account.profilePicture!){ imageData,_  in
+        fetchImage(url: account.profilePicture!){ imageData,_  in
                 DispatchQueue.main.async{
-                    cell.img.image = UIImage(data: imageData!)
+                    if imageData == nil{
+                        cell.img.image = UIImage(data: UserDefaults.standard.value(forKey: "PROFILEPICTURE") as! Data)
+                    }
+                    else{
+                        cell.img.image = UIImage(data: imageData!)
+                    }
                 }
             }
 
@@ -121,11 +126,11 @@ extension FollowersFollowingViewController:UITableViewDataSource,UITableViewDele
         
         tableView.deselectRow(at: indexPath, animated: true)
         let nextVC = ProfileViewController()
-        fetchUserProfileData(isCurrentUser:true,email: arrayOfAccounts[indexPath.row].email){ account in
-            nextVC.nonCurrentUser = account
+        fetchUserProfileData(isCurrentUser:false,email: arrayOfAccounts[indexPath.row].email){ account in
+            nextVC.accountForDisplay = account
             let indexesToRedraw = [indexPath]
             tableView.reloadRows(at: indexesToRedraw, with: .fade)
-                self.navigationController?.pushViewController(nextVC, animated: true)
+            self.navigationController?.pushViewController(nextVC, animated: true)
         }
     }
     

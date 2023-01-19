@@ -52,10 +52,19 @@ internal func fetchUserProfileData(isCurrentUser:Bool?,email:String,completionHa
                             account.followersList = followersList
                             account.followingList = followingList
                             account.email = documentData?["EMAIL"] as! String
-                            fetchCurrentlyLoggedInUserRecentActivityDocumentsArray(){ documents in
+                            fetchUserRecentActivityDocuments(email: email){ documents in
                                 account.recentActivityCount = documents.count
                                 if isCurrentUser == true{
                                     UserDefaults.standard.set(documentData, forKey: "USERMETADATA")
+                                    fetchImage(url: account.profilePicture!){ data,_ in
+                                        if data != nil{
+                                            UserDefaults.standard.set(data, forKey: "PROFILEPICTURE")
+                                        }
+                                        else{
+                                            let img = UIImage(imageLiteralResourceName: "profile image 2")
+                                            UserDefaults.standard.set(img.pngData(), forKey: "PROFILEPICTURE")
+                                        }
+                                    }
                                 }
                                 completionHandler(account)
                             }
@@ -78,11 +87,19 @@ internal func fetchDocumentID(documentsList:[QueryDocumentSnapshot])->[String]{
     return unique
 }
 
-internal func isFollowing(email:String,followingList:[String])->Bool{
-    for emil in followingList{
-        if email==emil{
-            return true
+internal func fetchImage(url:URL,completionHandler:@escaping(Data?,Error?)->()){
+    DispatchQueue.global(qos: .userInteractive).async {
+        let dataTask = URLSession.shared.dataTask(with:url){ data,response,error in
+            
+            guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+                completionHandler(nil,error)
+                return
+            }
+            
+            if error == nil && data != nil{
+                completionHandler(data, nil)
+            }
         }
+        dataTask.resume()
     }
-    return false
 }

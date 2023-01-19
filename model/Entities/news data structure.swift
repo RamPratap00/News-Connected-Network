@@ -41,6 +41,10 @@ enum SortBy:String,Codable{
     case publishedAt
 }
 
+enum NewsCategory:String{
+    case business,entertainment,general,health,science,sports,technology
+}
+
 let langauge = ["عربى","Deutsche","English","española","française","הברו","italiana","nederlands","Português","русский","svenska","中国人"]
 
 enum Language:String,Codable{

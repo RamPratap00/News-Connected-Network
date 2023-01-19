@@ -100,12 +100,7 @@ class NewsDataBaseManager{
     
 }
 
-protocol NewsDataInterface {
-    func refillDataBaseForOfflineMode()
-}
-
-
-class NewsDataBasePopulator : NewsDataInterface {
+class NewsDataBasePopulator{
     private let newsDataBaseManager = NewsDataBaseManager(dataBaseName: "GlobalTrending")
     private let newsAPINetworkManager = NewsAPINetworkManager()
     

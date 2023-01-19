@@ -202,8 +202,3 @@ class NewsAPINetworkManager{
     
     
 }
-
-
-enum NewsCategory:String{
-    case business,entertainment,general,health,science,sports,technology
-}

@@ -97,7 +97,7 @@ class DetailedNewsViewController: UIViewController {
         }
         
         
-        fetchNewsImage(url: URL(string: article.urlToImage!)! ){ imageData,error in
+        fetchImage(url: URL(string: article.urlToImage!)! ){ imageData,error in
             if error == nil && imageData != nil{
                 DispatchQueue.main.async {
                     self.thumbNail.image = UIImage(data: imageData!)

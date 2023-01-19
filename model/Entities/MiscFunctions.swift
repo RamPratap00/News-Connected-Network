@@ -8,51 +8,15 @@
 import Foundation
 import UIKit
 
-internal func hasNetworkConnection()->Bool{
-    return UserDefaults.standard.bool(forKey: "hasInternetConnection")
-}
-
 internal func languageKey(lang:String)->Language{
-    let langauge = ["عربى","Deutsche","English","española","française","הברו","italiana","nederlands","Português","русский","svenska","中国人"]
-    if lang == langauge[0]{
-        return .ar
+    var language = ""
+    if lang == ""{
+        language = "English"
     }
-    else if lang == langauge[1]{
-        return .de
+    else{
+        language = lang
     }
-    else if lang == langauge[2]{
-        return .en
-    }
-    else if lang == langauge[3]{
-        return .es
-    }
-    else if lang == langauge[4]{
-        return .fr
-    }
-    else if lang == langauge[5]{
-        return .he
-    }
-    else if lang == langauge[6]{
-        return .it
-    }
-    else if lang == langauge[7]{
-        return .nl
-    }
-    else if lang == langauge[8]{
-        return .pt
-    }
-    else if lang == langauge[9]{
-        return .ru
-    }
-    else if lang == langauge[10]{
-        return .sv
-    }
-    else if lang == langauge[11]{
-        return .zh
-    }
-    else {
-        return .en
-    }
+    return Language(rawValue: language)!
 }
 
 internal func convertToGrayScale(image: UIImage) -> UIImage {
@@ -102,3 +66,12 @@ internal func isValidEmail(email: String) -> Bool {
   return emailPred.evaluate(with: email)
 }
 
+
+internal func isFollowing(email:String,followingList:[String])->Bool{
+    for emil in followingList{
+        if email==emil{
+            return true
+        }
+    }
+    return false
+}

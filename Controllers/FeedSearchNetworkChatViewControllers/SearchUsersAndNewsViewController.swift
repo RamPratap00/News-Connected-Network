@@ -26,21 +26,21 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
         view.addSubview(tableView)
         addSegementControlAndCollectionView()
         addTableView()
-        if (currentUserAccount.followersList.count+currentUserAccount.followingList.count)<10{
+        if (currentUserAccount.followersList.count+currentUserAccount.followingList.count)>=0{
             fetchUsersForRecomendation(){accounts in
                 self.arrayOfAccounts=accounts
                 self.backupForArrayOfAccouns = accounts
                 self.tableView.reloadData()
             }
         }
-        else{
-            fetchLayerTwoUsersForRecommendation(){accounts in
-                self.arrayOfAccounts=accounts
-                self.backupForArrayOfAccouns = accounts
-                self.tableView.reloadData()
-                
-            }
-        }
+//        else{
+//            fetchLayerTwoUsersForRecommendation(){accounts in
+//                self.arrayOfAccounts=accounts
+//                self.backupForArrayOfAccouns = accounts
+//                self.tableView.reloadData()
+//
+//            }
+//        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -49,8 +49,6 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     }
     
     fileprivate func reloadDataForUsersListTableView(){
-        fetchUserProfileData(isCurrentUser: true, email: currentUserAccount.email ){ _ in
-            if (self.self.currentUserAccount.followersList.count+self.currentUserAccount.followingList.count)<10{
                 fetchUsersForRecomendation(){ accounts in
                     self.arrayOfAccounts = []
                     self.arrayOfAccounts=accounts
@@ -64,16 +62,13 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
                         currentCell.refreshButton()
                         
                     }
-                    
-                }
-            }
-            else{
-                fetchLayerTwoUsersForRecommendation(){accounts in
-                    self.arrayOfAccounts=accounts
-                    self.backupForArrayOfAccouns = accounts
-                    self.tableView.reloadData()
-                }
-            }
+//            else{
+//                fetchLayerTwoUsersForRecommendation(){accounts in
+//                    self.arrayOfAccounts=accounts
+//                    self.backupForArrayOfAccouns = accounts
+//                    self.tableView.reloadData()
+//                }
+//            }
         }
     }
     
@@ -169,7 +164,7 @@ class SearchUsersAndNewsViewController: UIViewController, UITableViewDelegate {
     
     @objc func newsSeacrhInitiate(){
         
-        let nextVC = AllNewsFeedViewController()
+        let nextVC = NewsFeedViewController()
         let currentUser = currentLoggedInUserAccount()
         if let keyword = searchBar.text{
             nextVC.keyword = keyword
@@ -222,12 +217,15 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
             cell.nameStamp.text = account.userName
             cell.userIDStamp.text = account.fetchUserID()
             cell.desStamp.text = account.profileDescription
-        fetchUserProfileData(isCurrentUser: false, email:account.email ){ nonCurrentUserAccount in
-                cell.nonCurrentUserAccount = nonCurrentUserAccount
-            }
-        fetchNewsImage(url: account.profilePicture!){ imageData,_  in
+            cell.nonCurrentUserAccount = account
+            fetchImage(url: account.profilePicture!){ imageData,_  in
                 DispatchQueue.main.async{
-                    cell.img.image = UIImage(data: imageData!)
+                    if imageData == nil{
+                        cell.img.image = UIImage(data: UserDefaults.standard.value(forKey: "PROFILEPICTURE") as! Data)
+                    }
+                    else{
+                        cell.img.image = UIImage(data: imageData!)
+                    }
                 }
             }
             return cell
@@ -238,7 +236,7 @@ extension SearchUsersAndNewsViewController:UITableViewDataSource,UITextViewDeleg
         tableView.deselectRow(at: indexPath, animated: true)
         let nextVC = ProfileViewController()
         fetchUserProfileData(isCurrentUser: false, email: arrayOfAccounts[indexPath.row].email){ account in
-            nextVC.nonCurrentUser = account
+            nextVC.accountForDisplay = account
             let indexesToRedraw = [indexPath]
             tableView.reloadRows(at: indexesToRedraw, with: .fade)
             self.navigationController?.pushViewController(nextVC, animated: true)
@@ -272,7 +270,7 @@ extension SearchUsersAndNewsViewController:UICollectionViewDataSource, UICollect
         }
         
         let nextVC = NewsFeedViewController()
-        fetchUserProfileData(isCurrentUser: true, email: currentUserAccount.email, completionHandler: {_ in})
+        nextVC.isHeadLine = true
         nextVC.keyword = nil
         nextVC.language = currentLoggedInUserAccount().language
         nextVC.newsCategory = NewsCategory(rawValue: (button.titleLabel?.text)!)

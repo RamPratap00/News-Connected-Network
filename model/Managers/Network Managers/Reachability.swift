@@ -43,3 +43,6 @@ class NetworkMonitor {
     
 }
 
+internal func hasNetworkConnection()->Bool{
+    return UserDefaults.standard.bool(forKey: "hasInternetConnection")
+}

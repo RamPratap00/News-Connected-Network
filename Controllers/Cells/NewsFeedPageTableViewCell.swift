@@ -83,7 +83,7 @@ class NewsFeedPageTableViewCell: UITableViewCell {
             if article.urlToImage != "" && article.urlToImage != nil{
                 
                 if URL(string: article.urlToImage!) != nil{
-                    fetchNewsImage(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail,error in
+                    fetchImage(url: URL(string: article.urlToImage!)!){ currentArticleThumbNail,error in
                         if currentArticleThumbNail == nil || error != nil{
                             DispatchQueue.main.async {
                                 self.articleThumbNail.image = UIImage(imageLiteralResourceName: "default thubnail")

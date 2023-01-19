@@ -50,7 +50,7 @@ class ChattingViewController: UIViewController {
         reachableAccountsArray = []
         var count = 0
         for email in reachableAccounts{
-            fetchUserProfileData(isCurrentUser:true,email: email){ account in
+            fetchUserProfileData(isCurrentUser:false,email: email){ account in
                 self.reachableAccountsArray.append(account)
                 count+=1
                 if count == self.reachableAccounts.count{
@@ -131,7 +131,7 @@ extension ChattingViewController:UITableViewDelegate,UITableViewDataSource{
         loadMessages(sendingtUser: account){ lastMessage in
             cell.desStamp.text = lastMessage
         }
-        fetchNewsImage(url: account.profilePicture!){ imageData,_  in
+        fetchImage(url: account.profilePicture!){ imageData,_  in
             DispatchQueue.main.async {
                 cell.img.image = UIImage(data: imageData!)
             }

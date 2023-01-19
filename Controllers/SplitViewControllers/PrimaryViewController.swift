@@ -28,11 +28,7 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
     
     fileprivate func reloadProfileData(){
         fetchUserProfileData(isCurrentUser: true, email: currentLoggedInUserAccount().email, completionHandler: {_ in})
-        fetchNewsImage(url: currentLoggedInUserAccount().profilePicture!){ imageData,_  in
-            DispatchQueue.main.async {
-                self.profilePicture.setImage(UIImage(data: imageData!), for: .normal)
-            }
-        }
+        self.profilePicture.setImage(UIImage(data: UserDefaults.standard.value(forKey: "PROFILEPICTURE") as! Data), for: .normal)
     }
     
     fileprivate func addViewProfileButton(){
@@ -112,15 +108,10 @@ class PrimaryViewController: UIViewController, UISplitViewControllerDelegate {
     }
     
     @objc func profileDetailView(){
-            let nextVC = CurrentUserProfileViewController()
-        nextVC.email = UserDefaults.standard.value(forKey: "EMAIL") as! String
+            let nextVC = ProfileViewController()
+            nextVC.accountForDisplay = currentLoggedInUserAccount()
             self.showDetailViewController(nextVC, sender: self)
     }
-    
-    //Delegate methods
-//        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-//            return true;
-//        }
     
 }
 
